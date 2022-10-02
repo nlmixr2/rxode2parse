@@ -39,6 +39,8 @@
 #define getSilentErr _rxode2parse_getSilentErr
 #define getRstudioPrint _rxode2parse_getRstudioPrint
 #define RSprintf _rxode2parse_RSprintf
+#define parseFree _rxode2parse_parseFree
+#define parseFreeLast _rxode2parse_parseFreeLast
 #endif
 
 typedef struct sbuf {

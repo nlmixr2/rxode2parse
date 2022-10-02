@@ -2,8 +2,21 @@
 #define STRICT_R_HEADERS
 #ifdef _isrxode2parse_
 #include "../inst/include/rxode2parseSbuf.h"
-#endif
 #include "tran.h"
+#else
+#ifdef _isrxode2_
+#include "../inst/include/rxode2.h"
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#define _(String) dgettext ("rxode2", String)
+/* replace pkg as appropriate */
+#else
+#define _(String) (String)
+#endif
+#else
+#include <rxode2parseSbuf.h>
+#endif 
+#endif
 
 // Taken from dparser and changed to use Calloc
 int rc_buf_read(const char *pathname, char **buf, int *len) {

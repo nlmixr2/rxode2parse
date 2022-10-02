@@ -1,6 +1,10 @@
 #ifndef __SBUF_H__
 #define __SBUF_H__
 #pragma once
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -26,7 +30,9 @@
 #define SBUF_MXBUF 48000
 #define SBUF_MXLINE 100
 
+#ifdef _isrxode2parse_
 #define NODOT _("'.' in variables and states not supported, use '_' instead or set 'options(rxode2.syntax.allow.dots = TRUE)'")
+#endif
 
 
 int rc_buf_read(const char *pathname, char **buf, int *len);
@@ -75,5 +81,9 @@ void curLineType(vLines *sbb, int propId);
 void doDot(sbuf *out, char *buf);
 
 void doDot2(sbuf *sb, sbuf *sbDt, char *buf);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif // __SBUF_H__
