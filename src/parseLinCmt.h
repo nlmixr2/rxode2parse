@@ -220,6 +220,12 @@ static inline void linCmtStr(linCmtStruct *lin, const char *in, int *index) {
 
 #include "parseLinCmtAdjustPars.h"
 
+#ifdef _isrxode2parse_
+#define _linCmtParse _rxode2parse_linCmtParse
+#define _rxode2_linCmtGen _rxode2parse_linCmtGen
+#endif
+
+
 SEXP _linCmtParse(SEXP vars, SEXP inStr, SEXP verboseSXP);
 SEXP _rxode2_linCmtGen(SEXP linCmt, SEXP vars, SEXP linCmtSens, SEXP verbose);
 

@@ -38,7 +38,7 @@ rxode2parseFuns <- function() {
     stop("this requires devtools", call.=FALSE)
   }
   message("rebuild parseFuns.R from rxode2")
-  source(devtools::package_file("build/refresh.R"))
+  try(source(devtools::package_file("build/refresh.R")))
   message("done")
   ""
 }
