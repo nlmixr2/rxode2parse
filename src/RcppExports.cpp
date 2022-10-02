@@ -12,25 +12,25 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// rxQsParse
-Rcpp::CharacterVector rxQsParse(SEXP const x);
-RcppExport SEXP _rxode2parse_rxQsParse(SEXP xSEXP) {
+// rxQs
+Rcpp::CharacterVector rxQs(SEXP const x);
+RcppExport SEXP _rxode2parse_rxQs(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP const >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rxQsParse(x));
+    rcpp_result_gen = Rcpp::wrap(rxQs(x));
     return rcpp_result_gen;
 END_RCPP
 }
-// rxQrParse
-SEXP rxQrParse(const std::string& encoded_string);
-RcppExport SEXP _rxode2parse_rxQrParse(SEXP encoded_stringSEXP) {
+// rxQr
+SEXP rxQr(const std::string& encoded_string);
+RcppExport SEXP _rxode2parse_rxQr(SEXP encoded_stringSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type encoded_string(encoded_stringSEXP);
-    rcpp_result_gen = Rcpp::wrap(rxQrParse(encoded_string));
+    rcpp_result_gen = Rcpp::wrap(rxQr(encoded_string));
     return rcpp_result_gen;
 END_RCPP
 }

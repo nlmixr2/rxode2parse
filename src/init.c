@@ -19,6 +19,9 @@ SEXP _rxode2parse_isLinCmt();
 
 void transIniNull();
 
+SEXP _rxode2parse_rxQs(SEXP xSEXP);
+SEXP _rxode2parse_rxQr(SEXP encoded_stringSEXP);
+
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
     {"_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans, 8},
@@ -26,6 +29,8 @@ void R_init_rxode2parse(DllInfo *info){
     {"_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded, 0},
     {"_rxode2parse_parseModel", (DL_FUNC) &_rxode2parse_parseModel, 1},
     {"_rxode2parse_isLinCmt", (DL_FUNC) &_rxode2parse_isLinCmt, 0},
+    {"_rxode2parse_rxQs", (DL_FUNC) &_rxode2parse_rxQs, 1},
+    {"_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr, 1},
     {NULL, NULL, 0} 
   };
   // C callable to assign environments.
@@ -33,7 +38,8 @@ void R_init_rxode2parse(DllInfo *info){
   R_RegisterCCallable("rxode2parse","_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen);
   R_RegisterCCallable("rxode2parse","_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded);
   R_RegisterCCallable("rxode2parse","_rxode2parse_parseModel", (DL_FUNC) &_rxode2parse_parseModel);
-  R_RegisterCCallable("rxode2parse","_rxode2parse_isLinCmt", (DL_FUNC) &_rxode2parse_isLinCmt); 
+  R_RegisterCCallable("rxode2parse","_rxode2parse_isLinCmt", (DL_FUNC) &_rxode2parse_isLinCmt);
+  R_RegisterCCallable("rxode2parse","_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr);
   // log likelihoods used in calculations
   static const R_CMethodDef cMethods[] = {
     {NULL, NULL, 0, NULL}

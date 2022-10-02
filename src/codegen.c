@@ -3,8 +3,8 @@
 #include "codegen.h"
 #include "codegen2.h"
 
-SEXP _rxode2parse_rxQsParse(SEXP);
-SEXP _rxode2parse_rxQrParse(SEXP);
+SEXP _rxode2parse_rxQs(SEXP);
+SEXP _rxode2parse_rxQr(SEXP);
 
 static FILE *fpIO;
 
@@ -524,7 +524,7 @@ SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname,
     sPrint(&buf, "%sIndF", curPrefix);
     SET_STRING_ELT(trans, 21, mkChar(buf.s)); // IndF
   }
-  sPrint(&_mv, "%s", CHAR(STRING_ELT(PROTECT(_rxode2parse_rxQsParse(mvLast)), 0))); pro++;
+  sPrint(&_mv, "%s", CHAR(STRING_ELT(PROTECT(_rxode2parse_rxQs(mvLast)), 0))); pro++;
   UNPROTECT(pro);
   sFree(&buf);
   //SET_STRING_ELT(tran, 0, mkChar());

@@ -251,7 +251,7 @@ void _assignFuns0() {
   _rxRmModelLib=(_rxRmModelLibType) R_GetCCallable("rxode2","rxRmModelLib");
   _rxGetModelLib=(_rxGetModelLibType) R_GetCCallable("rxode2","rxGetModelLib");
   _rxode2_rxAssignPtr=(_rx_asgn)R_GetCCallable("rxode2","_rxode2_rxAssignPtr");
-  _rxQr=(_rx_asgn)R_GetCCallable("rxode2","_rxode2_rxQr");
+  _rxQr=(_rx_asgn)R_GetCCallable("rxode2parse","_rxode2parse_rxQr");
   _rxIsCurrentC = (_rxIsCurrentC_type)R_GetCCallable("rxode2","rxIsCurrentC");
   _sumPS  = (_rxSumType) R_GetCCallable("PreciseSums","PreciseSums_sum_r");
   _prodPS = (_rxProdType) R_GetCCallable("PreciseSums","PreciseSums_prod_r");

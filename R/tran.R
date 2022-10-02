@@ -6,9 +6,14 @@
 #' @param model Model (either file name or string)
 #' @export
 #' @useDynLib rxode2parse, .registration=TRUE
+#' @importFrom Rcpp evalCpp
+#' @importFrom qs qsave
+#' @importFrom dparser dparse
+#' @eval rxode2parseFuns()
 #' @examples
-#' .rxTrans("a=3")
+#' rxode2parse("a=3")
 rxode2parse <- function(model) {
+  checkmate::assertCharacter(model, len=1, any.missing=FALSE)
   modelPrefix=""
   md5=""
   meCode=""
@@ -26,4 +31,14 @@ rxode2parse <- function(model) {
     meCode, .parseFuns,
     fullPrint)
   .ret
+}
+
+rxode2parseFuns <- function() {
+  if (!requireNamespace("devtools", quietly = TRUE)) {
+    stop("this requires devtools", call.=FALSE)
+  }
+  message("rebuild parseFuns.R from rxode2")
+  source(devtools::package_file("build/refresh.R"))
+  message("done")
+  ""
 }

@@ -2,33 +2,31 @@
 #define STRICT_R_HEADERS
 #include <Rcpp.h>
 
-using namespace Rcpp;
+Rcpp::Function loadNamespaceQs("loadNamespace", R_BaseNamespace);
+Rcpp::Environment qsNs;
+bool loadQsC = false;
 
-Rcpp::Function loadNamespaceQsParse("loadNamespace", R_BaseNamespace);
-Rcpp::Environment qsParseNs;
-bool loadQsParseC = false;
-
-static void loadQsParse() {
-  if (!loadQsParseC) {
-    qsParseNs = loadNamespaceQsParse("qs");
-    loadQsParseC = true;
+static void loadQs() {
+  if (!loadQsC) {
+    qsNs = loadNamespaceQs("qs");
+    loadQsC = true;
   }
 }
 
 //[[Rcpp::export]]
-Rcpp::CharacterVector rxQsParse(SEXP const x) {
-  loadQsParse();
-  Rcpp::Function base91_encode = Rcpp::as<Rcpp::Function>(qsParseNs["base91_encode"]);
-  Rcpp::Function qsParseerialize = Rcpp::as<Rcpp::Function>(qsParseNs["qserialize"]);
-  return base91_encode(qsParseerialize(x, Rcpp::CharacterVector::create("high"), Rcpp::CharacterVector::create("zstd"),
+Rcpp::CharacterVector rxQs(SEXP const x) {
+  loadQs();
+  Rcpp::Function base91_encode = Rcpp::as<Rcpp::Function>(qsNs["base91_encode"]);
+  Rcpp::Function qserialize = Rcpp::as<Rcpp::Function>(qsNs["qserialize"]);
+  return base91_encode(qserialize(x, Rcpp::CharacterVector::create("high"), Rcpp::CharacterVector::create("zstd"),
 				    Rcpp::IntegerVector::create(22),
 				    Rcpp::IntegerVector::create(15), Rcpp::LogicalVector::create(true)));
 }
 
 //[[Rcpp::export]]
-SEXP rxQrParse(const std::string& encoded_string) {
-  loadQsParse();
-  Rcpp::Function base91_decode = Rcpp::as<Rcpp::Function>(qsParseNs["base91_decode"]);
-  Rcpp::Function qdeserialize = Rcpp::as<Rcpp::Function>(qsParseNs["qdeserialize"]);
+SEXP rxQr(const std::string& encoded_string) {
+  loadQs();
+  Rcpp::Function base91_decode = Rcpp::as<Rcpp::Function>(qsNs["base91_decode"]);
+  Rcpp::Function qdeserialize = Rcpp::as<Rcpp::Function>(qsNs["qdeserialize"]);
   return qdeserialize(base91_decode(Rcpp::wrap(encoded_string)), false, false);
 }

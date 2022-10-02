@@ -10,13 +10,18 @@ Depends:
     R (>= 4.0.0)
 Suggests:
     covr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    devtools
 Imports:
     Rcpp (>= 1.0.9),
-    checkmate
-Description: Provides the parsing needed for 'rxode2'. This 
+    checkmate,
+    qs,
+    dparser,
+    crayon
+Description: Provides the parsing needed for 'rxode2'. It also provides
+    the 'stan' based advan linear compartment model solutions with gradients needed in 'nlmixr2'. This 
     split will reduce computational burden of recompiling 'rxode2'
-    (Wang, Hallow and James (2016) <doi:10.1002/psp4.12052>)
+    (Wang, Hallow and James (2016) <doi:10.1002/psp4.12052>).
 BugReports: https://github.com/nlmixr2/rxode2parse/issues/
 NeedsCompilation: yes
 License: GPL (>= 3) 

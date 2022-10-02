@@ -13,5 +13,5 @@ rxode2parse(model)
 Internal translation to get model variables list
 }
 \examples{
-.rxTrans("a=3")
+rxode2parse("a=3")
 }

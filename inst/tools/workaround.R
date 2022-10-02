@@ -80,7 +80,7 @@ v <- gsub("Version[:] *(.*)$", "\\1", l[w])
 unlink("src/ver.h")
 ode.h <- file("src/ver.h", "wb")
 writeLines(c(sprintf("#define __VER_md5__ \"%s\"", md5),
-             "#define __VER_repo__ \"https://github.com/nlmixr2/rxode2\"",
+             "#define __VER_repo__ \"https://github.com/nlmixr2/rxode2parse\"",
              sprintf("#define __VER_ver__ \"%s\"", v)),
            ode.h)
 close(ode.h)

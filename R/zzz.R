@@ -11,4 +11,6 @@
   } else {
     requireNamespace("dparser", quietly=TRUE)
   }
+  requireNamespace("qs", quietly=TRUE)
+  requireNamespace("Rcpp", quietly=TRUE)
 }
