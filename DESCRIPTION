@@ -11,13 +11,15 @@ Depends:
 Suggests:
     covr,
     testthat (>= 3.0.0),
-    devtools
+    devtools,
+    knitr
 Imports:
     Rcpp (>= 1.0.9),
     checkmate,
     qs,
     dparser,
-    crayon
+    crayon,
+    utils
 Description: Provides the parsing needed for 'rxode2'. It also provides
     the 'stan' based advan linear compartment model solutions with gradients needed in 'nlmixr2'. This 
     split will reduce computational burden of recompiling 'rxode2'

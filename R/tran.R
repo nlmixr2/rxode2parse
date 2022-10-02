@@ -9,6 +9,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom qs qsave
 #' @importFrom dparser dparse
+#' @importFrom utils capture.output
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
