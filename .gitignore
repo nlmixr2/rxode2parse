@@ -2,3 +2,6 @@
 *.so
 /.Rhistory
 /.RData
+/src/sbuf.c
+/src/ver.h
+/R/rxode2parse_md5.R

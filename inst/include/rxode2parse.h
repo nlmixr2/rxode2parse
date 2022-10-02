@@ -41,7 +41,6 @@
 #define RSprintf _rxode2parse_RSprintf
 #endif
 
-
 typedef struct sbuf {
   char *s;        /* curr print buffer */
   int sN;

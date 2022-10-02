@@ -85,6 +85,12 @@ writeLines(c(sprintf("#define __VER_md5__ \"%s\"", md5),
            ode.h)
 close(ode.h)
 
+unlink("src/sbuf.c")
+l <- readLines("inst/include/sbuf.c")
+sbuf.c <- file("src/sbuf.c", "wb")
+writeLines(l, sbuf.c)
+close(sbuf.c)
+
 unlink("src/codegen2.h")
 l <- readLines("inst/include/rxode2_model_shared.c")
 
