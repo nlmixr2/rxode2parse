@@ -13,6 +13,7 @@
 #' @examples
 #' rxode2parse("a=3")
 rxode2parse <- function(model) {
+  rxParseSuppressMsg()
   checkmate::assertCharacter(model, len=1, any.missing=FALSE)
   modelPrefix=""
   md5=""

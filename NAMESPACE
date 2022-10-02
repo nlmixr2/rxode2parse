@@ -2,6 +2,7 @@
 
 S3method(print,rxModelVars)
 export(rxParseSetSilentErr)
+export(rxParseSuppressMsg)
 export(rxode2parse)
 importFrom(Rcpp,evalCpp)
 importFrom(dparser,dparse)
