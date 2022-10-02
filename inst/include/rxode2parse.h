@@ -32,6 +32,13 @@
 #define curLineType _rxode2parse_curLineType
 #define doDot _rxode2parse_doDot
 #define doDot2 _rxode2parse_doDot2
+#define _setSilentErr _rxode2parse__setSilentErr
+#define _isRstudio2 _rxode2parse_isRstudio2
+#define setSilentErr _rxode2parse_setSilentErr
+#define setRstudioPrint _rxode2parse_setRstudioPrint
+#define getSilentErr _rxode2parse_getSilentErr
+#define getRstudioPrint _rxode2parse_getRstudioPrint
+#define RSprintf _rxode2parse_RSprintf
 #endif
 
 

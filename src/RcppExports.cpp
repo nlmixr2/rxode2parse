@@ -34,3 +34,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rxode2parseSetRstudio
+SEXP rxode2parseSetRstudio(bool isRstudio);
+RcppExport SEXP _rxode2parse_rxode2parseSetRstudio(SEXP isRstudioSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< bool >::type isRstudio(isRstudioSEXP);
+    rcpp_result_gen = Rcpp::wrap(rxode2parseSetRstudio(isRstudio));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rxParseSetSilentErr
+bool rxParseSetSilentErr(int silent);
+RcppExport SEXP _rxode2parse_rxParseSetSilentErr(SEXP silentSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type silent(silentSEXP);
+    rcpp_result_gen = Rcpp::wrap(rxParseSetSilentErr(silent));
+    return rcpp_result_gen;
+END_RCPP
+}

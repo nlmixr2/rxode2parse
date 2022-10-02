@@ -9,3 +9,18 @@ rxQr <- function(encoded_string) {
     .Call(`_rxode2parse_rxQr`, encoded_string)
 }
 
+rxode2parseSetRstudio <- function(isRstudio = FALSE) {
+    .Call(`_rxode2parse_rxode2parseSetRstudio`, isRstudio)
+}
+
+#' Silence some of rxode2's C/C++ messages
+#'
+#' @param silent can be 0L "noisy"  or 1L "silent"
+#'
+#' @keywords internal
+#' @return TRUE; called for side effects
+#' @export
+rxParseSetSilentErr <- function(silent) {
+    .Call(`_rxode2parse_rxParseSetSilentErr`, silent)
+}
+

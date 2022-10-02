@@ -26,6 +26,8 @@ SEXP _rxode2parse_linCmtParse(SEXP vars, SEXP inStr, SEXP verboseSXP);
 
 SEXP _rxode2parse_linCmtGen(SEXP linCmt, SEXP vars, SEXP linCmtSens, SEXP verbose);
 
+SEXP _rxode2parse_rxParseSetSilentErr(SEXP silentSEXP);
+SEXP _rxode2parse_rxode2parseSetRstudio(SEXP);
 
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
@@ -38,6 +40,8 @@ void R_init_rxode2parse(DllInfo *info){
     {"_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr, 1},
     {"_rxode2parse_linCmtParse", (DL_FUNC) _rxode2parse_linCmtParse, 3},
     {"_rxode2parse_linCmtGen", (DL_FUNC) _rxode2parse_linCmtGen, 4},
+    {"_rxode2parse_rxParseSetSilentErr", (DL_FUNC) _rxode2parse_rxParseSetSilentErr, 1},
+    {"_rxode2parse_rxode2parseSetRstudio", (DL_FUNC) _rxode2parse_rxode2parseSetRstudio, 1},
     {NULL, NULL, 0} 
   };
   // C callable to assign environments.

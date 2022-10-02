@@ -1,6 +1,7 @@
 #define USE_FC_LEN_T
 #define STRICT_R_HEADERS
 #include <Rcpp.h>
+#include "../inst/include/rxode2parse.h"
 
 Rcpp::Function loadNamespaceQs("loadNamespace", R_BaseNamespace);
 Rcpp::Environment qsNs;
@@ -29,4 +30,30 @@ SEXP rxQr(const std::string& encoded_string) {
   Rcpp::Function base91_decode = Rcpp::as<Rcpp::Function>(qsNs["base91_decode"]);
   Rcpp::Function qdeserialize = Rcpp::as<Rcpp::Function>(qsNs["qdeserialize"]);
   return qdeserialize(base91_decode(Rcpp::wrap(encoded_string)), false, false);
+}
+
+
+
+int rxode2parseIsRstudioI = 0;
+
+//[[Rcpp::export]]
+SEXP rxode2parseSetRstudio(bool isRstudio=false){
+  if (isRstudio) rxode2parseIsRstudioI=1;
+  else rxode2parseIsRstudioI=0;
+  return Rcpp::wrap(rxode2parseIsRstudioI);
+}
+
+extern "C" void setSilentErr(int silent);
+
+//' Silence some of rxode2's C/C++ messages
+//'
+//' @param silent can be 0L "noisy"  or 1L "silent"
+//'
+//' @keywords internal
+//' @return TRUE; called for side effects
+//' @export
+//[[Rcpp::export]]
+bool rxParseSetSilentErr(int silent){
+  setSilentErr(silent);
+  return true;
 }
