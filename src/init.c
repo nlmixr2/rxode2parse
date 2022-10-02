@@ -10,7 +10,7 @@
 #include "../inst/include/rxode2parse.h"
 #define __DOINIT__
 #include "tran.h"
-#include "sbuf.h"
+#include "../inst/include/rxode2parseSbuf.h"
 
 SEXP _rxode2parse_codeLoaded();
 SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname, SEXP pMd5, SEXP timeId, SEXP lastMv);

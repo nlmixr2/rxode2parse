@@ -20,7 +20,7 @@
 #define _(String) (String)
 #endif
 #include "../inst/include/rxode2parse.h"
-#include "sbuf.h"
+#include "../inst/include/rxode2parseSbuf.h"
 #include "tran.h"
 #include "ver.h"
 

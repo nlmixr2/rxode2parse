@@ -19,7 +19,7 @@
 #else
 #define _(String) (String)
 #endif
-#include "../inst/include/rxode2parse.h"
+#include "rxode2parse.h"
 
 #define SBUF_MXBUF 48000
 #define SBUF_MXLINE 100

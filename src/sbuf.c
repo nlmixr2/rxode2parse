@@ -1,6 +1,6 @@
 #define USE_FC_LEN_T
 #define STRICT_R_HEADERS
-#include "sbuf.h"
+#include "../inst/include/rxode2parseSbuf.h"
 #include "tran.h"
 
 // Taken from dparser and changed to use Calloc

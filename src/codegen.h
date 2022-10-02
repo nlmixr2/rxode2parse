@@ -20,7 +20,7 @@
 #endif
 #include "../inst/include/rxode2parse.h"
 #include "tran.h"
-#include "sbuf.h"
+#include "../inst/include/rxode2parseSbuf.h"
 
 // show_ode = 1 dydt
 // show_ode = 2 Jacobian
