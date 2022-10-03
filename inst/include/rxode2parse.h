@@ -4,6 +4,10 @@
 #define __rxode2parse_H__
 #define rxLlikSaveSize 9
 
+#define getAdvan(idx) ind->solve + (op->neq + op->nlin)*(idx) + op->neq
+#define getSolve(idx) ind->solve + (op->neq + op->nlin)*(idx)
+#define isDose(evid) ((evid) == 3 || (evid) >= 100)
+#define isObs(evid) ((evid) == 0 || (evid) == 2 || ((evid) >= 9 && (evid) <= 99))
 
 #include <R.h>
 #include <stdbool.h>
@@ -16,6 +20,8 @@
 #include <stdint.h>    // for uint64_t rather than unsigned long long
 
 #ifdef _isrxode2parse_
+#define max2( a , b )  ( (a) > (b) ? (a) : (b) )
+#define isSameTime(xout, xp) ((xout)-(xp) <= DBL_EPSILON*max2(fabs(xout),fabs(xp)))
 #define _linCmtParse _rxode2parse_linCmtParse
 #define _rxode2_linCmtGen _rxode2parse_linCmtGen
 #define rc_buf_read _rxode2parse_rc_buf_read
@@ -308,6 +314,19 @@ static inline void lineNull(vLines *sbb) {
   sbb->o  = 0;
 }
 
+typedef double (*t_F)(int _cSub,  int _cmt, double _amt, double t, double *y);
+typedef double (*t_LAG)(int _cSub,  int _cmt, double t);
+typedef double (*t_RATE)(int _cSub,  int _cmt, double _amt, double t);
+typedef double (*t_DUR)(int _cSub,  int _cmt, double _amt, double t);
 
+typedef void (*t_calc_mtime)(int cSub, double *mtime);
+  
+typedef void (*t_ME)(int _cSub, double _t, double t, double *_mat, const double *__zzStateVar__);
+typedef void (*t_IndF)(int _cSub, double _t, double t, double *_mat);
+
+typedef double (*t_getTime)(int idx, rx_solving_options_ind *ind);
+typedef int (*t_locateTimeIndex)(double obs_time,  rx_solving_options_ind *ind);
+typedef int (*t_handle_evidL)(int evid, double *yp, double xout, int id, rx_solving_options_ind *ind) ;
+typedef double (*t_getDur)(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);
 
 #endif
