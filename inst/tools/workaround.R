@@ -77,8 +77,8 @@ l <- readLines("DESCRIPTION")
 w <- which(regexpr("Version[:] *(.*)$", l) != -1)
 v <- gsub("Version[:] *(.*)$", "\\1", l[w])
 
-unlink("src/ver.h")
-ode.h <- file("src/ver.h", "wb")
+unlink("inst/include/rxode2parseVer.h")
+ode.h <- file("inst/include/rxode2parseVer.h", "wb")
 writeLines(c(sprintf("#define __VER_md5__ \"%s\"", md5),
              "#define __VER_repo__ \"https://github.com/nlmixr2/rxode2parse\"",
              sprintf("#define __VER_ver__ \"%s\"", v)),

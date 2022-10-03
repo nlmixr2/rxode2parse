@@ -22,7 +22,7 @@
 #include "../inst/include/rxode2parse.h"
 #include "../inst/include/rxode2parseSbuf.h"
 #include "tran.h"
-#include "ver.h"
+#include "../inst/include/rxode2parseVer.h"
 
 static inline SEXP calcSLinCmt() {
   SEXP sLinCmt = PROTECT(allocVector(INTSXP,12));
