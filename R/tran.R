@@ -10,7 +10,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom qs qsave
 #' @importFrom dparser dparse
-#' @importFrom utils capture.output
+#' @importFrom utils capture.output assignInMyNamespace
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
@@ -44,4 +44,51 @@ rxode2parseFuns <- function() {
   try(source(devtools::package_file("build/refresh.R")))
   message("done")
   ""
+}
+
+#' This assigns the c level linkages for a roxde2 model
+#'
+#' @param df data frame containing the character column names rxFun,
+#'   fun, type, package, packageFun and the integer column names
+#'   argMin and argMax
+#' @return Nothing called for side effects
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' 
+#' rxode2parseAssignTranslation(rxode2parseGetTranslation())
+#' 
+rxode2parseAssignTranslation <- function(df) {
+  .char <- c("rxFun", "fun", "type", "package", "packageFun")
+  .int <- c("argMin", "argMax", "threadSafe")
+  .df <- df[,c(.char, .int)]
+  for (.c in .char) {
+    .df[[.c]] <- as.character(.df[[.c]])
+  }
+  for (.i in .int) {
+    .df[[.i]] <- as.integer(.df[[.i]])
+  }
+  assignInMyNamespace(".rxode2parseDf", .df)
+  invisible(.df)
+}
+
+#' This function gets the currently assigned translations
+#' 
+#' @return The currently assigned translations
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' rxode2parseGetTranslation()
+rxode2parseGetTranslation <- function() {
+  .rxode2parseDf
+}
+#' Get the MD5 hash of the current language revision
+#'
+#' @return md5 hash of language revision
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' rxode2parseMd5()
+rxode2parseMd5 <- function() {
+  rxode2parse.md5  
 }

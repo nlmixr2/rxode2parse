@@ -5,13 +5,25 @@
 
 Rcpp::Function loadNamespaceQs("loadNamespace", R_BaseNamespace);
 Rcpp::Environment qsNs;
+Rcpp::Environment rxode2parseNs;
 bool loadQsC = false;
+bool loadRxode2parse = false;
 
 static void loadQs() {
   if (!loadQsC) {
     qsNs = loadNamespaceQs("qs");
     loadQsC = true;
   }
+  if (!loadRxode2parse) {
+    rxode2parseNs = loadNamespaceQs("rxode2parse");
+    loadRxode2parse=true;
+  }
+}
+
+extern "C" SEXP getRxode2ParseDf() {
+  loadQs();
+  Rcpp::Function getTran = Rcpp::as<Rcpp::Function>(rxode2parseNs["rxode2parseGetTranslation"]);
+  return getTran();
 }
 
 //[[Rcpp::export]]

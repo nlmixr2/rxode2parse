@@ -1,10 +1,33 @@
 #define USE_FC_LEN_T
 #define STRICT_R_HEADERS
 #include "codegen.h"
+
+SEXP _rxode2parse_rxFunctionName;
+SEXP _rxode2parse_functionName;
+SEXP _rxode2parse_functionType;
+SEXP _rxode2parse_functionPackageName;
+SEXP _rxode2parse_functionPackageFunction;
+SEXP _rxode2parse_functionArgMin;
+SEXP _rxode2parse_functionArgMax;
+SEXP _rxode2parse_functionThreadSafe;
+
+#undef df
+void _rxode2parse_assignTranslation(SEXP df) {
+  _rxode2parse_rxFunctionName = VECTOR_ELT(df, 0);
+  _rxode2parse_functionName = VECTOR_ELT(df, 1);
+  _rxode2parse_functionType = VECTOR_ELT(df, 2);
+  _rxode2parse_functionPackageName = VECTOR_ELT(df, 3);
+  _rxode2parse_functionPackageFunction = VECTOR_ELT(df, 4);
+  _rxode2parse_functionArgMin = VECTOR_ELT(df, 5);
+  _rxode2parse_functionArgMax = VECTOR_ELT(df, 6);
+  _rxode2parse_functionArgMax = VECTOR_ELT(df, 7);
+}
+
 #include "codegen2.h"
 
 SEXP _rxode2parse_rxQs(SEXP);
 SEXP _rxode2parse_rxQr(SEXP);
+SEXP getRxode2ParseDf();
 
 static FILE *fpIO;
 
@@ -76,8 +99,10 @@ void print_aux_info(char *model, const char *prefix, const char *libname, const 
   sFree(&bufw);
 }
 
+extern SEXP getRxode2ParseDf();
 
 void codegen(char *model, int show_ode, const char *prefix, const char *libname, const char *pMd5, const char *timeId, const char *libname2) {
+  _rxode2parse_assignTranslation(getRxode2ParseDf());
   if (show_ode == 4) {
     print_aux_info(model, prefix, libname, pMd5, timeId, libname2);
   } else {
@@ -87,6 +112,11 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
       const char *extra = "";
       if (strncmp("rx_", libname, 3) != 0) extra = libname;
       writeHeader(md5, extra);
+      for (int i = Rf_length(_rxode2parse_functionName); i--;) {
+        sAppend(&sbOut, "#define %s _rx%s%s%ld\n",
+                R_CHAR(STRING_ELT(_rxode2parse_functionName, i)),
+                extra, md5, __timeId++);
+      }
       sAppendN(&sbOut,"#include <rxode2_model_shared.h>\n",33);
       int mx = maxSumProdN;
       if (SumProdLD > mx) mx = SumProdLD;
@@ -110,7 +140,15 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
       prnt_vars(print_simeps, 1, "#define _SYNC_simeps_ for (int _svari=_solveData->neps; _svari--;){", "}\n", 15);
       prnt_vars(print_simeta, 1, "#define _SYNC_simeta_ for (int _ovari=_solveData->neta; _ovari--;){", "}\n", 16);
       sAppendN(&sbOut,"#include \"extraC.h\"\n", 20);
-      writeBody();
+      writeBody1();
+      for (int i = Rf_length(_rxode2parse_functionName); i--;) {
+        sAppend(&sbOut,"  %s = (%s) R_GetCCallable(\"%s\", \"%s\");\n",
+                R_CHAR(STRING_ELT(_rxode2parse_functionName, i)),
+                R_CHAR(STRING_ELT(_rxode2parse_functionType, i)),
+                R_CHAR(STRING_ELT(_rxode2parse_functionPackageName, i)),
+                R_CHAR(STRING_ELT(_rxode2parse_functionPackageFunction, i)));
+      }
+      writeBody2();
       sAppend(&sbOut, "extern void  %sode_solver_solvedata (rx_solve *solve){\n  _solveData = solve;\n}\n",prefix);
       sAppend(&sbOut, "extern rx_solve *%sode_solver_get_solvedata(){\n  return _solveData;\n}\n", prefix);
       sAppend(&sbOut, "SEXP %smodel_vars();\n", prefix);
