@@ -25,6 +25,8 @@
   ## nocov end
 }
 
+#' @inherit base::print
+#' @return This returns invisibly the model variables object
 #' @export
 print.rxModelVars <- function(x, ...) {
   .bound <- .getBound(x, parent.frame(2))

@@ -4,6 +4,7 @@
 #'
 #' 
 #' @param model Model (either file name or string)
+#' @return A rxModelVars object that has the model variables of a rxode2 syntax expression
 #' @export
 #' @useDynLib rxode2parse, .registration=TRUE
 #' @importFrom Rcpp evalCpp

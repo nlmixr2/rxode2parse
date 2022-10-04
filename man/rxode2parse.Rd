@@ -9,6 +9,9 @@ rxode2parse(model)
 \arguments{
 \item{model}{Model (either file name or string)}
 }
+\value{
+A rxModelVars object that has the model variables of a rxode2 syntax expression
+}
 \description{
 Internal translation to get model variables list
 }
