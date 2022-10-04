@@ -5,7 +5,10 @@ Maintainer: Matthew L. Fidler <matthew.fidler@gmail.com>
 Authors@R: c(
    person("Matthew L.","Fidler",
       role = c("aut", "cre"), email = "matthew.fidler@gmail.com",
-      comment=c(ORCID="0000-0001-8538-6691")))
+      comment=c(ORCID="0000-0001-8538-6691")),
+   person("Wenping", "Wang", 
+      role = c("aut"), email = "wwang8198@gmail.com"),
+   person("Richard", "Upton", role="ctb"))
 Depends:
     R (>= 4.0.0)
 Suggests:
@@ -20,10 +23,12 @@ Imports:
     dparser,
     crayon,
     utils
-Description: Provides the parsing needed for 'rxode2'. It also provides
-    the 'stan' based advan linear compartment model solutions with gradients needed in 'nlmixr2'. This 
-    split will reduce computational burden of recompiling 'rxode2'
-    (Wang, Hallow and James (2016) <doi:10.1002/psp4.12052>).
+Description: Provides the parsing needed for 'rxode2' 
+    (Wang, Hallow and James (2016) <doi:10.1002/psp4.12052>). It also provides
+    the 'stan' based advan linear compartment model solutions with gradients
+    (Carpenter et al (2015), <arXiv:1509.07164>) needed in 'nlmixr2'
+    (Fidler et al (2019) <doi:10.1002/psp4.12445>) needed in 'nlmixr2'. This 
+    split will reduce computational burden of recompiling 'rxode2'.
 BugReports: https://github.com/nlmixr2/rxode2parse/issues/
 NeedsCompilation: yes
 License: GPL (>= 3) 
