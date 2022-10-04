@@ -5,10 +5,9 @@ dparser::mkdparse("inst/tran.g",
                   grammar_ident="rxode2parse")
 file <- gsub("^([#]line [0-9]+ )\".*(src)/+(.*)\"","\\1\"\\2/\\3\"",
              readLines("src/tran.g.d_parser.c"))
-sink("src/tran.g.d_parser.h")
-cat(paste(file,collapse="\n"))
-cat("\n")
-sink()
+file.out <- file("src/tran.g.d_parser.h", "wb")
+writeLines(file, file.out)
+close(file.out)
 unlink("src/tran.g.d_parser.c")
 
 .in <- suppressWarnings(readLines("src/Makevars.in"))
