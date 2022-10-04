@@ -20,11 +20,11 @@ they can be suppressed with \code{suppressMessages()}
 
 # Note the errors are output to the console
 
-try(rxode2("d/dt(matt)=/3"), silent = TRUE)
+try(rxode2parse("d/dt(matt)=/3"), silent = TRUE)
 
 # When using suppressMessages, the output is suppressed
 
-suppressMessages(try(rxode2("d/dt(matt)=/3"), silent = TRUE))
+suppressMessages(try(rxode2parse("d/dt(matt)=/3"), silent = TRUE))
 
 # In rxode2, we use REprintf so that interrupted threads do not crash R
 # if there is a user interrupt. This isn't captured by R's messages, but
