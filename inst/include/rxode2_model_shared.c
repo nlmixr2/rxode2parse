@@ -258,6 +258,10 @@ void _assignFuns0() {
   _prodType=(rxode2_fn0i)R_GetCCallable("PreciseSums", "PreciseSums_prod_get");
   _sumType=(rxode2_fn0i)R_GetCCallable("PreciseSums", "PreciseSums_sum_get");
   _ptrid=(rxode2_fn0i)R_GetCCallable("rxode2", "rxode2_current_fn_pointer_id");
+  _compareFactorVal=(rxode2_compareFactorVal_fn) R_GetCCallable("rxode2", "compareFactorVal");
+  _update_par_ptr = (_update_par_ptr_p) R_GetCCallable("rxode2","_update_par_ptr");
+  _getParCov = (_getParCov_p) R_GetCCallable("rxode2","_getParCov");
+  // dynamic start
   linCmtA=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtA");
   linCmtB=(linCmtB_p)R_GetCCallable("rxode2parse", "linCmtB");
   linCmtC=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtC");
@@ -310,9 +314,6 @@ void _assignFuns0() {
   expit = (rxode2_fn3) R_GetCCallable("rxode2", "expit");
   simeta =(_simfun) R_GetCCallable("rxode2", "simeta");
   simeps =(_simfun) R_GetCCallable("rxode2", "simeps");
-  _compareFactorVal=(rxode2_compareFactorVal_fn) R_GetCCallable("rxode2", "compareFactorVal");
-  _update_par_ptr = (_update_par_ptr_p) R_GetCCallable("rxode2","_update_par_ptr");
-  _getParCov = (_getParCov_p) R_GetCCallable("rxode2","_getParCov");
   
   _llikNorm=(rxode2_llikNormFun) R_GetCCallable("rxode2ll","rxLlikNorm");
   _llikNormDmean=(rxode2_llikNormFun) R_GetCCallable("rxode2ll","rxLlikNormDmean");
@@ -366,7 +367,7 @@ void _assignFuns0() {
   _llikCauchy        = (rxode2_llikCauchyFun) R_GetCCallable("rxode2ll", "rxLlikCauchy");
   _llikCauchyDlocation  = (rxode2_llikCauchyFun) R_GetCCallable("rxode2ll", "rxLlikCauchyDlocation");
   _llikCauchyDscale   = (rxode2_llikCauchyFun) R_GetCCallable("rxode2ll", "rxLlikCauchyDscale");
-
+  // dynamic stop
   _solveData = _getRxSolve_();
 }
 
