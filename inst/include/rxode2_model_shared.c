@@ -258,9 +258,9 @@ void _assignFuns0() {
   _prodType=(rxode2_fn0i)R_GetCCallable("PreciseSums", "PreciseSums_prod_get");
   _sumType=(rxode2_fn0i)R_GetCCallable("PreciseSums", "PreciseSums_sum_get");
   _ptrid=(rxode2_fn0i)R_GetCCallable("rxode2", "rxode2_current_fn_pointer_id");
-  linCmtA=(linCmtA_p)R_GetCCallable("rxode2", "linCmtA");
-  linCmtB=(linCmtB_p)R_GetCCallable("rxode2", "linCmtB");
-  linCmtC=(linCmtA_p)R_GetCCallable("rxode2", "linCmtC");
+  linCmtA=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtA");
+  linCmtB=(linCmtB_p)R_GetCCallable("rxode2parse", "linCmtB");
+  linCmtC=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtC");
     
   rxnorm = (rxode2i_fn2)R_GetCCallable("rxode2", "rxnorm");
   rxnormV = (rxode2i_fn2)R_GetCCallable("rxode2", "rxnormV");

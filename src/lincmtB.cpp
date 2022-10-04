@@ -24,38 +24,40 @@
 
 #include "../inst/include/rxode2parse.h"
 
-rx_solving_options _rxode2parse_op_global;
-rx_solve _rxode2parse_rx_global;
-t_F AMT = NULL;
-t_LAG LAG = NULL;
-t_RATE RATE = NULL;
-t_DUR DUR = NULL;
-t_calc_mtime calc_mtime = NULL;
+extern "C" {
+  rx_solving_options _rxode2parse_op_global;
+  rx_solve _rxode2parse_rx_global;
+  t_F AMT = NULL;
+  t_LAG LAG = NULL;
+  t_RATE RATE = NULL;
+  t_DUR DUR = NULL;
+  t_calc_mtime calc_mtime = NULL;
 
-t_ME ME = NULL;
-t_IndF IndF = NULL;
+  t_ME ME = NULL;
+  t_IndF IndF = NULL;
 
-t_getTime _rxode2parse_getTime;
-t_locateTimeIndex _rxode2parse_locateTimeIndex;
-t_handle_evidL _rxode2parse_handle_evidL;
-t_getDur _rxode2parse_getDur;
+  t_getTime _rxode2parse_getTime;
+  t_locateTimeIndex _rxode2parse_locateTimeIndex;
+  t_handle_evidL _rxode2parse_handle_evidL;
+  t_getDur _rxode2parse_getDur;  
+}
 #define _getDur _rxode2parse_getDur
 
 extern "C" void RSprintf(const char *format, ...);
 
-void _rxode2parseAssignPtrs(rx_solve rx,
-                            rx_solving_options op,
-                            t_F f,
-                            t_LAG lag,
-                            t_RATE rate,
-                            t_DUR dur, 
-                            t_calc_mtime mtime,
-                            t_ME me,
-                            t_IndF indf,
-                            t_getTime gettime,
-                            t_locateTimeIndex timeindex,
-                            t_handle_evidL handleEvid,
-                            t_getDur getdur) {
+extern "C" void _rxode2parseAssignPtrs(rx_solve rx,
+                                       rx_solving_options op,
+                                       t_F f,
+                                       t_LAG lag,
+                                       t_RATE rate,
+                                       t_DUR dur, 
+                                       t_calc_mtime mtime,
+                                       t_ME me,
+                                       t_IndF indf,
+                                       t_getTime gettime,
+                                       t_locateTimeIndex timeindex,
+                                       t_handle_evidL handleEvid,
+                                       t_getDur getdur) {
   _rxode2parse_rx_global = rx;
   _rxode2parse_op_global = op;
   AMT = f;

@@ -19,7 +19,9 @@ extern "C" {
 	double _getDur(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);
 
 #else
-	#define _getDur _rxode2parse_getDur	
+	#define _getDur _rxode2parse_getDur
+	extern rx_solving_options op_global;
+	extern rx_solve rx_global;
 #endif
   
 #if defined(__cplusplus)

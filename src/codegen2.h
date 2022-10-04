@@ -347,9 +347,9 @@ sAppendN(&sbOut, "  _prodPS = (_rxProdType) R_GetCCallable(\"PreciseSums\",\"Pre
 sAppendN(&sbOut, "  _prodType=(rxode2_fn0i)R_GetCCallable(\"PreciseSums\", \"PreciseSums_prod_get\");\n", 80);
 sAppendN(&sbOut, "  _sumType=(rxode2_fn0i)R_GetCCallable(\"PreciseSums\", \"PreciseSums_sum_get\");\n", 78);
 sAppendN(&sbOut, "  _ptrid=(rxode2_fn0i)R_GetCCallable(\"rxode2\", \"rxode2_current_fn_pointer_id\");\n", 80);
-sAppendN(&sbOut, "  linCmtA=(linCmtA_p)R_GetCCallable(\"rxode2\", \"linCmtA\");\n", 58);
-sAppendN(&sbOut, "  linCmtB=(linCmtB_p)R_GetCCallable(\"rxode2\", \"linCmtB\");\n", 58);
-sAppendN(&sbOut, "  linCmtC=(linCmtA_p)R_GetCCallable(\"rxode2\", \"linCmtC\");\n", 58);
+sAppendN(&sbOut, "  linCmtA=(linCmtA_p)R_GetCCallable(\"rxode2parse\", \"linCmtA\");\n", 63);
+sAppendN(&sbOut, "  linCmtB=(linCmtB_p)R_GetCCallable(\"rxode2parse\", \"linCmtB\");\n", 63);
+sAppendN(&sbOut, "  linCmtC=(linCmtA_p)R_GetCCallable(\"rxode2parse\", \"linCmtC\");\n", 63);
 sAppendN(&sbOut, "    \n", 5);
 sAppendN(&sbOut, "  rxnorm = (rxode2i_fn2)R_GetCCallable(\"rxode2\", \"rxnorm\");\n", 60);
 sAppendN(&sbOut, "  rxnormV = (rxode2i_fn2)R_GetCCallable(\"rxode2\", \"rxnormV\");\n", 62);

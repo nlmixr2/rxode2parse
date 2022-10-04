@@ -20,6 +20,7 @@
 #define handle_evidL _rxode2parse_handle_evidL
 
 #include "../inst/include/rxode2parse.h"
+#define _calcDerived _rxode2parse_calcDerived
 
 extern rx_solving_options _rxode2parse_op_global;
 extern rx_solve _rxode2parse_rx_global;

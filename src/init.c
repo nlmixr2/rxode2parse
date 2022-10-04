@@ -28,6 +28,50 @@ SEXP _rxode2parse_linCmtGen(SEXP linCmt, SEXP vars, SEXP linCmtSens, SEXP verbos
 
 SEXP _rxode2parse_rxParseSetSilentErr(SEXP silentSEXP);
 SEXP _rxode2parse_rxode2parseSetRstudio(SEXP);
+SEXP _rxode2parse_calcDerived(SEXP ncmtSXP, SEXP transSXP, SEXP inp, SEXP sigdigSXP);
+
+
+
+double linCmtA(rx_solve *rx, unsigned int id, double t, int linCmt,
+               int ncmt, int trans, double d_ka,
+               double p1, double v1,
+               double p2, double p3,
+               double p4, double p5,
+               double d_tlag, double d_tlag2, double d_F, double d_F2,
+               double d_rate, double d_dur, double d_rate2, double d_dur2);
+
+double linCmtC(rx_solve *rx, unsigned int id, double t, int linCmt,
+               int ncmt, int trans, double d_ka,
+               double p1, double v1,
+               double p2, double p3,
+               double p4, double p5,
+               double d_tlag, double d_tlag2, double d_F, double d_F2,
+               double d_rate, double d_dur, double d_rate2, double d_dur2);
+
+double linCmtB(rx_solve *rx, unsigned int id, double t, int linCmt,
+               int i_cmt, int trans, int val,
+               double dd_p1, double dd_v1,
+               double dd_p2, double dd_p3,
+               double dd_p4, double dd_p5,
+               double dd_ka,
+               double dd_tlag, double dd_tlag2,
+               double dd_F, double dd_F2,
+               double dd_rate, double dd_dur,
+               double dd_rate2, double dd_dur2);
+
+void _rxode2parseAssignPtrs(rx_solve rx,
+                            rx_solving_options op,
+                            t_F f,
+                            t_LAG lag,
+                            t_RATE rate,
+                            t_DUR dur,
+                            t_calc_mtime mtime,
+                            t_ME me,
+                            t_IndF indf,
+                            t_getTime gettime,
+                            t_locateTimeIndex timeindex,
+                            t_handle_evidL handleEvid,
+                            t_getDur getdur);
 
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
@@ -45,13 +89,14 @@ void R_init_rxode2parse(DllInfo *info){
     {NULL, NULL, 0} 
   };
   // C callable to assign environments.
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_calcDerived", (DL_FUNC) &_rxode2parse_calcDerived);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_parseFree", (DL_FUNC) &_rxode2parse_parseFree);
-  R_RegisterCCallable("rxode2parse","_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans);
-  R_RegisterCCallable("rxode2parse","_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen);
-  R_RegisterCCallable("rxode2parse","_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded);
-  R_RegisterCCallable("rxode2parse","_rxode2parse_parseModel", (DL_FUNC) &_rxode2parse_parseModel);
-  R_RegisterCCallable("rxode2parse","_rxode2parse_isLinCmt", (DL_FUNC) &_rxode2parse_isLinCmt);
-  R_RegisterCCallable("rxode2parse","_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_parseModel", (DL_FUNC) &_rxode2parse_parseModel);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_isLinCmt", (DL_FUNC) &_rxode2parse_isLinCmt);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_linCmtParse", (DL_FUNC) &_rxode2parse_linCmtParse);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_linCmtGen", (DL_FUNC) &_rxode2parse_linCmtGen);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_rc_buf_read", (DL_FUNC) &_rxode2parse_rc_buf_read);
@@ -68,6 +113,11 @@ void R_init_rxode2parse(DllInfo *info){
   R_RegisterCCallable("rxode2parse", "_rxode2parse_curLineType", (DL_FUNC) &_rxode2parse_curLineType);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_doDot", (DL_FUNC) &_rxode2parse_doDot);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_doDot2", (DL_FUNC) &_rxode2parse_doDot2);
+  R_RegisterCCallable("rxode2parse", "linCmtA", (DL_FUNC) &linCmtA);
+  R_RegisterCCallable("rxode2parse", "linCmtB", (DL_FUNC) &linCmtB);
+  R_RegisterCCallable("rxode2parse", "linCmtC", (DL_FUNC) &linCmtC);
+  R_RegisterCCallable("rxode2parse", "_rxode2parseAssignPtrs",
+                      (DL_FUNC) &_rxode2parseAssignPtrs);
 
   // log likelihoods used in calculations
   static const R_CMethodDef cMethods[] = {
