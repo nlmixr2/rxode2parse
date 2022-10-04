@@ -24,4 +24,13 @@
   <url>
     <loc>/reference/rxode2parse.html</loc>
   </url>
+  <url>
+    <loc>/reference/rxode2parseAssignTranslation.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rxode2parseGetTranslation.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rxode2parseMd5.html</loc>
+  </url>
 </urlset>
