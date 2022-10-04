@@ -104,6 +104,44 @@ def <- gsub("[^ ]* *[*]?([^;]*);", "\\1", def)
 
 def <- unique(c(def, c("_sum", "_sign", "_prod", "_max", "_min", "_transit4P", "_transit3P", "_assignFuns0", "_assignFuns", "_getRxSolve_", "_solveData", "_rxord")))
 
+w1 <- which(regexpr("dynamic start", l) != -1)
+l1 <- l[1:w1]
+
+
+
+w2 <- which(regexpr("dynamic stop", l) != -1)
+l2 <- l[seq(w2, length(l))]
+
+dfP <- l[seq(w1+1, w2-1)]
+
+dfP <- dfP[regexpr("^ *$", dfP)==-1]
+df <- setNames(do.call("rbind",lapply(seq_along(dfP),
+                                      function(i) {
+                                        .r <- sub("^ *", "", dfP[[i]])
+                                        .r <- sub("^([^ ]*) *= *[(]", "\\1,", .r)
+                                        .r <- sub("^([^ ]*) *[)] *R_GetCCallable *[(] *\"", "\\1,", .r, perl=TRUE)
+                                        .r <- sub("^([^ ]*) *\" *, *\"", "\\1,", .r, perl=TRUE)
+                                        .r <- sub("^([^ ]*)\" *[)] *; *", "\\1",.r, perl=TRUE)
+                                        data.frame(t(strsplit(.r, ",")[[1]]),stringsAsFactors = FALSE)
+                                      })), c("fun", "type", "package", "packageFun"))
+
+df$rxFun <- df$fun
+df$argMax <- df$argMin <- NA_integer_
+df$threadSafe <- 1L
+df <- df[,c("rxFun", "fun", "type", "package", "packageFun", "argMin", "argMax", "threadSafe")]
+df$rxFun <- gsub("_llik", "llik", df$rxFun)
+
+def <- def[!(def %in% df$rxFun)]
+def <- def[!(def %in% df$fun)]
+
+dfStr <- deparse(df)
+dfStr[1] <- paste(".rxode2parseDf <- ", dfStr[1])
+
+dfIni.R <- file("R/dfIni.R", "wb")
+writeLines(dfStr,
+           dfIni.R)
+close(dfIni.R)
+
 ## deparse1 came from R 4.0, use deparse2
 deparse2 <- function(expr, collapse = " ", width.cutoff = 500L, ...) {
   paste(deparse(expr, width.cutoff, ...), collapse = collapse)
@@ -115,8 +153,11 @@ final <- c("#include <time.h>",
            "void writeHeader(const char *md5, const char *extra) {",
            paste0("sAppend(&sbOut, \"#define ", def, " _rx%s%s%ld\\n\", extra, md5, __timeId++);"),
            "}",
-           "void writeBody() {",
-           paste0("sAppendN(&sbOut, ", vapply(paste0(l, "\n"), deparse2, character(1)), ", ", nchar(l) + 1, ");"),
+           "void writeBody1() {",
+           paste0("sAppendN(&sbOut, ", vapply(paste0(l1, "\n"), deparse2, character(1)), ", ", nchar(l1) + 1, ");"),
+           "}",
+           "void writeBody2() {",
+           paste0("sAppendN(&sbOut, ", vapply(paste0(l2, "\n"), deparse2, character(1)), ", ", nchar(l2) + 1, ");"),
            "}",
            "void writeFooter() {",
            paste0("sAppendN(&sbOut, \"#undef ", def, "\\n\", ", nchar(def) + 8, ");"),

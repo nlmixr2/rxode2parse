@@ -45,3 +45,40 @@ rxode2parseFuns <- function() {
   message("done")
   ""
 }
+
+#' This assigns the c level linkages for a roxde2 model
+#'
+#' @param df data frame containing the character column names rxFun,
+#'   fun, type, package, packageFun and the integer column names
+#'   argMin and argMax
+#' @return Nothing called for side effects
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' 
+#' rxode2parseAssignTranslation(rxode2parseGetTranslation())
+#' 
+rxode2parseAssignTranslation <- function(df) {
+  .char <- c("rxFun", "fun", "type", "package", "packageFun")
+  .int <- c("argMin", "argMax", "threadSafe")
+  .df <- df[,c(.char, .int)]
+  for (.c in .char) {
+    .df[[.c]] <- as.character(.df[[.c]])
+  }
+  for (.i in .int) {
+    .df[[.i]] <- as.integer(.df[[.i]])
+  }
+  assignInMyNamespace(".rxode2parseDf", .df)
+  invisible(.df)
+}
+
+#' This function gets the currently assigned translations
+#' 
+#' @return The currently assigned translations
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' rxode2parseGetTranslation()
+rxode2parseGetTranslation <- function() {
+  .rxode2parseDf
+}

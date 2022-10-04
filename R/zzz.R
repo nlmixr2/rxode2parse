@@ -13,4 +13,5 @@
   }
   requireNamespace("qs", quietly=TRUE)
   requireNamespace("Rcpp", quietly=TRUE)
+  rxode2parseAssignTranslation(.rxode2parseDf)
 }
