@@ -1,6 +1,10 @@
 #! /bin/sh
 
+
 #echo --------[begin Workaround]--------
+echo R_HOME ${R_HOME}
+ls ${R_HOME}/bin/R
+cat inst/tools/workaround.R
 ${R_HOME}/bin/R CMD BATCH  inst/tools/workaround.R
 cat workaround.Rout
 rm workaround.Rout
