@@ -6,7 +6,7 @@
 # cat inst/tools/workaround.R
 ${R_HOME}/bin/R CMD BATCH  inst/tools/workaround.R
 # cat workaround.Rout
-# rm workaround.Rout
+rm workaround.Rout
 #echo --------[end Workaround]--------
 
 echo --------[begin src/Makevars]--------

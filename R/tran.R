@@ -10,7 +10,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom qs qsave
 #' @importFrom dparser dparse
-#' @importFrom utils capture.output
+#' @importFrom utils capture.output assignInMyNamespace
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
@@ -81,4 +81,14 @@ rxode2parseAssignTranslation <- function(df) {
 #' rxode2parseGetTranslation()
 rxode2parseGetTranslation <- function() {
   .rxode2parseDf
+}
+#' Get the MD5 hash of the current language revision
+#'
+#' @return md5 hash of language revision
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' rxode2parseMd5()
+rxode2parseMd5 <- function() {
+  rxode2parse.md5  
 }
