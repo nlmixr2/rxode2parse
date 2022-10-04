@@ -11,8 +11,9 @@ status](https://github.com/nlmixr2/rxode2parse/workflows/R-CMD-check/badge.svg)]
 [![CodeFactor](https://www.codefactor.io/repository/github/nlmixr2/rxode2parse/badge)](https://www.codefactor.io/repository/github/nlmixr2/rxode2parse)
 <!-- badges: end -->
 
-The goal of rxode2parse is to create log-likelihood functions for use in
-‘rxode2’ and ‘nlmixr2’
+The goal of rxode2parse is to split off the ‘rxode2’ parsing from the
+ode solving and C compilation of models. This can allow the rxode2 ui to
+be in a R only package (which is easier to update and check).
 
 ## Installation
 

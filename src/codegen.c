@@ -12,7 +12,7 @@ SEXP _rxode2parse_functionArgMax;
 SEXP _rxode2parse_functionThreadSafe;
 
 #undef df
-SEXP _rxode2parse_assignTranslation(SEXP df) {
+void _rxode2parse_assignTranslation(SEXP df) {
   _rxode2parse_rxFunctionName = VECTOR_ELT(df, 0);
   _rxode2parse_functionName = VECTOR_ELT(df, 1);
   _rxode2parse_functionType = VECTOR_ELT(df, 2);
