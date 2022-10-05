@@ -1,24 +1,25 @@
 # Cran comments
 
-* Updated title to title case
-  
-* The goal of this package is to reduce the compilation time, of
-  'rxode2' as requested by Prof Brian Ripley. The first attempt only
-  split of the likelihoods ('rxode2ll').  This did not quite make the
-  required install/check time of 10 minutes so the additional pieces
-  were split off in this package.
-  
-* The first part that was split off in this package is the parsing
-  (from dparser) and large linear compartment compiles (with
-  derivatives) from 'stan' to allow nonlinear mixed effects models use
-  solved linear compartmental models in 'nlmixr2'
+While this was *just* accepted, Prof Riply sent the following email:
 
-* These stan functions will also remove the interactions between Eigen and 
-  Armadillo that 'rxode2' was working around by putting all the Eigen/stan
-  pieces outside of the 'rxode2' core
+While it applied to 'rxode2', the portion that applies to 'rxode2' has moved here.
 
-## R CMD check results
+Here is the email below:
 
-0 errors | 0 warnings | 1 note
+[Packages listed above] import headers from
+the one on the left with some 'prototypes' fn () .  Compiling using
 
-* This is a new release.
+-Wstrict-prototypes
+
+in CFLAGS (with gcc or clang < 15: this is implied by -pedantic in clang
+15) shows warnings that are starting to show up on the CRAN results
+pages, and will be used for CRAN incoming checks.
+
+Some of these seem intended to be a function with no arguments, for
+which the prototype is fn (void) .  But for others, consistency checks
+are being circumvented by not using a full prototype.  In packages not
+reported here these have shown up several bugs already ....
+
+Please correct (in the packages before the colon) before 2022-11-04.
+
+* This fix corrects this for rxode2parse
