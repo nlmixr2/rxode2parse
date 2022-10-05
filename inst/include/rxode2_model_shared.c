@@ -245,7 +245,7 @@ double _transit3P(int cmt, double t, unsigned int id, double n, double mtt){
   return exp(_safe_log(podo)+lktr+n*(lktr+_safe_log(tad))-ktr*(tad)-lgamma1p(nd));
 }
 
-void _assignFuns0() {
+void _assignFuns0(void) {
   _getRxSolve_ = (_getRxSolve_t) R_GetCCallable("rxode2","getRxSolve_");
   _assign_ptr=(rxode2_assign_ptr) R_GetCCallable("rxode2","rxode2_assign_fn_pointers");
   _rxRmModelLib=(_rxRmModelLibType) R_GetCCallable("rxode2","rxRmModelLib");
@@ -371,7 +371,7 @@ void _assignFuns0() {
   _solveData = _getRxSolve_();
 }
 
-void _assignFuns() {
+void _assignFuns(void) {
   if (_assign_ptr == NULL){
     _assignFuns0();
   }

@@ -208,7 +208,7 @@ typedef double (*rxode2_fn2) (double x, double y);
 typedef double (*rxode2_fn3) (double x, double y, double z);
 typedef double (*rxode2_fn3i) (double x, double y, int i);
 typedef double (*rxode2_fn2i) (double x, int i);
-typedef int (*rxode2_fn0i) ();
+typedef int (*rxode2_fn0i) (void);
 typedef double (*rxode2i_fn) (rx_solving_options_ind* ind, double x);
 typedef int (*rxode2i_ifn) (rx_solving_options_ind* ind, double x);
 typedef double (*rxode2i_fn2) (rx_solving_options_ind* ind, double x, double y);
@@ -263,7 +263,7 @@ typedef void (*_update_par_ptr_p)(double t, unsigned int id, rx_solve *rx, int i
 
 typedef double (*_getParCov_p)(unsigned int id, rx_solve *rx, int parNo, int idx);
 
-typedef rx_solve *(*_getRxSolve_t)();
+typedef rx_solve *(*_getRxSolve_t)(void);
 
 typedef int (*rxode2i_rxbinom) (rx_solving_options_ind* ind, int n, double prob);
 typedef int (*rxode2i2_ribinom) (rx_solving_options_ind* ind, int id, int n, double prob);
