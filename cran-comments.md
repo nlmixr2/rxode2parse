@@ -1,4 +1,6 @@
 # Cran comments
+
+* Updated title to title case
   
 * The goal of this package is to reduce the compilation time, of
   'rxode2' as requested by Prof Brian Ripley. The first attempt only
