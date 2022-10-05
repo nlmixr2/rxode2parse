@@ -27,7 +27,7 @@ void _rxode2parse_assignTranslation(SEXP df) {
 
 SEXP _rxode2parse_rxQs(SEXP);
 SEXP _rxode2parse_rxQr(SEXP);
-SEXP getRxode2ParseDf();
+SEXP getRxode2ParseDf(void);
 
 static FILE *fpIO;
 
@@ -99,7 +99,7 @@ void print_aux_info(char *model, const char *prefix, const char *libname, const 
   sFree(&bufw);
 }
 
-extern SEXP getRxode2ParseDf();
+extern SEXP getRxode2ParseDf(void);
 
 void codegen(char *model, int show_ode, const char *prefix, const char *libname, const char *pMd5, const char *timeId, const char *libname2) {
   _rxode2parse_assignTranslation(getRxode2ParseDf());

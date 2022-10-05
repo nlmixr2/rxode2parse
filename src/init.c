@@ -12,12 +12,12 @@
 #include "tran.h"
 #include "../inst/include/rxode2parseSbuf.h"
 
-SEXP _rxode2parse_codeLoaded();
+SEXP _rxode2parse_codeLoaded(void);
 SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname, SEXP pMd5, SEXP timeId, SEXP lastMv);
 SEXP _rxode2parse_parseModel(SEXP type);
-SEXP _rxode2parse_isLinCmt();
+SEXP _rxode2parse_isLinCmt(void);
 
-void transIniNull();
+void transIniNull(void);
 
 SEXP _rxode2parse_rxQs(SEXP xSEXP);
 SEXP _rxode2parse_rxQr(SEXP encoded_stringSEXP);

@@ -2,7 +2,7 @@
 #define STRICT_R_HEADERS
 #include "genModelVars.h"
 
-SEXP generateModelVars() {
+SEXP generateModelVars(void) {
   calcExtracmt();
   calcNparamsNlhsNslhs();
   calcNextra();

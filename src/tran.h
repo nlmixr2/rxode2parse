@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <errno.h>
 extern int rx_syntax_require_ode_first, needSort;
-void updateSyntaxCol();
+void updateSyntaxCol(void);
 void trans_syntax_error_report_fn(char *err);
 void parseFree(int last);
 void RSprintf(const char *format, ...);
@@ -283,7 +283,7 @@ extern const char *md5;
 extern const char *model_prefix;
 extern const char *me_code;
 
-void reset();
+void reset(void);
 char * rc_dup_str(const char *s, const char *e);
 
 void trans_syntax_error_report_fn(char *err);

@@ -24,7 +24,7 @@
 #include "tran.h"
 #include "../inst/include/rxode2parseVer.h"
 
-static inline SEXP calcSLinCmt() {
+static inline SEXP calcSLinCmt(void) {
   SEXP sLinCmt = PROTECT(allocVector(INTSXP,12));
   INTEGER(sLinCmt)[0] = tb.ncmt;
   INTEGER(sLinCmt)[1] = tb.hasKa;
@@ -56,7 +56,7 @@ static inline SEXP calcSLinCmt() {
   return(sLinCmt);
 }
 
-static inline SEXP calcVersionInfo() {
+static inline SEXP calcVersionInfo(void) {
   SEXP version  = PROTECT(allocVector(STRSXP, 3));
   SEXP versionn = PROTECT(allocVector(STRSXP, 3));
 
@@ -72,7 +72,7 @@ static inline SEXP calcVersionInfo() {
   return version;
 }
 
-static inline void calcNparamsNlhsNslhs() {
+static inline void calcNparamsNlhsNslhs(void) {
   int sli=0, li=0, pi=0;
   for (int i=0; i<NV; i++) {
     int islhs = tb.lh[i];
@@ -91,7 +91,7 @@ static inline void calcNparamsNlhsNslhs() {
   tb.sli=sli;
 }
 
-static inline void calcNextra() {
+static inline void calcNextra(void) {
   int offCmt=0,nExtra = 0;
   char *buf;
   for (int i = 0; i < tb.statei; i++){
@@ -120,7 +120,7 @@ static inline void calcNextra() {
   tb.nExtra=nExtra;
 }
 
-static inline void calcExtracmt() {
+static inline void calcExtracmt(void) {
   extraCmt = 0;
   if (tb.linCmt){
     if (tb.hasKa){
@@ -145,7 +145,7 @@ static inline void calcExtracmt() {
   }
 }
 
-static inline SEXP calcIniVals() {
+static inline SEXP calcIniVals(void) {
   int pro=0;
   SEXP inin  = PROTECT(allocVector(STRSXP, tb.isPi + tb.ini_i)); pro++;
   SEXP ini   = PROTECT(allocVector(REALSXP, tb.isPi + tb.ini_i)); pro++;
@@ -339,6 +339,6 @@ static inline void populateParamsLhsSlhs(SEXP params, SEXP lhs, SEXP slhs) {
   }
 }
 
-SEXP generateModelVars();
+SEXP generateModelVars(void);
 
 #endif  // __genModelVars_H__

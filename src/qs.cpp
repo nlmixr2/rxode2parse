@@ -20,7 +20,7 @@ static void loadQs() {
   }
 }
 
-extern "C" SEXP getRxode2ParseDf() {
+extern "C" SEXP getRxode2ParseDf(void) {
   loadQs();
   Rcpp::Function getTran = Rcpp::as<Rcpp::Function>(rxode2parseNs["rxode2parseGetTranslation"]);
   return getTran();

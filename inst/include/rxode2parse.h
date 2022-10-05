@@ -47,6 +47,7 @@
 #define RSprintf _rxode2parse_RSprintf
 #define parseFree _rxode2parse_parseFree
 #define parseFreeLast _rxode2parse_parseFreeLast
+#define reset _rxode2parse_reset
 #endif
 
 typedef struct sbuf {

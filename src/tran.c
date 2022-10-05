@@ -99,7 +99,7 @@ int foundF=0,foundLag=0, foundRate=0, foundDur=0, foundF0=0, needSort=0;
 sbuf sbOut;
 
 int lastSyntaxErrorLine=0;
-void updateSyntaxCol();
+void updateSyntaxCol(void);
 
 #include "parseVars.h"
 
@@ -109,7 +109,7 @@ int gBufLast = 0;
 D_Parser *curP=NULL;
 D_ParseNode *_pn = 0;
 
-void freeP(){
+void freeP(void){
   if (_pn){
     free_D_ParseTreeBelow(curP,_pn);
     free_D_ParseNode(curP,_pn);
@@ -225,7 +225,7 @@ void err_msg(int chk, const char *msg, int code)
 
 sbuf _bufw, _bufw2;
 
-void parseFreeLast() {
+void parseFreeLast(void) {
   if (gBufFree) R_Free(gBuf);
   sFree(&sbOut);
   freeP();
@@ -272,8 +272,7 @@ void parseFree(int last){
   }
 }
 
-
-void reset() {
+void reset(void) {
   // Reset sb/sbt string buffers
   parseFree(0);
   sIniTo(&_bufw, 1024);
@@ -391,7 +390,7 @@ void reset() {
 
 static void rxSyntaxError(struct D_Parser *ap);
 
-static inline void assertCorrectDfDy() {
+static inline void assertCorrectDfDy(void) {
   char *buf1, *buf2, bufe[2048];
   int i, j, found, islhs;
   for (i=0; i<tb.ndfdy; i++) {                     /* name state vars */
@@ -521,7 +520,7 @@ static inline int setupTrans(SEXP parse_file, SEXP prefix, SEXP model_md5, SEXP 
   return isStr;
 }
 
-static inline void finalizeSyntaxError() {
+static inline void finalizeSyntaxError(void) {
   if (rx_syntax_error){
     if(!rx_suppress_syntax_info){
       if (gBuf[gBufLast] != '\0'){
@@ -588,7 +587,7 @@ SEXP _rxode2parse_parseModel(SEXP type){
   return pm;
 }
 
-SEXP _rxode2parse_codeLoaded(){
+SEXP _rxode2parse_codeLoaded(void){
   SEXP pm = PROTECT(allocVector(INTSXP, 1));
   if (!sbPm.o || !sbNrm.o){
     INTEGER(pm)[0]=0;
@@ -599,7 +598,7 @@ SEXP _rxode2parse_codeLoaded(){
   return pm;
 }
 
-SEXP _rxode2parse_isLinCmt(){
+SEXP _rxode2parse_isLinCmt(void) {
   SEXP ret = PROTECT(allocVector(INTSXP, 1));
   INTEGER(ret)[0]=tb.linCmt;
   UNPROTECT(1);
@@ -620,7 +619,7 @@ char * rc_dup_str(const char *s, const char *e) {
   return _dupStrs.line[_dupStrs.n-1];
 }
 
-void transIniNull() {
+void transIniNull(void) {
   sNull(&(s_inits));
   lineNull(&(tb.ss));
   lineNull(&(tb.de));

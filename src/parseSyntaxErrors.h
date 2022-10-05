@@ -32,7 +32,7 @@ void trans_syntax_error_report_fn0(char *err){
   rx_syntax_error = 1;
 }
 
-static inline void printSyntaxErrorHeader() {
+static inline void printSyntaxErrorHeader(void) {
   if (lastSyntaxErrorLine == 0){
     if (isEsc) {
       RSprintf(_("\033[1mrxode2 model syntax error:\n================================================================================\033[0m"));
@@ -288,7 +288,7 @@ static void rxSyntaxError(struct D_Parser *ap) {
   rx_syntax_error = 1;
 }
 
-void updateSyntaxCol(){
+void updateSyntaxCol(void) {
   int i = lastStrLoc, lineNum=1, colNum=0;
   for(i = 0; gBuf[i] != '\0' && lastStr != gBuf + i; i++){
     if(gBuf[i] == '\n'){
