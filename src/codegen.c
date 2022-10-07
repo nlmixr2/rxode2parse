@@ -150,8 +150,8 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
       }
       writeBody2();
       sAppend(&sbOut, "extern void  %sode_solver_solvedata (rx_solve *solve){\n  _solveData = solve;\n}\n",prefix);
-      sAppend(&sbOut, "extern rx_solve *%sode_solver_get_solvedata(){\n  return _solveData;\n}\n", prefix);
-      sAppend(&sbOut, "SEXP %smodel_vars();\n", prefix);
+      sAppend(&sbOut, "extern rx_solve *%sode_solver_get_solvedata(void){\n  return _solveData;\n}\n", prefix);
+      sAppend(&sbOut, "SEXP %smodel_vars(void);\n", prefix);
       sAppendN(&sbOut,"\n", 1);
       sAppendN(&sbOut, "\n// prj-specific differential eqns\nvoid ", 40);
       sAppend(&sbOut, "%sdydt(int *_neq, double __t, double *__zzStateVar__, double *__DDtStateVar__)\n{\n  int _itwhile = 0;\n  (void)_itwhile;\n  int _cSub = _neq[1];\n  double t = __t + _solveData->subjects[_neq[1]].curShift;\n  (void)t;\n  (&_solveData->subjects[_cSub])->_rxFlag=1;\n  ", prefix);
