@@ -311,8 +311,8 @@ void _assignFuns0(void) {
   gammapDer  = (rxode2_fn2) R_GetCCallable("rxode2","gammapDer");
   logit = (rxode2_fn3) R_GetCCallable("rxode2", "logit");
   expit = (rxode2_fn3) R_GetCCallable("rxode2", "expit");
-  simeta =(_simfun) R_GetCCallable("rxode2", "simeta");
-  simeps =(_simfun) R_GetCCallable("rxode2", "simeps");
+  simeta =(_simfun) R_GetCCallable("rxode2random", "simeta");
+  simeps =(_simfun) R_GetCCallable("rxode2random", "simeps");
   
   _llikNorm=(rxode2_llikNormFun) R_GetCCallable("rxode2ll","rxLlikNorm");
   _llikNormDmean=(rxode2_llikNormFun) R_GetCCallable("rxode2ll","rxLlikNormDmean");
