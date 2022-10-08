@@ -37,7 +37,6 @@ rxode2_fn2 gammaqInv;
 rxode2_fn2 gammaqInva;
 
 rxode2i_fn2 rxnorm;
-rxode2i_fn2 rxnormV;
 rxode2i_rxbinom rxbinom;
 rxode2i_rxbinom rxnbinom;
 rxode2i_rxbinom rxnbinomMu;
@@ -54,7 +53,6 @@ rxode2i_fn2 rxunif;
 rxode2i_fn2 rxweibull;
 
 rxode2i2_fn2 rinorm;
-rxode2i2_fn2 rinormV;
 rxode2i2_ribinom ribinom;
 rxode2i2_ribinom rinbinom;
 rxode2i2_ribinom rinbinomMu;
@@ -267,7 +265,6 @@ void _assignFuns0(void) {
   linCmtC=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtC");
     
   rxnorm = (rxode2i_fn2)R_GetCCallable("rxode2random", "rxnorm");
-  rxnormV = (rxode2i_fn2)R_GetCCallable("rxode2random", "rxnormV");
   rxbinom = (rxode2i_rxbinom)R_GetCCallable("rxode2random","rxbinom");
   rxnbinom = (rxode2i_rxbinom)R_GetCCallable("rxode2random","rxnbinom");
   rxnbinomMu = (rxode2i_rxbinom)R_GetCCallable("rxode2random","rxnbinomMu");
@@ -283,7 +280,6 @@ void _assignFuns0(void) {
   rxunif = (rxode2i_fn2)R_GetCCallable("rxode2random","rxunif");
   rxweibull = (rxode2i_fn2)R_GetCCallable("rxode2random","rxweibull");
   rinorm = (rxode2i2_fn2)R_GetCCallable("rxode2random", "rinorm");
-  rinormV = (rxode2i2_fn2)R_GetCCallable("rxode2random", "rinormV");
   ribinom = (rxode2i2_ribinom)R_GetCCallable("rxode2random","ribinom");
   rinbinom = (rxode2i2_ribinom)R_GetCCallable("rxode2random","rinbinom");
   rinbinomMu = (rxode2i2_ribinom)R_GetCCallable("rxode2random","rinbinomMu");
