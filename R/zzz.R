@@ -15,3 +15,4 @@
   requireNamespace("Rcpp", quietly=TRUE)
   rxode2parseAssignTranslation(.rxode2parseDf)
 }
+## nocov end
