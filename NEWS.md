@@ -1,3 +1,7 @@
+# rxode2parse 2.0.11
+
+* Bug fix for strict aliasing as requested by CRAN
+
 # rxode2parse 2.0.10
 
 * Use strict aliasing as requested by CRAN
