@@ -16,6 +16,7 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/rxode2parse)](https://c
 downloads](https://cranlogs.r-pkg.org/badges/rxode2parse)](https://cran.r-project.org/package=rxode2parse)
 
 [![CodeFactor](https://www.codefactor.io/repository/github/nlmixr2/rxode2parse/badge)](https://www.codefactor.io/repository/github/nlmixr2/rxode2parse)
+![r-universe](https://nlmixr2.r-universe.dev/badges/rxode2parse)
 <!-- badges: end -->
 
 The goal of rxode2parse is to split off the ‘rxode2’ parsing from the
