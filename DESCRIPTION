@@ -34,7 +34,7 @@ Suggests:
 LinkingTo:
     BH (>= 1.78.0.0),
     dparser,
-    Rcpp (>= 1.0.9),
+    Rcpp (>= 1.0.8),
     RcppEigen (>= 0.3.3.9.2),
     StanHeaders (>= 2.21.0.7)
 Biarch: true
