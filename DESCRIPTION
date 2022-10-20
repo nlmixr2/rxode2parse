@@ -27,7 +27,7 @@ Imports:
     dparser,
     knitr,
     qs,
-    Rcpp (>= 1.0.9),
+    Rcpp (>= 1.0.8),
     utils
 Suggests:
     testthat (>= 3.0.0)
