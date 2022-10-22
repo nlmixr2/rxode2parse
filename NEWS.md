@@ -1,4 +1,6 @@
-# rxode2parse (development version)
+# rxode2parse 2.0.12
+
+* Bug fix for strict alaises
 
 # rxode2parse 2.0.11
 
