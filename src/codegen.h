@@ -250,7 +250,7 @@ static inline void printSimEta(char *buf, int *j) {
 void prnt_vars(int scenario, int lhs, const char *pre_str, const char *post_str, int show_ode);
 
 static inline void printCModelVars(const char *prefix) {
-  sAppend(&sbOut, "extern SEXP %smodel_vars(){\n  int pro=0;\n", prefix);
+  sAppend(&sbOut, "extern SEXP %smodel_vars(void){\n  int pro=0;\n", prefix);
   sAppend(&sbOut, "  SEXP _mv = PROTECT(_rxGetModelLib(\"%smodel_vars\"));pro++;\n", prefix);
   sAppendN(&sbOut, "  if (!_rxIsCurrentC(_mv)){\n", 28);
   sAppendN(&sbOut, "    SEXP hash    = PROTECT(allocVector(STRSXP, 1));pro++;\n", 58);
