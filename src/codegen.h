@@ -254,12 +254,12 @@ static inline void printCModelVars(const char *prefix) {
   sAppend(&sbOut, "  SEXP _mv = PROTECT(_rxGetModelLib(\"%smodel_vars\"));pro++;\n", prefix);
   sAppendN(&sbOut, "  if (!_rxIsCurrentC(_mv)){\n", 28);
   sAppendN(&sbOut, "    SEXP hash    = PROTECT(allocVector(STRSXP, 1));pro++;\n", 58);
-  sAppend(&sbOut, "#define __doBuf__  sprintf(buf, \"", _mv.o+1);
+  sAppend(&sbOut, "#define __doBuf__  snprintf(buf, __doBufN__, \"", _mv.o+1);
   int off=0;
   int off2 = 0;
   for (int i = 0; i < _mv.o; i++){
     if (off != 0 && off % 4095 == 0) {
-      sAppend(&sbOut, "\"); \\\n sprintf(buf+%d, \"", off2);
+      sAppend(&sbOut, "\"); \\\n snprintf(buf+%d, __doBufN__-%d, \"", off2, off2);
     }
     off++;
     off2++;
@@ -286,7 +286,7 @@ static inline void printCModelVars(const char *prefix) {
     }
   }
   sAppendN(&sbOut, "\");\n", 4);
-  sAppend(&sbOut,"    char buf[%d];\n    __doBuf__\n#undef __doBuf__\n", off+1);
+  sAppend(&sbOut,"    char buf[%d];\n#define __doBufN__ %d\n    __doBuf__\n#undef __doBuf__\n#undef __doBufN__\n", off+1, off+1);
   sAppendN(&sbOut,"    SET_STRING_ELT(hash, 0, mkChar(buf));\n", 42);
   sAppendN(&sbOut, "    SEXP lst      = PROTECT(_rxQr(hash));pro++;\n", 48);
   sAppendN(&sbOut, "    _assign_ptr(lst);\n", 22);

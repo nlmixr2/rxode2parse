@@ -80,7 +80,7 @@ void sAppendN(sbuf *sbb, const char *what, int n) {
     sbb->s = R_Realloc(sbb->s, mx, char);
     sbb->sN = mx;
   }
-  sprintf(sbb->s+sbb->o, "%s", what);
+  snprintf(sbb->s+sbb->o, sbb->sN - sbb->o, "%s", what);
   sbb->o +=n;
 }
 

@@ -55,7 +55,7 @@ static inline void sPut(sbuf *sbb, char what) {
     sbb->s = R_Realloc(sbb->s, mx, char);
     sbb->sN = mx;
   }
-  sprintf(sbb->s+sbb->o, "%c", what);
+  snprintf(sbb->s+sbb->o, sbb->sN - sbb->o, "%c", what);
   sbb->o++;
 }
 
