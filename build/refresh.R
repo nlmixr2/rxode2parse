@@ -1,5 +1,5 @@
 .var <- deparse(rxode2::rxSupportedFuns())
-.var[1] <- paste0(".parseFuns <- ", .var[1])
+.var[1] <- paste0(".parseEnv$.parseFuns <- ", .var[1])
 .pf <- devtools::package_file("R/parseFuns.R")
 unlink(.pf)
 parseFuns.R <- file(.pf, "wb")

@@ -134,7 +134,7 @@ def <- def[!(def %in% df$rxFun)]
 def <- def[!(def %in% df$fun)]
 
 dfStr <- deparse(df)
-dfStr[1] <- paste(".rxode2parseDf <- ", dfStr[1])
+dfStr[1] <- paste(".parseEnv$.rxode2parseDf <- ", dfStr[1])
 
 dfIni.R <- file("R/dfIni.R", "wb")
 writeLines(dfStr,

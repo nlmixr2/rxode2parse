@@ -10,7 +10,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom qs qsave
 #' @importFrom dparser dparse
-#' @importFrom utils capture.output assignInMyNamespace
+#' @importFrom utils capture.output
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
@@ -31,7 +31,7 @@ rxode2parse <- function(model) {
   }
   .ret <- .Call(`_rxode2parse_trans`, model, modelPrefix, md5, .isStr,
     as.integer(crayon::has_color()),
-    meCode, .parseFuns,
+    meCode, .parseEnv$.parseFuns,
     fullPrint)
   .ret
 }
@@ -68,7 +68,7 @@ rxode2parseAssignTranslation <- function(df) {
   for (.i in .int) {
     .df[[.i]] <- as.integer(.df[[.i]])
   }
-  assignInMyNamespace(".rxode2parseDf", .df)
+  assign(".rxode2parseDf", .df, envir=.parseEnv)
   invisible(.df)
 }
 
@@ -80,7 +80,7 @@ rxode2parseAssignTranslation <- function(df) {
 #' @examples
 #' rxode2parseGetTranslation()
 rxode2parseGetTranslation <- function() {
-  .rxode2parseDf
+  .parseEnv$.rxode2parseDf
 }
 #' Get the MD5 hash of the current language revision
 #'

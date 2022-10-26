@@ -13,6 +13,6 @@
   }
   requireNamespace("qs", quietly=TRUE)
   requireNamespace("Rcpp", quietly=TRUE)
-  rxode2parseAssignTranslation(.rxode2parseDf)
+  rxode2parseAssignTranslation(.parseEnv$.rxode2parseDf)
 }
 ## nocov end
