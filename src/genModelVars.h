@@ -93,7 +93,7 @@ static inline void calcNparamsNlhsNslhs(void) {
 
 static inline void calcNextra(void) {
   int offCmt=0,nExtra = 0;
-  char *buf, buf2[250];
+  char *buf, buf2[200];
   for (int i = 0; i < tb.statei; i++){
     if (offCmt == 0 && tb.idu[i] == 0){
       offCmt = 1;
@@ -101,15 +101,16 @@ static inline void calcNextra(void) {
       buf=tb.ss.line[tb.di[i]];
     } else if (offCmt == 1 && tb.idu[i] == 1){
       // There is an compartment that doesn't have a derivative
+      buf=tb.ss.line[tb.di[i]];
       if (tb.linCmt == 0){
         char *v = rc_dup_str(buf, 0);
-        snprintf(buf2, 250, _("compartment '%s' needs differential equations defined"), v);
+        snprintf(buf2, 200, "compartment '%s' needs differential equations defined", v);
         updateSyntaxCol();
         trans_syntax_error_report_fn0(buf2);
       } else if (!strcmp("depot", buf) || !strcmp("central", buf)) {
       } else {
         char *v = rc_dup_str(buf, 0);
-        snprintf(buf2, 250, _("compartment '%s' needs differential equations defined"), v);
+        snprintf(buf2, 200, _("compartment '%s' needs differential equations defined"), v);
         updateSyntaxCol();
         trans_syntax_error_report_fn0(buf2);
       }
