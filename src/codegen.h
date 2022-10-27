@@ -303,6 +303,7 @@ static inline void printCModelVars(const char *prefix) {
 static inline void printRInit(const char *libname, const char *libname2, const char *prefix) {
   sAppend(&sbOut,"\n//Create function to call from R's main thread that assigns the required functions. Sometimes they don't get assigned.\nextern void %sassignFuns(void){\n  _assignFuns();\n}\n", prefix);
   sAppend(&sbOut,"\n//Initialize the dll to match rxode2's calls\nvoid R_init0_%s(void){\n  // Get C callables on load; Otherwise it isn't thread safe\n", libname2);
+  sAppend(&sbOut, "  R_RegisterCCallable(\"%s\",\"%sassignFuns2\", (DL_FUNC) __assignFuns2);\n", libname, prefix);
   sAppend(&sbOut, "  R_RegisterCCallable(\"%s\",\"%sassignFuns\", (DL_FUNC) %sassignFuns);\n", libname, prefix, prefix);
   sAppend(&sbOut, "  R_RegisterCCallable(\"%s\",\"%sinis\",(DL_FUNC) %sinis);\n", libname, prefix, prefix);
   sAppend(&sbOut, "  R_RegisterCCallable(\"%s\",\"%sdydt\",(DL_FUNC) %sdydt);\n", libname, prefix, prefix);

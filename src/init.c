@@ -59,7 +59,7 @@ double linCmtB(rx_solve *rx, unsigned int id, double t, int linCmt,
                double dd_rate, double dd_dur,
                double dd_rate2, double dd_dur2);
 
-void _rxode2parseAssignPtrs(rx_solve rx,
+void _rxode2parse_assignFuns2(rx_solve rx,
                             rx_solving_options op,
                             t_F f,
                             t_LAG lag,
@@ -118,8 +118,8 @@ void R_init_rxode2parse(DllInfo *info){
   R_RegisterCCallable("rxode2parse", "linCmtA", (DL_FUNC) &linCmtA);
   R_RegisterCCallable("rxode2parse", "linCmtB", (DL_FUNC) &linCmtB);
   R_RegisterCCallable("rxode2parse", "linCmtC", (DL_FUNC) &linCmtC);
-  R_RegisterCCallable("rxode2parse", "_rxode2parseAssignPtrs",
-                      (DL_FUNC) &_rxode2parseAssignPtrs);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_assignFuns2",
+                      (DL_FUNC) &_rxode2parse_assignFuns2);
 
   // log likelihoods used in calculations
   static const R_CMethodDef cMethods[] = {

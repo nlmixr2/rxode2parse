@@ -101,7 +101,7 @@ def <- def[1:w]
 def <- gsub("=NULL", "", def)
 def <- gsub("[^ ]* *[*]?([^;]*);", "\\1", def)
 
-def <- unique(c(def, c("_sum", "_sign", "_prod", "_max", "_min", "_transit4P", "_transit3P", "_assignFuns0", "_assignFuns", "_getRxSolve_", "_solveData", "_rxord")))
+def <- unique(c(def, c("_sum", "_sign", "_prod", "_max", "_min", "_transit4P", "_transit3P", "_assignFuns0", "_assignFuns", "_getRxSolve_", "_solveData", "_rxord", "__assignFuns2")))
 
 w1 <- which(regexpr("dynamic start", l) != -1)
 l1 <- l[1:w1]
@@ -110,6 +110,14 @@ l1 <- l[1:w1]
 
 w2 <- which(regexpr("dynamic stop", l) != -1)
 l2 <- l[seq(w2, length(l))]
+
+w3 <- which(regexpr("assign start", l2) != -1)
+
+l3 <- l2[seq(w3, length(l2))]
+l2 <- l2[1:w3]
+
+w4 <- which(regexpr("assign stop", l3) != -1)
+l3 <- l3[seq(w4, length(l3))]
 
 dfP <- l[seq(w1+1, w2-1)]
 
@@ -157,6 +165,9 @@ final <- c("#include <time.h>",
            "}",
            "void writeBody2(void) {",
            paste0("sAppendN(&sbOut, ", vapply(paste0(l2, "\n"), deparse2, character(1)), ", ", nchar(l2) + 1, ");"),
+           "}",
+           "void writeBody3(void) {",
+           paste0("sAppendN(&sbOut, ", vapply(paste0(l3, "\n"), deparse2, character(1)), ", ", nchar(l3) + 1, ");"),
            "}",
            "void writeFooter(void) {",
            paste0("sAppendN(&sbOut, \"#undef ", def, "\\n\", ", nchar(def) + 8, ");"),

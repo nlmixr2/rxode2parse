@@ -82,6 +82,33 @@ rxode2parseAssignTranslation <- function(df) {
 rxode2parseGetTranslation <- function() {
   .parseEnv$.rxode2parseDf
 }
+
+.parseEnv$.rxode2parsePointerAssignment <- "rxode2parse"
+
+#' This function gets the currently assigned function pointer assignments
+#' 
+#' @return The currently assigned pointer assignments
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' rxode2parseGetTranslation()
+rxode2parseGetPointerAssignment <- function() {
+  .parseEnv$.rxode2parsePointerAssignment
+}
+
+#' This sets function gets the currently assigned function pointer assignments
+#' 
+#' @return Nothing, called for side effects
+#' @author Matthew L. Fidler
+#' @export 
+#' @examples
+#' rxode2parseAssignPointerTranslation("rxode2parse")
+rxode2parseAssignPointerTranslation <- function(var) {
+  checkmate::assertCharacter(var)
+  assign(".rxode2parsePointerAssignment", var, envir=.parseEnv)
+  invisible()
+}
+
 #' Get the MD5 hash of the current language revision
 #'
 #' @return md5 hash of language revision

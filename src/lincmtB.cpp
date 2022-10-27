@@ -45,19 +45,19 @@ extern "C" {
 
 extern "C" void RSprintf(const char *format, ...);
 
-extern "C" void _rxode2parseAssignPtrs(rx_solve rx,
-                                       rx_solving_options op,
-                                       t_F f,
-                                       t_LAG lag,
-                                       t_RATE rate,
-                                       t_DUR dur, 
-                                       t_calc_mtime mtime,
-                                       t_ME me,
-                                       t_IndF indf,
-                                       t_getTime gettime,
-                                       t_locateTimeIndex timeindex,
-                                       t_handle_evidL handleEvid,
-                                       t_getDur getdur) {
+extern "C" void _rxode2parse_assignFuns2(rx_solve rx,
+                                         rx_solving_options op,
+                                         t_F f,
+                                         t_LAG lag,
+                                         t_RATE rate,
+                                         t_DUR dur, 
+                                         t_calc_mtime mtime,
+                                         t_ME me,
+                                         t_IndF indf,
+                                         t_getTime gettime,
+                                         t_locateTimeIndex timeindex,
+                                         t_handle_evidL handleEvid,
+                                         t_getDur getdur) {
   _rxode2parse_rx_global = rx;
   _rxode2parse_op_global = op;
   AMT = f;
