@@ -120,6 +120,9 @@ void R_init_rxode2parse(DllInfo *info){
   R_RegisterCCallable("rxode2parse", "linCmtC", (DL_FUNC) &linCmtC);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_assignFuns2",
                       (DL_FUNC) &_rxode2parse_assignFuns2);
+  // Backward compatible registration
+  R_RegisterCCallable("rxode2parse", "_rxode2parseAssignPtrs",
+                      (DL_FUNC) &_rxode2parse_assignFuns2);
 
   // log likelihoods used in calculations
   static const R_CMethodDef cMethods[] = {
