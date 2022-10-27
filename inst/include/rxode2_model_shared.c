@@ -371,3 +371,23 @@ void _assignFuns(void) {
     _assignFuns0();
   }
 }
+
+void __assignFuns2(rx_solve rx,
+                   rx_solving_options op,
+                   t_F f,
+                   t_LAG lag,
+                   t_RATE rate,
+                   t_DUR dur,
+                   t_calc_mtime mtime,
+                   t_ME me,
+                   t_IndF indf,
+                   t_getTime gettime,
+                   t_locateTimeIndex timeindex,
+                   t_handle_evidL handleEvid,
+                   t_getDur getdur) {
+  // assign start
+  static rxode2_assignFuns2 rxode2parse_assignFuns2 = NULL;
+  if (rxode2parse_assignFuns2 == NULL) rxode2parse_assignFuns2 = (rxode2_assignFuns2)(R_GetCCallable("rxode2parse", "_rxode2parse_assignFuns2"));
+  rxode2parse_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid, getdur);
+  // assign stop
+}

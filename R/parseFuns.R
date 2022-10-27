@@ -1,4 +1,4 @@
-.parseFuns <- c("gammafn", "lgammafn", "lgamma", "loggamma", "digamma", "trigamma", 
+.parseEnv$.parseFuns <- c("gammafn", "lgammafn", "lgamma", "loggamma", "digamma", "trigamma", 
 "tetragamma", "pentagamma", "cospi", "sinpi", "tanpi", "log1p", 
 "expm1", "factorial", "lfactorial", "lgamma1p", "expm1", "log10", 
 "log2", "log1pexp", "!", "phi", "pnorm", "normcdf", "qnorm", 

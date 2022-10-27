@@ -233,7 +233,7 @@ void parseFreeLast(void) {
   sFree(&_bufw2);
 }
 
-void parseFree(int last){
+void parseFree(int last) {
   sFree(&sb);
   sFree(&sbDt);
   sFree(&sbt);
@@ -270,6 +270,11 @@ void parseFree(int last){
   if (last){
     parseFreeLast();
   }
+}
+
+SEXP _rxode2parse_parseFreeSexp(SEXP last) {
+  parseFree(INTEGER(last)[0]);
+  return R_NilValue;
 }
 
 void reset(void) {

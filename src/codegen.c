@@ -11,6 +11,8 @@ SEXP _rxode2parse_functionArgMin;
 SEXP _rxode2parse_functionArgMax;
 SEXP _rxode2parse_functionThreadSafe;
 
+SEXP _rxode2parse_packages;
+
 #undef df
 void _rxode2parse_assignTranslation(SEXP df) {
   _rxode2parse_rxFunctionName = VECTOR_ELT(df, 0);
@@ -28,6 +30,7 @@ void _rxode2parse_assignTranslation(SEXP df) {
 SEXP _rxode2parse_rxQs(SEXP);
 SEXP _rxode2parse_rxQr(SEXP);
 SEXP getRxode2ParseDf(void);
+SEXP getRxode2ParseGetPointerAssignment(void);
 
 static FILE *fpIO;
 
@@ -103,6 +106,7 @@ extern SEXP getRxode2ParseDf(void);
 
 void codegen(char *model, int show_ode, const char *prefix, const char *libname, const char *pMd5, const char *timeId, const char *libname2) {
   _rxode2parse_assignTranslation(getRxode2ParseDf());
+  _rxode2parse_packages = getRxode2ParseGetPointerAssignment();
   if (show_ode == 4) {
     print_aux_info(model, prefix, libname, pMd5, timeId, libname2);
   } else {
@@ -149,6 +153,15 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
                 R_CHAR(STRING_ELT(_rxode2parse_functionPackageFunction, i)));
       }
       writeBody2();
+      for (int i = Rf_length(_rxode2parse_packages); i--;) {
+        const char* cur = R_CHAR(STRING_ELT(_rxode2parse_packages, i));
+        sAppend(&sbOut,"    static rxode2_assignFuns2 %s_assignFuns2 = NULL;\n", cur);
+        sAppend(&sbOut,"    if (%s_assignFuns2 == NULL) %s_assignFuns2 = (rxode2_assignFuns2)(R_GetCCallable(\"%s\", \"_%s_assignFuns2\"));\n",
+                cur, cur, cur, cur);
+        sAppend(&sbOut,"    %s_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid, getdur);\n",
+                cur);
+      }
+      writeBody3();
       sAppend(&sbOut, "extern void  %sode_solver_solvedata (rx_solve *solve){\n  _solveData = solve;\n}\n",prefix);
       sAppend(&sbOut, "extern rx_solve *%sode_solver_get_solvedata(void){\n  return _solveData;\n}\n", prefix);
       sAppend(&sbOut, "SEXP %smodel_vars(void);\n", prefix);

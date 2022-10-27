@@ -30,7 +30,8 @@ Imports:
     Rcpp (>= 1.0.8),
     utils
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    devtools
 LinkingTo:
     BH (>= 1.78.0.0),
     dparser,

@@ -30,7 +30,7 @@ SEXP _rxode2parse_rxParseSetSilentErr(SEXP silentSEXP);
 SEXP _rxode2parse_rxode2parseSetRstudio(SEXP);
 SEXP _rxode2parse_calcDerived(SEXP ncmtSXP, SEXP transSXP, SEXP inp, SEXP sigdigSXP);
 
-
+SEXP _rxode2parse_parseFreeSexp(SEXP);
 
 double linCmtA(rx_solve *rx, unsigned int id, double t, int linCmt,
                int ncmt, int trans, double d_ka,
@@ -59,7 +59,7 @@ double linCmtB(rx_solve *rx, unsigned int id, double t, int linCmt,
                double dd_rate, double dd_dur,
                double dd_rate2, double dd_dur2);
 
-void _rxode2parseAssignPtrs(rx_solve rx,
+void _rxode2parse_assignFuns2(rx_solve rx,
                             rx_solving_options op,
                             t_F f,
                             t_LAG lag,
@@ -75,15 +75,17 @@ void _rxode2parseAssignPtrs(rx_solve rx,
 
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
-    {"_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans, 8},
-    {"_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen, 6},
     {"_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded, 0},
+    {"_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen, 6},
     {"_rxode2parse_parseModel", (DL_FUNC) &_rxode2parse_parseModel, 1},
     {"_rxode2parse_isLinCmt", (DL_FUNC) &_rxode2parse_isLinCmt, 0},
-    {"_rxode2parse_rxQs", (DL_FUNC) &_rxode2parse_rxQs, 1},
-    {"_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr, 1},
+    {"_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans, 8},
     {"_rxode2parse_linCmtParse", (DL_FUNC) _rxode2parse_linCmtParse, 3},
     {"_rxode2parse_linCmtGen", (DL_FUNC) _rxode2parse_linCmtGen, 4},
+    {"_rxode2parse_parseFreeSexp", (DL_FUNC) &_rxode2parse_parseFreeSexp, 1},
+    {"_rxode2parse_calcDerived", (DL_FUNC) &_rxode2parse_calcDerived, 4},
+    {"_rxode2parse_rxQs", (DL_FUNC) &_rxode2parse_rxQs, 1},
+    {"_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr, 1},
     {"_rxode2parse_rxParseSetSilentErr", (DL_FUNC) _rxode2parse_rxParseSetSilentErr, 1},
     {"_rxode2parse_rxode2parseSetRstudio", (DL_FUNC) _rxode2parse_rxode2parseSetRstudio, 1},
     {NULL, NULL, 0} 
@@ -116,8 +118,11 @@ void R_init_rxode2parse(DllInfo *info){
   R_RegisterCCallable("rxode2parse", "linCmtA", (DL_FUNC) &linCmtA);
   R_RegisterCCallable("rxode2parse", "linCmtB", (DL_FUNC) &linCmtB);
   R_RegisterCCallable("rxode2parse", "linCmtC", (DL_FUNC) &linCmtC);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_assignFuns2",
+                      (DL_FUNC) &_rxode2parse_assignFuns2);
+  // Backward compatible registration
   R_RegisterCCallable("rxode2parse", "_rxode2parseAssignPtrs",
-                      (DL_FUNC) &_rxode2parseAssignPtrs);
+                      (DL_FUNC) &_rxode2parse_assignFuns2);
 
   // log likelihoods used in calculations
   static const R_CMethodDef cMethods[] = {

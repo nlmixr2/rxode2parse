@@ -93,7 +93,7 @@ static inline void calcNparamsNlhsNslhs(void) {
 
 static inline void calcNextra(void) {
   int offCmt=0,nExtra = 0;
-  char *buf;
+  char *buf, buf2[200];
   for (int i = 0; i < tb.statei; i++){
     if (offCmt == 0 && tb.idu[i] == 0){
       offCmt = 1;
@@ -102,16 +102,16 @@ static inline void calcNextra(void) {
     } else if (offCmt == 1 && tb.idu[i] == 1){
       // There is an compartment that doesn't have a derivative
       if (tb.linCmt == 0){
-	char *v = rc_dup_str(buf, 0);
-	sprintf(buf, "compartment '%s' needs differential equations defined", v);
-	updateSyntaxCol();
-	trans_syntax_error_report_fn0(buf);
+        char *v = rc_dup_str(buf, 0);
+        snprintf(buf2, 200, "compartment '%s' needs differential equations defined", v);
+        updateSyntaxCol();
+        trans_syntax_error_report_fn0(buf2);
       } else if (!strcmp("depot", buf) || !strcmp("central", buf)) {
       } else {
-	char *v = rc_dup_str(buf, 0);
-	sprintf(buf, _("compartment '%s' needs differential equations defined"), v);
-	updateSyntaxCol();
-	trans_syntax_error_report_fn0(buf);
+        char *v = rc_dup_str(buf, 0);
+        snprintf(buf2, 200, _("compartment '%s' needs differential equations defined"), v);
+        updateSyntaxCol();
+        trans_syntax_error_report_fn0(buf2);
       }
     } else if (offCmt == 1 && tb.idu[i] == 0){
       nExtra++;
@@ -157,9 +157,9 @@ static inline SEXP calcIniVals(void) {
     buf=tb.ss.line[i];
     if (tb.ini[i] == 1 && tb.lh[i] != isLHS){
       if (tb.isPi && !strcmp("pi", buf)) {
-	redo=1;
-	tb.isPi=0;
-	break;
+        redo=1;
+        tb.isPi=0;
+        break;
       }
       SET_STRING_ELT(inin,ini_i,mkChar(buf));
       REAL(ini)[ini_i++] = tb.iniv[i];
@@ -176,13 +176,13 @@ static inline SEXP calcIniVals(void) {
     for (int i = 0; i < NV; i++){
       buf=tb.ss.line[i];
       if (tb.ini[i] == 1 && tb.lh[i] != isLHS){
-	if (tb.isPi && !strcmp("pi", buf)) {
-	  redo=1;
-	  tb.isPi=0;
-	  break;
-	}
-	SET_STRING_ELT(inin,ini_i,mkChar(buf));
-	REAL(ini)[ini_i++] = tb.iniv[i];
+        if (tb.isPi && !strcmp("pi", buf)) {
+          redo=1;
+          tb.isPi=0;
+          break;
+        }
+        SET_STRING_ELT(inin,ini_i,mkChar(buf));
+        REAL(ini)[ini_i++] = tb.iniv[i];
       }
     }
   }
@@ -200,13 +200,13 @@ static inline void populateStateVectors(SEXP state, SEXP sens, SEXP normState, i
     buf=tb.ss.line[tb.di[i]];
     if (tb.idu[i] == 1){
       if (strncmp(buf,"rx__sens_", 9) == 0){
-	SET_STRING_ELT(sens,j++,mkChar(buf));
-	SET_STRING_ELT(state,k++,mkChar(buf));
-	stateRm[k-1]=tb.idi[i];
+        SET_STRING_ELT(sens,j++,mkChar(buf));
+        SET_STRING_ELT(state,k++,mkChar(buf));
+        stateRm[k-1]=tb.idi[i];
       } else {
-	SET_STRING_ELT(normState,m++,mkChar(buf));
-	SET_STRING_ELT(state,k++,mkChar(buf));
-	stateRm[k-1]=tb.idi[i];
+        SET_STRING_ELT(normState,m++,mkChar(buf));
+        SET_STRING_ELT(state,k++,mkChar(buf));
+        stateRm[k-1]=tb.idi[i];
       }
     } else {
       SET_STRING_ELT(extraState, p++, mkChar(buf));
@@ -224,16 +224,16 @@ static inline void populateDfdy(SEXP dfdy) {
       sPrint(&_bufw,"_THETA_%d_",j);
       if (!strcmp(dy,_bufw.s)){
         sPrint(&_bufw,"THETA[%d]",j);
-	foundIt=1;
-	break;
+        foundIt=1;
+        break;
       }
     }
     if (!foundIt){
       for (int j = 1; j <= tb.maxeta;j++){
-	sPrint(&_bufw,"_ETA_%d_",j);
-	if (!strcmp(dy,_bufw.s)){
-	  sPrint(&_bufw,"ETA[%d]",j);
-	}
+        sPrint(&_bufw,"_ETA_%d_",j);
+        if (!strcmp(dy,_bufw.s)){
+          sPrint(&_bufw,"ETA[%d]",j);
+        }
       }
     }
     if (!foundIt){
@@ -250,11 +250,11 @@ static inline int assertStateCannotHaveDiff(int islhs, int i, char *buf) {
     if (tb.lag[i] != 0){
       buf=tb.ss.line[i];
       if (islhs == isState){
-	sPrint(&_bufw, _("state '%s': 'lag', 'lead', 'first', 'last', 'diff' not legal"), buf);
-	trans_syntax_error_report_fn0(_bufw.s);
+        sPrint(&_bufw, _("state '%s': 'lag', 'lead', 'first', 'last', 'diff' not legal"), buf);
+        trans_syntax_error_report_fn0(_bufw.s);
       } else if (islhs == 10 || islhs == 11){
-	sPrint(&_bufw, _("suppress '%s': 'lag', 'lead', 'first', 'last', 'diff' not legal"), buf);
-	trans_syntax_error_report_fn0(_bufw.s);
+        sPrint(&_bufw, _("suppress '%s': 'lag', 'lead', 'first', 'last', 'diff' not legal"), buf);
+        trans_syntax_error_report_fn0(_bufw.s);
       }
     }
     return 1;
@@ -263,13 +263,13 @@ static inline int assertStateCannotHaveDiff(int islhs, int i, char *buf) {
 }
 
 static inline int setLhsAndDualLhsParam(int islhs, SEXP lhs, SEXP params, char *buf,
-				    int *li, int *pi) {
+                                        int *li, int *pi) {
   if (islhs == isLHS || islhs == isLhsStateExtra || islhs == isLHSparam) {
     SET_STRING_ELT(lhs, li[0], mkChar(buf));
     li[0] = li[0]+1;
     if (islhs == isLHSparam) {
       if (!strcmp("CMT", buf)) {
-	tb.hasCmt = 1;
+        tb.hasCmt = 1;
       }
       SET_STRING_ELT(params, pi[0], mkChar(buf));
       pi[0] = pi[0]+1;
@@ -293,9 +293,9 @@ static inline void paramSubThetaEtaToBufw(char *buf) {
     for (int j = 1; j <= tb.maxeta;j++){
       sPrint(&_bufw,"_ETA_%d_",j);
       if (!strcmp(buf, _bufw.s)){
-	sPrint(&_bufw,"ETA[%d]",j);
-	foundIt=1;
-	break;
+        sPrint(&_bufw,"ETA[%d]",j);
+        foundIt=1;
+        break;
       }
     }
   }
