@@ -30,7 +30,6 @@ extern "C" SEXP getRxode2ParseGetPointerAssignment(void) {
   loadQs();
   Rcpp::Function getPtr = Rcpp::as<Rcpp::Function>(rxode2parseNs["rxode2parseGetPointerAssignment"]);
   return getPtr();
-  
 }
 
 //[[Rcpp::export]]
