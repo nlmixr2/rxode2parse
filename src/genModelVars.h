@@ -101,7 +101,6 @@ static inline void calcNextra(void) {
       buf=tb.ss.line[tb.di[i]];
     } else if (offCmt == 1 && tb.idu[i] == 1){
       // There is an compartment that doesn't have a derivative
-      buf=tb.ss.line[tb.di[i]];
       if (tb.linCmt == 0){
         char *v = rc_dup_str(buf, 0);
         snprintf(buf2, 200, "compartment '%s' needs differential equations defined", v);
