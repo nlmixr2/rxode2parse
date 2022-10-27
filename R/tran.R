@@ -97,9 +97,12 @@ rxode2parseGetPointerAssignment <- function() {
 }
 
 #' This sets function gets the currently assigned function pointer assignments
+#'
+#' @param var List of packages where pointer assignment will be called.
 #' 
 #' @return Nothing, called for side effects
 #' @author Matthew L. Fidler
+#' @keywords internal
 #' @export 
 #' @examples
 #' rxode2parseAssignPointerTranslation("rxode2parse")

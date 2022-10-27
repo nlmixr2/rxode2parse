@@ -6,6 +6,9 @@
 \usage{
 rxode2parseAssignPointerTranslation(var)
 }
+\arguments{
+\item{var}{List of packages where pointer assignment will be called.}
+}
 \value{
 Nothing, called for side effects
 }
@@ -18,3 +21,4 @@ rxode2parseAssignPointerTranslation("rxode2parse")
 \author{
 Matthew L. Fidler
 }
+\keyword{internal}
