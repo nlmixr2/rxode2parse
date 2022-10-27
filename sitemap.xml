@@ -28,7 +28,13 @@
     <loc>/reference/rxode2parse.html</loc>
   </url>
   <url>
+    <loc>/reference/rxode2parseAssignPointerTranslation.html</loc>
+  </url>
+  <url>
     <loc>/reference/rxode2parseAssignTranslation.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rxode2parseGetPointerAssignment.html</loc>
   </url>
   <url>
     <loc>/reference/rxode2parseGetTranslation.html</loc>
