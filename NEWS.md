@@ -1,6 +1,10 @@
 # rxode2parse 2.0.12
 
-* Bug fix for strict alaises
+* Bug fix for strict prototypes
+
+* Removed `sprintf` as noted by CRAN
+
+* Made `rxode2parse` dll binary independent of `rxode2()`
 
 # rxode2parse 2.0.11
 

@@ -23,7 +23,6 @@ Depends:
 Imports:
     checkmate,
     crayon,
-    devtools,
     dparser,
     knitr,
     qs,
