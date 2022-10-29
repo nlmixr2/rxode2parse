@@ -23,7 +23,6 @@ Control the packages that are loaded when a \code{rxode2} model dll is loaded
 rxode2parseGetPackagesToLoad()
 
 rxode2parseAssignPackagesToLoad(rxode2parseGetPackagesToLoad())
-
 }
 \author{
 Matthew Fidler

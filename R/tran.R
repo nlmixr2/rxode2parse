@@ -90,17 +90,18 @@ rxode2parseGetTranslation <- function() {
 rxode2parseGetPackagesToLoad <- function() {
   .parseEnv$.packagesToLoad
 }
-##' Control the packages that are loaded when a `rxode2` model dll is loaded
-##'
-##' @param pkgs The packages to make sure are loaded every time you load an rxode2 model.
-##' @return List of packages to load
-##' @author Matthew Fidler
-##' @examples
-##'
-##' rxode2parseGetPackagesToLoad()
-##'
-##' rxode2parseAssignPackagesToLoad(rxode2parseGetPackagesToLoad())
-##' 
+  
+#' Control the packages that are loaded when a `rxode2` model dll is loaded
+#'
+#' @param pkgs The packages to make sure are loaded every time you load an rxode2 model.
+#' @return List of packages to load
+#' @author Matthew Fidler
+#' @examples
+#'
+#' rxode2parseGetPackagesToLoad()
+#'
+#' rxode2parseAssignPackagesToLoad(rxode2parseGetPackagesToLoad())
+#' @export
 rxode2parseAssignPackagesToLoad <- function(pkgs=rxode2parseGetPackagesToLoad()) {
   assign(".packagesToLoad", pkgs, envir=.parseEnv)
   pkgs
