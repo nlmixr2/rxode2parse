@@ -83,6 +83,30 @@ rxode2parseGetTranslation <- function() {
   .parseEnv$.rxode2parseDf
 }
 
+.parseEnv$.packagesToLoad <- c("rxode2ll", "rxode2parse", "rxode2random", "rxode2et")
+
+#'@rdname rxode2parseAssignPackagesToLoad
+#'@export
+rxode2parseGetPackagesToLoad <- function() {
+  .parseEnv$.packagesToLoad
+}
+##' Control the packages that are loaded when a `rxode2` model dll is loaded
+##'
+##' @param pkgs The packages to make sure are loaded every time you load an rxode2 model.
+##' @return List of packages to load
+##' @author Matthew Fidler
+##' @examples
+##'
+##' rxode2parseGetPackagesToLoad()
+##'
+##' rxode2parseAssignPackagesToLoad(rxode2parseGetPackagesToLoad())
+##' 
+rxode2parseAssignPackagesToLoad <- function(pkgs=rxode2parseGetPackagesToLoad()) {
+  assign(".packagesToLoad", pkgs, envir=.parseEnv)
+  pkgs
+}
+
+
 .parseEnv$.rxode2parsePointerAssignment <- "rxode2parse"
 
 #' This function gets the currently assigned function pointer assignments
