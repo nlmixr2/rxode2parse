@@ -1,3 +1,7 @@
+# rxode2parse 2.0.13
+
+* Version bump for dparser (so binaries will be built correctly)
+
 # rxode2parse 2.0.12
 
 * Bug fix for strict prototypes
