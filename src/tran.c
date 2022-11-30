@@ -233,6 +233,9 @@ void parseFreeLast(void) {
   sFree(&_bufw2);
 }
 
+sbuf sbErr1;
+sbuf sbErr2;
+
 void parseFree(int last) {
   sFree(&sb);
   sFree(&sbDt);
@@ -244,6 +247,8 @@ void parseFree(int last) {
   sFree(&firstErr);
   sFree(&_gbuf);
   sFree(&_mv);
+  sFree(&sbErr1);
+  sFree(&sbErr2);
   lineFree(&sbPm);
   lineFree(&sbPmDt);
   lineFree(&sbNrmL);
@@ -287,6 +292,8 @@ void reset(void) {
   sIniTo(&sbt, SBUF_MXBUF);
   sIniTo(&sbNrm, SBUF_MXBUF);
   sIniTo(&_gbuf, 1024);
+  sIniTo(&sbErr1, SBUF_MXBUF);
+  sIniTo(&sbErr2, SBUF_MXBUF);
   sIni(&_mv);
   sClear(&_mv);
   sIniTo(&firstErr, SBUF_MXBUF);
