@@ -70,7 +70,7 @@ static inline void printErrorInfo(Parser *p, char *err, char *after, int printLi
       RSprintf("\n:%03d: %s:\n", p->user.loc.line, err);
     }
   } else {
-    if (after){
+    if (_rxode2_reallyHasAfter == 1 && after){
       if (isEsc){
         RSprintf(_("\n\n\033[1mrxode2 syntax error after\033[0m '\033[35m\033[1m%s\033[0m':\n"),  after);
       }
@@ -246,7 +246,7 @@ static inline void printErrorLineHighlight2(Parser *p, char *buf, char *after, i
   if (firstErrD == 0) {
     sAppendN(&sbErr2, "\n      ", 7);
   }
-  if (after){
+  if (_rxode2_reallyHasAfter == 1 && after){
     printErrorLineHighligt2after(p, buf, after, len);
   } else {
     for (int i = 0; i < p->user.loc.col; i++){

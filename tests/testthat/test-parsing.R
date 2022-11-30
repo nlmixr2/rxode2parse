@@ -611,5 +611,6 @@ goodParse("Dotted initial conditions",
 test_that("after isn't shown or garbled", {
   t <-try(rxode2parse("a+b<-fun+fun  +  fun"))
   expect_true(inherits(t, "try-error"))
-  expect_true(regexpr("after", as.character(t))==-1)
+  print(attr(t,"condition")$message)
+  expect_true(regexpr("after", attr(t,"condition")$message)==-1)
 })
