@@ -606,3 +606,10 @@ badParse("while-break-bad", "a=1;while(1){a=a+3;}; break;")
 goodParse("Dotted initial conditions",
           paste(c("d/dt(C.A) = - 1",
                   "C.A(0) = A"), collapse="\n"))
+
+
+test_that("after isn't shown or garbled", {
+  t <-try(rxode2parse("a+b<-fun+fun  +  fun"))
+  expect_true(inherits(t, "try-error"))
+  expect_true(regexpr("after", as.character(t))==-1)
+})
