@@ -1,5 +1,8 @@
 # rxode2parse (development version)
 
+* Use function declaration in `rxode2parseGetTranslation()` to
+  determine thread safety
+
 * Add check for correct number of function arguments to parser
 
 * Fix garbled error messages that occur with certain messages.
