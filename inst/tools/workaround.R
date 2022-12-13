@@ -141,6 +141,18 @@ df$rxFun <- gsub("_llik", "llik", df$rxFun)
 def <- def[!(def %in% df$rxFun)]
 def <- def[!(def %in% df$fun)]
 
+.parseEnv <- new.env(parent=emptyenv())
+source("R/parseFuns.R")
+
+df$argMin <- vapply(df$rxFun, function(f) {
+  .n <- .parseEnv$.parseNum[f]
+  if (is.na(.n)) return(NA_integer_)
+  .n <-setNames(.n, NULL)
+  as.integer(.n)
+}, integer(1), USE.NAMES=TRUE)
+
+df$argMax <- df$argMin
+
 dfStr <- deparse(df)
 dfStr[1] <- paste(".parseEnv$.rxode2parseDf <- ", dfStr[1])
 

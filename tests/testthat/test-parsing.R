@@ -614,3 +614,23 @@ test_that("after isn't shown or garbled", {
   print(attr(t,"condition")$message)
   expect_true(regexpr("after", attr(t,"condition")$message)==-1)
 })
+
+test_that("throws parsing error with wrong number of arguments", {
+
+  .trans <- rxode2parseGetTranslation()
+  expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"), "3 arg")
+
+  .trans2 <- .trans
+  .w <- which(.trans2$rxFun=="llikNorm")
+  .trans2$argMax[.w] <- 4L
+  rxode2parseAssignTranslation(.trans2)
+
+  expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"), "3-4 arg")
+
+  .trans2$argMax[.w] <- 2L
+  rxode2parseAssignTranslation(.trans2)
+
+  expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"), "2-3 arg")
+
+  rxode2parseAssignTranslation(.trans)
+})

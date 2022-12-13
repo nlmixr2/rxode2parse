@@ -562,9 +562,13 @@ static inline void finalizeSyntaxError(void) {
   }
 }
 
+void _rxode2parse_assignTranslation(SEXP df);
+SEXP getRxode2ParseDf(void);
+
 SEXP _rxode2parse_trans(SEXP parse_file, SEXP prefix, SEXP model_md5, SEXP parseStr,
                    SEXP isEscIn, SEXP inME, SEXP goodFuns, SEXP fullPrintIn){
   const char *in = NULL;
+  _rxode2parse_assignTranslation(getRxode2ParseDf());
   int isStr = setupTrans(parse_file, prefix, model_md5, parseStr, isEscIn, inME, goodFuns, fullPrintIn);
   in = CHAR(STRING_ELT(parse_file,0));
   trans_internal(in, isStr);

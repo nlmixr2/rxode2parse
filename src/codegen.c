@@ -22,7 +22,7 @@ void _rxode2parse_assignTranslation(SEXP df) {
   _rxode2parse_functionPackageFunction = VECTOR_ELT(df, 4);
   _rxode2parse_functionArgMin = VECTOR_ELT(df, 5);
   _rxode2parse_functionArgMax = VECTOR_ELT(df, 6);
-  _rxode2parse_functionArgMax = VECTOR_ELT(df, 7);
+  //_rxode2parse_functionArgMax = VECTOR_ELT(df, 7);
 }
 
 #include "codegen2.h"
