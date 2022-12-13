@@ -237,6 +237,8 @@ static inline void handleLlFunctions(transFunctions *tf) {
 extern SEXP _rxode2parse_rxFunctionName;
 extern SEXP _rxode2parse_functionArgMin;
 extern SEXP _rxode2parse_functionArgMax;
+extern SEXP _rxode2parse_funName;
+extern SEXP _rxode2parse_funNameInt;
 
 static inline void handleBadFunctions(transFunctions *tf) {
   // Split out to handle anticipated automatic conversion of R
@@ -260,6 +262,19 @@ static inline void handleBadFunctions(transFunctions *tf) {
             argMin = tmp;
           }
           break;
+        }
+      }
+      if (argMin == -1) {
+        // Check for more known args
+        for (int kk = Rf_length(_rxode2parse_funName); kk--;) {
+          if (!strcmp(CHAR(STRING_ELT(_rxode2parse_funName, kk)),tf->v)) {
+            argMin = argMax = INTEGER(_rxode2parse_funNameInt)[kk];
+            if (argMin == NA_INTEGER) {
+              argMin=argMax=-1;
+              break;
+            }
+            break;
+          }
         }
       }
       if (argMin != -1) {

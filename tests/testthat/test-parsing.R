@@ -632,4 +632,6 @@ test_that("throws parsing error with wrong number of arguments", {
   expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"), "2-3 arg")
 
   rxode2parseAssignTranslation(.trans)
+
+  expect_error(rxode2parse("a=cos(b, c, d, e, f)"))
 })
