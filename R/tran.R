@@ -14,6 +14,7 @@
 #' @importFrom qs qsave
 #' @importFrom dparser dparse
 #' @importFrom utils capture.output
+#' @importFrom stats setNames
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
