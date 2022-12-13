@@ -4,6 +4,9 @@
 #'
 #' 
 #' @param model Model (either file name or string)
+#' @param linear boolean indicating if linear compartment model should be generated from `linCmt()` (default FALSE)
+#' @param linCmtSens Linear compartment model sensitivity type
+#' @param verbose is a boolean indicating the type of model detected with `linCmt()` parsing
 #' @return A rxModelVars object that has the model variables of a rxode2 syntax expression
 #' @export
 #' @useDynLib rxode2parse, .registration=TRUE
@@ -14,7 +17,7 @@
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
-rxode2parse <- function(model) {
+rxode2parse <- function(model, linear=FALSE, linCmtSens = c("linCmtA", "linCmtB", "linCmtC"), verbose=FALSE) {
   rxParseSuppressMsg()
   checkmate::assertCharacter(model, len=1, any.missing=FALSE)
   modelPrefix=""
@@ -33,6 +36,21 @@ rxode2parse <- function(model) {
     as.integer(crayon::has_color()),
     meCode, .parseEnv$.parseFuns,
     fullPrint)
+  if (linear && .isLinCmt()) {
+    .vars <- c(.ret$params, .ret$lhs, .ret$slhs)
+    .ret <- .Call(`_rxode2parse_linCmtGen`,length(.ret$state), .vars,
+          setNames(
+          c(
+            "linCmtA" = 1L, "linCmtB" = 2L,
+            "linCmtC" = 3L
+          )[match.arg(linCmtSens)],
+          NULL
+          ), verbose)
+    .ret <- .Call(`_rxode2parse_trans`, .ret, modelPrefix, md5, .isStr,
+                  as.integer(crayon::has_color()),
+                  meCode, .parseEnv$.parseFuns,
+                  fullPrint)
+  }
   .ret
 }
 

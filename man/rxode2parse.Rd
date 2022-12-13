@@ -4,10 +4,21 @@
 \alias{rxode2parse}
 \title{Internal translation to get model variables list}
 \usage{
-rxode2parse(model)
+rxode2parse(
+  model,
+  linear = FALSE,
+  linCmtSens = c("linCmtA", "linCmtB", "linCmtC"),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{model}{Model (either file name or string)}
+
+\item{linear}{boolean indicating if linear compartment model should be generated from \code{linCmt()} (default FALSE)}
+
+\item{linCmtSens}{Linear compartment model sensitivity type}
+
+\item{verbose}{is a boolean indicating the type of model detected with \code{linCmt()} parsing}
 }
 \value{
 A rxModelVars object that has the model variables of a rxode2 syntax expression
