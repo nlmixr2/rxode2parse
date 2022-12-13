@@ -616,7 +616,6 @@ test_that("after isn't shown or garbled", {
 })
 
 test_that("throws parsing error with wrong number of arguments", {
-
   .trans <- rxode2parseGetTranslation()
   expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"), "3 arg")
 
