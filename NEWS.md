@@ -1,5 +1,15 @@
 # rxode2parse (development version)
 
+* Use function declaration in `rxode2parseGetTranslation()` to
+  determine thread safety
+
+* Add check for correct number of function arguments to parser
+
+* Fix garbled error messages that occur with certain messages.
+
+* Fix `llikGeomDp` function declaration in `rxode2` functions to match
+  the actual function `llikGeomDprob()`, the actual definition
+
 # rxode2parse 2.0.13
 
 * Version bump for dparser (so binaries will be built correctly)

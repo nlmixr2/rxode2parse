@@ -83,6 +83,11 @@ rxode2parseGetTranslation <- function() {
   .parseEnv$.rxode2parseDf
 }
 
+rxode2parseGetTranslationBuiltin <- function() {
+  data.frame(n=names(.parseEnv$.parseNum), i=as.integer(setNames(.parseEnv$.parseNum, NULL)))
+}
+
+
 .parseEnv$.packagesToLoad <- c("rxode2ll", "rxode2parse", "rxode2random", "rxode2et")
 
 #'@rdname rxode2parseAssignPackagesToLoad
@@ -120,6 +125,7 @@ rxode2parseAssignPackagesToLoad <- function(pkgs=rxode2parseGetPackagesToLoad())
 rxode2parseGetPointerAssignment <- function() {
   .parseEnv$.rxode2parsePointerAssignment
 }
+
 
 #' This sets function gets the currently assigned function pointer assignments
 #'

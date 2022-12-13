@@ -11,9 +11,21 @@ SEXP _rxode2parse_functionArgMin;
 SEXP _rxode2parse_functionArgMax;
 SEXP _rxode2parse_functionThreadSafe;
 
+SEXP _rxode2parse_funName;
+SEXP _rxode2parse_funNameInt;
+
 SEXP _rxode2parse_packages;
 
 #undef df
+
+SEXP getRxode2ParseDfBuiltin(void);
+
+void _rxode2parse_assignTranslationBuiltin() {
+  SEXP df = getRxode2ParseDfBuiltin();
+  _rxode2parse_funName = VECTOR_ELT(df, 0);
+  _rxode2parse_funNameInt = VECTOR_ELT(df, 1);
+}
+
 void _rxode2parse_assignTranslation(SEXP df) {
   _rxode2parse_rxFunctionName = VECTOR_ELT(df, 0);
   _rxode2parse_functionName = VECTOR_ELT(df, 1);
@@ -22,8 +34,10 @@ void _rxode2parse_assignTranslation(SEXP df) {
   _rxode2parse_functionPackageFunction = VECTOR_ELT(df, 4);
   _rxode2parse_functionArgMin = VECTOR_ELT(df, 5);
   _rxode2parse_functionArgMax = VECTOR_ELT(df, 6);
-  _rxode2parse_functionArgMax = VECTOR_ELT(df, 7);
+  _rxode2parse_functionThreadSafe = VECTOR_ELT(df, 7);
+  _rxode2parse_assignTranslationBuiltin();
 }
+
 
 #include "codegen2.h"
 

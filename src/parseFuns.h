@@ -234,12 +234,69 @@ static inline void handleLlFunctions(transFunctions *tf) {
 
 #undef max2
 
+extern SEXP _rxode2parse_rxFunctionName;
+extern SEXP _rxode2parse_functionArgMin;
+extern SEXP _rxode2parse_functionArgMax;
+extern SEXP _rxode2parse_funName;
+extern SEXP _rxode2parse_funNameInt;
+extern SEXP _rxode2parse_functionThreadSafe;
+
 static inline void handleBadFunctions(transFunctions *tf) {
   // Split out to handle anticipated automatic conversion of R
   // functions to C
   int foundFun = 0;
-  for (int j = length(_goodFuns); j--;){
+  int curThread = 0;
+  for (int j = Rf_length(_goodFuns); j--;){
     if (!strcmp(CHAR(STRING_ELT(_goodFuns, j)),tf->v)){
+      int ii = d_get_number_of_children(d_get_child(tf->pn,3))+1;
+      int argMin=-1, argMax=-1;
+      for (int kk = Rf_length(_rxode2parse_rxFunctionName); kk--;) {
+        if (!strcmp(CHAR(STRING_ELT(_rxode2parse_rxFunctionName, kk)),tf->v)) {
+          argMin = INTEGER(_rxode2parse_functionArgMin)[kk];
+          argMax = INTEGER(_rxode2parse_functionArgMax)[kk];
+          curThread = INTEGER(_rxode2parse_functionThreadSafe)[kk];
+          if (curThread == 0) tb.thread = 0;
+          if (argMin == NA_INTEGER || argMax == NA_INTEGER) {
+            argMin = argMax = -1;
+            break;
+          }
+          if (argMax < argMin) {
+            int tmp = argMax;
+            argMax = argMin;
+            argMin = tmp;
+          }
+          break;
+        }
+      }
+      if (argMin == -1) {
+        // Check for more known args
+        for (int kk = Rf_length(_rxode2parse_funName); kk--;) {
+          if (!strcmp(CHAR(STRING_ELT(_rxode2parse_funName, kk)),tf->v)) {
+            argMin = argMax = INTEGER(_rxode2parse_funNameInt)[kk];
+            if (argMin == NA_INTEGER) {
+              argMin=argMax=-1;
+              break;
+            }
+            break;
+          }
+        }
+      }
+      if (argMin != -1) {
+        if (argMin == argMax && argMin != ii) {
+          updateSyntaxCol();
+          sPrint(&_gbuf, _("'%s' takes %d arguments, supplied %d"),
+                 tf->v, argMin, ii);
+          /* Free(v2); */
+          trans_syntax_error_report_fn(_gbuf.s);
+          return;
+        } else if (argMin > ii || argMax < ii) {
+          sPrint(&_gbuf, _("'%s' takes %d-%d arguments, supplied %d"),
+                 tf->v, argMin, argMax, ii);
+          /* Free(v2); */
+          trans_syntax_error_report_fn(_gbuf.s);
+          return;
+        }
+      }
       // Save log-likelihood information
       handleLlFunctions(tf);
       foundFun = 1;

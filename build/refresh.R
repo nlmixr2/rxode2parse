@@ -1,10 +1,13 @@
 if (requireNamespace("devtools", quietly = TRUE)) {
   .var <- deparse(rxode2::rxSupportedFuns())
+  .num <- deparse(rxode2:::.rxSEeq)
   .var[1] <- paste0(".parseEnv$.parseFuns <- ", .var[1])
+  .num[1] <- paste0(".parseEnv$.parseNum <- ", .num[1])
   .pf <- devtools::package_file("R/parseFuns.R")
   unlink(.pf)
   parseFuns.R <- file(.pf, "wb")
   writeLines(.var, parseFuns.R)
+  writeLines(.num, parseFuns.R)
   close(parseFuns.R)
 
   message("rebuild rxode2parse_control.h")

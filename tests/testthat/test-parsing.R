@@ -614,3 +614,33 @@ test_that("after isn't shown or garbled", {
   print(attr(t,"condition")$message)
   expect_true(regexpr("after", attr(t,"condition")$message)==-1)
 })
+
+test_that("throws parsing error with wrong number of arguments", {
+  .trans <- rxode2parseGetTranslation()
+  expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"))
+
+  .trans2 <- .trans
+  .w <- which(.trans2$rxFun=="llikNorm")
+  .trans2$argMax[.w] <- 4L
+  rxode2parseAssignTranslation(.trans2)
+
+  expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"))
+
+  .trans2$argMax[.w] <- 2L
+  rxode2parseAssignTranslation(.trans2)
+
+  expect_error(rxode2parse("a= llikNorm(a, b, c, d, f)"))
+
+  rxode2parseAssignTranslation(.trans)
+  .trans2 <- .trans
+  expect_true(rxode2parse("a=llikNorm(a, b, c)")$flags["thread"] == 1L)
+
+  # pretend that llikNorm is not thread safe
+  .trans2$threadSafe[.w] <- 0L
+  rxode2parseAssignTranslation(.trans2)
+
+  expect_true(rxode2parse("a=llikNorm(a, b, c)")$flags["thread"] == 0L)
+  rxode2parseAssignTranslation(.trans)
+
+  expect_error(rxode2parse("a=cos(b, c, d, e, f)"))
+})
