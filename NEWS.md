@@ -7,9 +7,6 @@
 
 * Fix garbled error messages that occur with certain messages.
 
-* Fix `llikGeomDp` function declaration in `rxode2` functions to match
-  the actual function `llikGeomDprob()`, the actual definition
-
 # rxode2parse 2.0.13
 
 * Version bump for dparser (so binaries will be built correctly)

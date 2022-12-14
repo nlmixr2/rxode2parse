@@ -1,3 +1,4 @@
+// -*- mode: C++; c-indent-level: 2; c-basic-offset: 2; indent-tabs-mode: nil; -*-
 static inline int handleDvidStatement(nodeInfo ni, char *name, D_ParseNode *xpn, D_ParseNode *pn) {
   if (nodeHas(dvid_statementI)){
     if (tb.dvidn == 0){
@@ -8,24 +9,24 @@ static inline int handleDvidStatement(nodeInfo ni, char *name, D_ParseNode *xpn,
       tb.dvid[0]=atoi(v);
       /* Free(v); */
       if (tb.dvid[0] == 0){
-	updateSyntaxCol();
-	trans_syntax_error_report_fn(ZERODVID);
+        updateSyntaxCol();
+        trans_syntax_error_report_fn(ZERODVID);
       }
       sAppend(&sbt, "dvid(%d", tb.dvid[0]);
       xpn = d_get_child(pn,3);
       tb.dvidn = d_get_number_of_children(xpn)+1;
       D_ParseNode *xpn2;
       for (int i = 0; i < tb.dvidn-1; i++){
-	xpn2 = d_get_child(xpn, i);
-	v = (char*)rc_dup_str(xpn2->start_loc.s, xpn2->end);
-	tb.dvid[i+1]=atoi(v+1);
-	if (tb.dvid[i+1] == 0){
-	  /* Free(v); */
-	  updateSyntaxCol();
-	  trans_syntax_error_report_fn(ZERODVID);
-	}
-	sAppend(&sbt, ",%d", tb.dvid[i+1]);
-	/* Free(v); */
+        xpn2 = d_get_child(xpn, i);
+        v = (char*)rc_dup_str(xpn2->start_loc.s, xpn2->end);
+        tb.dvid[i+1]=atoi(v+1);
+        if (tb.dvid[i+1] == 0){
+          /* Free(v); */
+          updateSyntaxCol();
+          trans_syntax_error_report_fn(ZERODVID);
+        }
+        sAppend(&sbt, ",%d", tb.dvid[i+1]);
+        /* Free(v); */
       }
       sAppend(&sbNrm, "%s);\n", sbt.s);
       addLine(&sbNrmL, "%s);\n", sbt.s);
@@ -74,7 +75,7 @@ static inline int handleRemainingAssignments(nodeInfo ni, char *name, int i, D_P
 
 static inline int isLineAssignmentStatement(nodeInfo ni, char *name) {
   return nodeHas(assignment) || nodeHas(ini) || nodeHas(dfdy) ||
-      nodeHas(ini0) || nodeHas(ini0f) || nodeHas(fbio) || nodeHas(alag) || nodeHas(rate) ||
+    nodeHas(ini0) || nodeHas(ini0f) || nodeHas(fbio) || nodeHas(alag) || nodeHas(rate) ||
     nodeHas(dur) || nodeHas(mtime);
 }
 
@@ -98,13 +99,13 @@ static inline int finalizeLineAssign(nodeInfo ni, char *name, D_ParseNode *pn) {
   if (isLineAssignmentStatement(ni, name)) {
     int isDepot;
     if (isLineAssigmentProperty(ni, name, &isDepot)) {
-      char *c = getLineAfterAssign(sb.s);
+      char *c = getLineAfterAssign(sbt.s);
       if (isDepot){
-	curLineType(&depotLines, sbPm.lType[sbPm.n]);
-	addLine(&depotLines, "%s", c);
+        curLineType(&depotLines, sbPm.lType[sbPm.n]);
+        addLine(&depotLines, "%s", c);
       } else {
-	curLineType(&centralLines, sbPm.lType[sbPm.n]);
-	addLine(&centralLines, "%s", c);
+        curLineType(&centralLines, sbPm.lType[sbPm.n]);
+        addLine(&centralLines, "%s", c);
       }
       /* RSprintf("c: %s, lType: %d\n", c, sbPm.lType[sbPm.n], isDepot); */
     } else {

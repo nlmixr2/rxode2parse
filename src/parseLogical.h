@@ -170,20 +170,20 @@ static inline int handleStringEqualLhs(nodeInfo ni, char *name, int i, D_ParseNo
     case 0:
       aAppendN("_cmp2(", 6);
       if (!strcmp(v, "id") || !strcmp(v, "ID") || !strcmp(v, "Id")){
-	aAppendN("(&_solveData->subjects[_cSub])->idReal, \"ID\", ", 46);
-	sAppendN(&sbt, "ID", 2);
+        aAppendN("(&_solveData->subjects[_cSub])->idReal, \"ID\", ", 46);
+        sAppendN(&sbt, "ID", 2);
       } else {
-	if (new_or_ith(v)) addSymbolStr(v);
-	sAppend(&sb, "%s, \"%s\", ", v, v);
-	sAppend(&sbDt, "%s, \"%s\", ", v, v);
-	sAppend(&sbt, "%s", v);
+        if (new_or_ith(v)) addSymbolStr(v);
+        sAppend(&sb, "%s, \"%s\", ", v, v);
+        sAppend(&sbDt, "%s, \"%s\", ", v, v);
+        sAppend(&sbt, "%s", v);
       }
       return 1;
     case 1:
       if (!strcmp(v, "==")) {
-	aAppendN("1, ", 3);
+        aAppendN("1, ", 3);
       } else {
-	aAppendN("0, ", 3);
+        aAppendN("0, ", 3);
       }
       sAppend(&sbt, "%s", v);
       return 1;

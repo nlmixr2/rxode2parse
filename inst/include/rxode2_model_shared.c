@@ -345,7 +345,7 @@ void _assignFuns0(void) {
   _llikFDdf2 = (rxode2_llikFFun) R_GetCCallable("rxode2ll", "rxLlikFDdf2");
 
   _llikGeom    = (rxode2_llikGeomFun) R_GetCCallable("rxode2ll", "rxLlikGeom");
-  _llikGeomDprob  = (rxode2_llikGeomFun) R_GetCCallable("rxode2ll", "rxLlikGeomDprob");
+  _llikGeomDp  = (rxode2_llikGeomFun) R_GetCCallable("rxode2ll", "rxLlikGeomDp");
 
   _llikUnif        = (rxode2_llikUnifFun) R_GetCCallable("rxode2ll", "rxLlikUnif");
   _llikUnifDalpha  = (rxode2_llikUnifFun) R_GetCCallable("rxode2ll", "rxLlikUnifDalpha");

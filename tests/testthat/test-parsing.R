@@ -644,3 +644,8 @@ test_that("throws parsing error with wrong number of arguments", {
 
   expect_error(rxode2parse("a=cos(b, c, d, e, f)"))
 })
+
+
+test_that("linear compartmental error", {
+  expect_error(rxode2parse('f(central) <- 1 + f_study1 * (STUDYID == "Study 1")\nka <- exp(tka + eta.ka)\ncl <- exp(tcl + eta.cl)\nv <- exp(tv + eta.v)\ncp <- linCmt()', linear=TRUE), NA)
+})
