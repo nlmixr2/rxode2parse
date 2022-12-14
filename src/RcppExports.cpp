@@ -56,3 +56,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rxUpdateTrans_
+Rcpp::List rxUpdateTrans_(Rcpp::List ret, std::string prefix, std::string libName);
+RcppExport SEXP _rxode2parse_rxUpdateTrans_(SEXP retSEXP, SEXP prefixSEXP, SEXP libNameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type ret(retSEXP);
+    Rcpp::traits::input_parameter< std::string >::type prefix(prefixSEXP);
+    Rcpp::traits::input_parameter< std::string >::type libName(libNameSEXP);
+    rcpp_result_gen = Rcpp::wrap(rxUpdateTrans_(ret, prefix, libName));
+    return rcpp_result_gen;
+END_RCPP
+}

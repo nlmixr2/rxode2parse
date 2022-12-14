@@ -24,3 +24,7 @@ rxParseSetSilentErr <- function(silent) {
     .Call(`_rxode2parse_rxParseSetSilentErr`, silent)
 }
 
+rxUpdateTrans_ <- function(ret, prefix, libName) {
+    .Call(`_rxode2parse_rxUpdateTrans_`, ret, prefix, libName)
+}
+

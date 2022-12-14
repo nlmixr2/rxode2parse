@@ -648,4 +648,14 @@ test_that("throws parsing error with wrong number of arguments", {
 
 test_that("linear compartmental error", {
   expect_error(rxode2parse('f(central) <- 1 + f_study1 * (STUDYID == "Study 1")\nka <- exp(tka + eta.ka)\ncl <- exp(tcl + eta.cl)\nv <- exp(tv + eta.v)\ncp <- linCmt()', linear=TRUE), NA)
+  expect_error(rxode2parse("params(THETA[1],THETA[2],THETA[3],THETA[4],THETA[5],THETA[6],ETA[1],ETA[2],ETA[3])\nrx_yj_~2\nrx_lambda_~1\nrx_hi_~1\nrx_low_~0\nrx_pred_=linCmtB(rx__PTR__, t, 0, 1, 1, 0, exp(ETA[2]+THETA[2]), exp(ETA[3]+THETA[3]), 0, 0, 0, 0, 0, 1, 0, 0, exp(ETA[1]+THETA[1]), 0, 1+(THETA[6]==1)*THETA[5], 0, 0)\nrx_r_=Rx_pow_di(THETA[4], 2)",
+                           code="rxode2parse_test_code.c"), NA)
+  expect_true(file.exists("rxode2parse_test_code.c"))
+  if (file.exists("rxode2parse_test_code.c")) {
+    lines <- readLines("rxode2parse_test_code.c")
+    unlink("rxode2parse_test_code.c")
+    expect_false(file.exists("rxode2parse_test_code.c"))
+    expect_true(all(regexpr("THETA[6]", lines, fixed=TRUE) == -1))
+  }
+     
 })
