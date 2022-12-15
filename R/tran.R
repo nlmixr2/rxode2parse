@@ -4,10 +4,15 @@
 #'
 #' 
 #' @param model Model (either file name or string)
-#' @param linear boolean indicating if linear compartment model should be generated from `linCmt()` (default FALSE)
+#' @param linear boolean indicating if linear compartment model should
+#'   be generated from `linCmt()` (default FALSE)
 #' @param linCmtSens Linear compartment model sensitivity type
-#' @param verbose is a boolean indicating the type of model detected with `linCmt()` parsing
-#' @return A rxModelVars object that has the model variables of a rxode2 syntax expression
+#' @param verbose is a boolean indicating the type of model detected
+#'   with `linCmt()` parsing
+#' @param code is a file name where the c code is written to (for
+#'   testing purposes mostly, it needs `rxode2` to do anything fancy)
+#' @return A rxModelVars object that has the model variables of a
+#'   rxode2 syntax expression
 #' @export
 #' @useDynLib rxode2parse, .registration=TRUE
 #' @importFrom Rcpp evalCpp
