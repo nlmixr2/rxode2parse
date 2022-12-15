@@ -1,5 +1,9 @@
 #include "needSortDefines.h"
 
+extern sbuf sbExtra;
+extern D_Parser *curP;
+
+
 static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // 10 tlag
   xpn2 = d_get_child(xpn1, 10+tf->isLinB);
@@ -7,17 +11,42 @@ static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
     if (foundLag == 0) needSort+=needSortAlag; // & 2 when alag
-    foundLag=1;
-    aType(ALAG);
-    addLine(&sbPm, "_alag[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbPmDt, "_alag[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxAlagLin(%s);\n", v2);
   }
+}
+
+static inline void handleFunctionRxLinGeneric(transFunctions *tf, int propId, int is1) {
+  sb.o=0;sbDt.o=0; sbt.o=0;
+  aType(propId);
+  switch (propId) {
+  case ALAG:
+    sAppendN(&sb, "_alag[", 6);
+    sAppendN(&sbDt, "_alag[", 6);
+    break;
+  case FBIO:
+    sAppendN(&sb, "_f[", 3);
+    sAppendN(&sbDt, "_f[", 3);
+    break;
+  case RATE:
+    sAppendN(&sb, "_rate[", 6);
+    sAppendN(&sbDt, "_rate[", 6);
+    break;
+  }
+  sAppendN(&sb, "(&_solveData->subjects[_cSub])->linCmt", 38);
+  sAppendN(&sbDt, "(&_solveData->subjects[_cSub])->linCmt", 38);
+  if (is1) {
+    sAppendN(&sb, "+1", 2);
+    sAppendN(&sbDt, "+1", 2);
+  }
+  sAppendN(&sb, "] = (" , 5);
+  sAppendN(&sbDt, "] = (", 5);
+  tf->i[0] = 1;// Parse next arguments
+  tf->depth[0]=1;
+}
+
+static inline void handleFunctionRxAlagLin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf,ALAG, 0);
 }
 
 static inline void handleFunctionLinCmtF1(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
@@ -27,18 +56,13 @@ static inline void handleFunctionLinCmtF1(transFunctions *tf, D_ParseNode *xpn1,
   if (!((!strcmp(v2, "1") || !strcmp(v2, "1.0") ||
 	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
     if (foundF == 0) needSort+=needSortF;// & 1 when F
-    foundF=1;
-    aType(FBIO);
-    addLine(&sbPm, "_f[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbPmDt, "_f[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    /* sAppend(&sbNrm, "%s;\n", sbt.s); */
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxFLin(%s);\n", v2);
   }
+}
+
+static inline void handleFunctionRxFLin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf, FBIO, 0);
 }
 
 static inline void handleFunctionLinCmtDur1(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
@@ -47,19 +71,15 @@ static inline void handleFunctionLinCmtDur1(transFunctions *tf, D_ParseNode *xpn
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s + 2, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.")) || !strcmp(v2, ""))) {
-    // has interesting rate
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
+    // has interesting dur
     if (foundDur == 0) needSort+= needSortDur;// & 4 when dur
     foundDur=1;
-    aType(DUR);
-    addLine(&sbPm, "_dur[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbPmDt, "_dur[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    /* sAppend(&sbNrm, "%s;\n", sbt.s); */
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxDurLin(%s);\n", v2);
   }
+}
+
+static inline void handleFunctionRxDurLin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf, DUR, 0);
 }
 
 static inline void handleFunctionLinCmtRate1(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
@@ -69,19 +89,16 @@ static inline void handleFunctionLinCmtRate1(transFunctions *tf, D_ParseNode *xp
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting rate
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
     if (foundRate == 0) needSort+= needSortRate;// & 8 when rate
     foundRate=1;
-    aType(RATE);
-    addLine(&sbPm, "_rate[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbPmDt, "_rate[(&_solveData->subjects[_cSub])->linCmt] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    /* sAppend(&sbNrm, "%s;\n", sbt.s); */
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxRateLin(%s);\n", v2);
   }
 }
+
+static inline void handleFunctionRxRateLin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf, RATE, 0);
+}
+
 
 static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // 14 -- ka
@@ -98,19 +115,16 @@ static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1,
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
     if (foundLag == 0) needSort+= needSortAlag; // & 2 when alag
     foundLag=1;
-    aType(ALAG);
-    addLine(&sbPm, "_alag[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbPmDt, "_alag[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    /* sAppend(&sbNrm, "%s;\n", sbt.s); */
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxAlag1Lin(%s);\n", v2);
   }
 }
+
+static inline void handleFunctionRxAlag1Lin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf, ALAG, 1);
+}
+
 
 static inline void handleFunctionLinCmtF2(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // f2 = 16 ; This is 1 instead of zero
@@ -119,18 +133,13 @@ static inline void handleFunctionLinCmtF2(transFunctions *tf, D_ParseNode *xpn1,
   if (!((!strcmp(v2, "1") || !strcmp(v2, "1.0") ||
 	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
     if (foundF == 0) needSort+= needSortF;// & 1 when F
     foundF=1;
-    aType(FBIO);
-    addLine(&sbPm, "_f[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbPmDt, "_f[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    /* sAppend(&sbNrm, "%s;\n", sbt.s); */
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxF1Lin(%s);\n", v2);
   }
+}
+static inline void handleFunctionRxF1Lin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf, FBIO, 1);
 }
 
 static inline void handleFunctionLinCmtRate2(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
@@ -140,41 +149,67 @@ static inline void handleFunctionLinCmtRate2(transFunctions *tf, D_ParseNode *xp
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting rate
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
     if (foundRate == 0) needSort+= needSortRate;// & 8 when rate
     foundRate=1;
-    aType(RATE);
-    addLine(&sbPm, "_rate[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbPmDt, "_rate[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    /* sAppend(&sbNrm, "%s;\n", sbt.s); */
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxRate1Lin(%s);\n", v2);
   }
 }
+
+static inline void handleFunctionRxRate1Lin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf, RATE, 1);
+}
+
+
 
 static inline void handleFunctionLinCmtDur2(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   xpn2 = d_get_child(xpn1, 18+tf->isLinB);
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
-    // has interesting rate
-    int ixL = tb.ixL;
-    int didEq = tb.didEq;
+    // has interesting duration
     if (foundDur == 0) needSort+= needSortDur;// & 4 when dur
     foundDur=1;
-    aType(DUR);
-    addLine(&sbPm, "_dur[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbPmDt, "_dur[(&_solveData->subjects[_cSub])->linCmt+1] = %s;\n", v2);
-    addLine(&sbNrmL, "");
-    /* sAppend(&sbNrm, "%s;\n", sbt.s); */
-    ENDLINE;
-    tb.ixL= ixL; tb.didEq=didEq;
+    sAppend(&sbExtra,"rxlin=rxDur1Lin(%s);\n", v2);
   }
 }
 
+static inline void handleFunctionRxDur1Lin(transFunctions *tf) {
+  handleFunctionRxLinGeneric(tf, DUR, 1);
+}
+
 static inline int handleFunctionLinCmt(transFunctions *tf) {
+  if (!strcmp("rxAlagLin", tf->v)) {
+    handleFunctionRxAlagLin(tf);
+    return 1;
+  }
+  if (!strcmp("rxAlag1Lin", tf->v)) {
+    handleFunctionRxAlag1Lin(tf);
+    return 1;
+  }
+  if (!strcmp("rxFLin", tf->v)) {
+    handleFunctionRxFLin(tf);
+    return 1;
+  }
+  if (!strcmp("rxF1Lin", tf->v)) {
+    handleFunctionRxF1Lin(tf);
+    return 1;
+  }
+  if (!strcmp("rxRateLin", tf->v)) {
+    handleFunctionRxRateLin(tf);
+    return 1;
+  }
+  if (!strcmp("rxRate1Lin", tf->v)) {
+    handleFunctionRxRate1Lin(tf);
+    return 1;
+  }
+  if (!strcmp("rxDurLin", tf->v)) {
+    handleFunctionRxDurLin(tf);
+    return 1;
+  }
+  if (!strcmp("rxDur1Lin", tf->v)) {
+    handleFunctionRxDur1Lin(tf);
+    return 1;
+  }
   if (!strcmp("linCmtA", tf->v) || !strcmp("linCmtC", tf->v) ||
       (tf->isLinB=!strcmp("linCmtB", tf->v))) {
     D_ParseNode *xpn1 = d_get_child(tf->pn, 3);

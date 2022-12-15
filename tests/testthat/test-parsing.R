@@ -657,5 +657,4 @@ test_that("linear compartmental error", {
     expect_false(file.exists("rxode2parse_test_code.c"))
     expect_true(all(regexpr("THETA[6]", lines, fixed=TRUE) == -1))
   }
-     
 })
