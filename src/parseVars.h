@@ -117,6 +117,7 @@ static inline int new_or_ith(const char *s) {
   if (skipReservedVariables(s) == 0) return 0;
   // Ignore THETA[] and ETA
   if (strstr("[", s) != NULL) {tb.ix=-2;return 0;}
+  if (!strcmp("rxlin___", s)) return 0;
 
   for (i=0; i<NV; i++) {
     if (!strcmp(tb.ss.line[i], s)) {

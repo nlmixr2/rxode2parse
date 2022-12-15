@@ -12,7 +12,7 @@ static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
     if (foundLag == 0) needSort+=needSortAlag; // & 2 when alag
-    sAppend(&sbExtra,"rxlin=rxAlagLin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxAlagLin(%s);\n", v2);
   }
 }
 
@@ -61,7 +61,7 @@ static inline void handleFunctionLinCmtF1(transFunctions *tf, D_ParseNode *xpn1,
 	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
     if (foundF == 0) needSort+=needSortF;// & 1 when F
-    sAppend(&sbExtra,"rxlin=rxFLin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxFLin(%s);\n", v2);
   }
 }
 
@@ -78,7 +78,7 @@ static inline void handleFunctionLinCmtDur1(transFunctions *tf, D_ParseNode *xpn
     // has interesting dur
     if (foundDur == 0) needSort+= needSortDur;// & 4 when dur
     foundDur=1;
-    sAppend(&sbExtra,"rxlin=rxDurLin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxDurLin(%s);\n", v2);
   }
 }
 
@@ -95,7 +95,7 @@ static inline void handleFunctionLinCmtRate1(transFunctions *tf, D_ParseNode *xp
     // has interesting rate
     if (foundRate == 0) needSort+= needSortRate;// & 8 when rate
     foundRate=1;
-    sAppend(&sbExtra,"rxlin=rxRateLin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxRateLin(%s);\n", v2);
   }
 }
 
@@ -121,7 +121,7 @@ static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1,
     // has interesting tlag
     if (foundLag == 0) needSort+= needSortAlag; // & 2 when alag
     foundLag=1;
-    sAppend(&sbExtra,"rxlin=rxAlag1Lin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxAlag1Lin(%s);\n", v2);
   }
 }
 
@@ -139,7 +139,7 @@ static inline void handleFunctionLinCmtF2(transFunctions *tf, D_ParseNode *xpn1,
     // has interesting f1
     if (foundF == 0) needSort+= needSortF;// & 1 when F
     foundF=1;
-    sAppend(&sbExtra,"rxlin=rxF1Lin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxF1Lin(%s);\n", v2);
   }
 }
 static inline void handleFunctionRxF1Lin(transFunctions *tf) {
@@ -155,7 +155,7 @@ static inline void handleFunctionLinCmtRate2(transFunctions *tf, D_ParseNode *xp
     // has interesting rate
     if (foundRate == 0) needSort+= needSortRate;// & 8 when rate
     foundRate=1;
-    sAppend(&sbExtra,"rxlin=rxRate1Lin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxRate1Lin(%s);\n", v2);
   }
 }
 
@@ -173,7 +173,7 @@ static inline void handleFunctionLinCmtDur2(transFunctions *tf, D_ParseNode *xpn
     // has interesting duration
     if (foundDur == 0) needSort+= needSortDur;// & 4 when dur
     foundDur=1;
-    sAppend(&sbExtra,"rxlin=rxDur1Lin(%s);\n", v2);
+    sAppend(&sbExtra,"rxlin___=rxDur1Lin(%s);\n", v2);
   }
 }
 
