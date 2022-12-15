@@ -512,18 +512,6 @@ void trans_internal(const char* parse_file, int isStr){
     rx_syntax_error = 1;
   } else {
     wprint_parsetree(parser_tables_rxode2parse, _pn, 0, wprint_node, NULL);
-    if (sbExtra.o != 0) {
-      // Now parse extra lines
-      //if (_pn){
-      //  free_D_ParseTreeBelow(curP,_pn);
-      //  free_D_ParseNode(curP,_pn);
-      //}
-      //_pn=0;
-      //REprintf("need to parse:\n%s\n", sbExtra.s);
-      //_pn= dparse(curP, sbExtra.s, sbExtra.o);
-      //wprint_parsetree(parser_tables_rxode2parse, _pn, 0, wprint_node, NULL);
-    }
-
     // Determine Jacobian vs df/dvar
     assertCorrectDfDy();
   }

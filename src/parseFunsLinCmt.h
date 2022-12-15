@@ -12,6 +12,7 @@ static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
     if (foundLag == 0) needSort+=needSortAlag; // & 2 when alag
+    foundLag=1;
     sAppend(&sbExtra,"rxlin___=rxAlagLin(%s);\n", v2);
   }
 }
@@ -61,6 +62,7 @@ static inline void handleFunctionLinCmtF1(transFunctions *tf, D_ParseNode *xpn1,
 	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
     if (foundF == 0) needSort+=needSortF;// & 1 when F
+    foundF=1;
     sAppend(&sbExtra,"rxlin___=rxFLin(%s);\n", v2);
   }
 }
