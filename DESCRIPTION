@@ -27,7 +27,8 @@ Imports:
     knitr,
     qs,
     Rcpp (>= 1.0.8),
-    utils
+    utils,
+    digest
 Suggests:
     testthat (>= 3.0.0),
     devtools
