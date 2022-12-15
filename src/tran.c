@@ -88,6 +88,7 @@ int firstErrD=0;
 
 vLines sbPm, sbPmDt, sbNrmL;
 sbuf sbNrm;
+sbuf sbExtra;
 vLines depotLines, centralLines;
 
 const char *model_prefix = NULL;
@@ -241,6 +242,7 @@ void parseFree(int last) {
   sFree(&sbDt);
   sFree(&sbt);
   sFree(&sbNrm);
+  sFree(&sbExtra);
   sFree(&s_inits);
   sFree(&_bufw);
   sFree(&_bufw2);
@@ -282,6 +284,16 @@ SEXP _rxode2parse_parseFreeSexp(SEXP last) {
   return R_NilValue;
 }
 
+char *alagLinCmtLine = NULL;
+char *fLinCmtLine = NULL;
+char *durLinCmtLine = NULL;
+char *rateLinCmtLine = NULL;
+
+char *alag1LinCmtLine = NULL;
+char *f1LinCmtLine = NULL;
+char *rate1LinCmtLine = NULL;
+char *dur1LinCmtLine = NULL;
+
 void reset(void) {
   // Reset sb/sbt string buffers
   parseFree(0);
@@ -291,6 +303,7 @@ void reset(void) {
   sIniTo(&sbDt, MXDER);
   sIniTo(&sbt, SBUF_MXBUF);
   sIniTo(&sbNrm, SBUF_MXBUF);
+  sIniTo(&sbExtra,SBUF_MXBUF);
   sIniTo(&_gbuf, 1024);
   sIniTo(&sbErr1, SBUF_MXBUF);
   sIniTo(&sbErr2, SBUF_MXBUF);
@@ -398,6 +411,17 @@ void reset(void) {
   nmtime=0;
   syntaxErrorExtra=0;
   extraCmt=0;
+
+  // reset extra lines from linCmt()
+  alagLinCmtLine = NULL;
+  fLinCmtLine = NULL;
+  durLinCmtLine = NULL;
+  rateLinCmtLine = NULL;
+
+  alag1LinCmtLine = NULL;
+  f1LinCmtLine = NULL;
+  rate1LinCmtLine = NULL;
+  dur1LinCmtLine = NULL;
 }
 
 static void rxSyntaxError(struct D_Parser *ap);
@@ -473,7 +497,9 @@ void trans_internal(const char* parse_file, int isStr){
     err_msg((intptr_t) gBuf, "error: empty buf for FILE_to_parse\n", -2);
   }
   sFree(&sbNrm);
+  sFree(&sbExtra);
   sIniTo(&sbNrm, SBUF_MXBUF);
+  sIniTo(&sbExtra, SBUF_MXBUF);
   lineIni(&sbPm);
   lineIni(&sbPmDt);
   lineIni(&sbNrmL);
@@ -644,6 +670,7 @@ void transIniNull(void) {
   sNull(&(sbt));
   sNull(&(firstErr));
   sNull(&(sbNrm));
+  sNull(&(sbExtra));
   sNull(&(sbOut));
   lineNull(&(sbPm));
   lineNull(&(sbPmDt));

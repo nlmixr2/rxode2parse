@@ -95,6 +95,11 @@ static inline int isLineAssigmentProperty(nodeInfo ni, char *name, int *isDepot)
      (tb.centralN == tb.di[tb.curPropN]));
 }
 
+extern D_Parser *curP;
+extern D_ParseNode *_pn;
+
+void wprint_parsetree(D_ParserTables pt, D_ParseNode *pn, int depth, print_node_fn_t fn, void *client_data);
+
 static inline int finalizeLineAssign(nodeInfo ni, char *name, D_ParseNode *pn) {
   if (isLineAssignmentStatement(ni, name)) {
     int isDepot;
@@ -115,6 +120,32 @@ static inline int finalizeLineAssign(nodeInfo ni, char *name, D_ParseNode *pn) {
     addLine(&sbPmDt,   "%s;\n", sbDt.s);
     sAppend(&sbNrm, "%s;\n", sbt.s);
     ENDLINE;
+    if (sbExtra.o != 0) {
+      int o = sbNrm.o;
+      D_Parser *curP2 = NULL;
+      D_ParseNode *_pn2 = 0;
+      curP2 = new_D_Parser(&parser_tables_rxode2parse, sizeof(D_ParseNode_User));
+      curP2->save_parse_tree = 1;
+      curP2->error_recovery = 0;
+      curP2->initial_scope = NULL;
+      //curP2->syntax_error_fn = rxSyntaxError;
+      _pn2=  dparse(curP2, sbExtra.s, sbExtra.o);
+      sbExtra.o=0;
+      wprint_parsetree(parser_tables_rxode2parse, _pn2, 0, wprint_node, NULL);
+      if (_pn2){
+        free_D_ParseTreeBelow(curP2,_pn2);
+        free_D_ParseNode(curP2,_pn2);
+      }
+      _pn2=0;
+      if (curP2 != NULL){
+        free_D_Parser(curP2);
+      }
+      curP2 = NULL;
+
+      sbNrm.o = o;
+      sbNrm.s[o] = 0;
+      sbExtra.s[0] = 0;
+    }
     return 1;
   }
   return 0;

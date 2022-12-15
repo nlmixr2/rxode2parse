@@ -155,16 +155,20 @@ static inline int handleRemainingAssignmentsCalcPropComplexAssign(nodeInfo ni, c
     if (tb.ix+1 == NV && tb.NEnd != NV){
       // New assignment
       tb.ixL = tb.ix;
-      tb.lh[tb.ix] = isLHS;
+        tb.lh[tb.ix] = isLHS;
     } else if (tb.ix < 0){
-      sPrint(&_gbuf,"cannot assign protected variable '%s'",v);
-      updateSyntaxCol();
-      trans_syntax_error_report_fn(_gbuf.s);
+      if (!strcmp("rxlin___", v)) {
+        tb.ixL=-1;
+      } else {
+        sPrint(&_gbuf,"cannot assign protected variable '%s'",v);
+        updateSyntaxCol();
+        trans_syntax_error_report_fn(_gbuf.s);
+      }
     } else {
       if (tb.lh[tb.ix] == notLHS){
-	tb.lh[tb.ix] = isLHSparam;
+        tb.lh[tb.ix] = isLHSparam;
       } else {
-	tb.lh[tb.ix] = isLHS;
+        tb.lh[tb.ix] = isLHS;
       }
       tb.ixL=-1;
     }

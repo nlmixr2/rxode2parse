@@ -32,6 +32,8 @@ SEXP _rxode2parse_calcDerived(SEXP ncmtSXP, SEXP transSXP, SEXP inp, SEXP sigdig
 
 SEXP _rxode2parse_parseFreeSexp(SEXP);
 
+SEXP _rxode2parse_rxUpdateTrans_(SEXP, SEXP, SEXP);
+
 double linCmtA(rx_solve *rx, unsigned int id, double t, int linCmt,
                int ncmt, int trans, double d_ka,
                double p1, double v1,
@@ -88,6 +90,7 @@ void R_init_rxode2parse(DllInfo *info){
     {"_rxode2parse_rxQr", (DL_FUNC) &_rxode2parse_rxQr, 1},
     {"_rxode2parse_rxParseSetSilentErr", (DL_FUNC) _rxode2parse_rxParseSetSilentErr, 1},
     {"_rxode2parse_rxode2parseSetRstudio", (DL_FUNC) _rxode2parse_rxode2parseSetRstudio, 1},
+    {"_rxode2parse_rxUpdateTrans_", (DL_FUNC) _rxode2parse_rxUpdateTrans_, 3},
     {NULL, NULL, 0} 
   };
   // C callable to assign environments.

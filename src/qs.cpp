@@ -9,6 +9,7 @@ Rcpp::Environment rxode2parseNs;
 bool loadQsC = false;
 bool loadRxode2parse = false;
 
+
 static void loadQs() {
   if (!loadQsC) {
     qsNs = loadNamespaceQs("qs");
@@ -80,4 +81,82 @@ extern "C" void setSilentErr(int silent);
 bool rxParseSetSilentErr(int silent){
   setSilentErr(silent);
   return true;
+}
+
+//[[Rcpp::export]]
+Rcpp::List rxUpdateTrans_(Rcpp::List ret, std::string prefix, std::string libName){
+  Rcpp::CharacterVector oldTrans = Rcpp::as<Rcpp::CharacterVector>(ret["trans"]);
+  Rcpp::CharacterVector newLst(22);
+  Rcpp::CharacterVector newNme(22);
+  newNme[0] ="lib.name";
+  newLst[0] = libName;
+
+  newNme[1] = "jac";
+  newLst[1] = Rcpp::as<std::string>(oldTrans[1]);
+
+  newNme[2] = "prefix";
+  newLst[2] = prefix;
+
+  newNme[3] = "dydt";
+  newLst[3] = prefix + "dydt";
+
+  newNme[4] = "calc_jac";
+  newLst[4] = prefix + "calc_jac";
+
+  newNme[5] = "calc_lhs";
+  newLst[5] = prefix + "calc_lhs";
+
+  newNme[6] = "model_vars";
+  newLst[6] = prefix + "model_vars";
+
+  newNme[7] = "theta";
+  newLst[7] = prefix + "theta";
+
+  newNme[8]="inis";
+  newLst[8]= prefix + "inis";
+
+  newNme[9]="dydt_lsoda";
+  newLst[9]= prefix + "dydt_lsoda";
+
+  newNme[10]="calc_jac_lsoda";
+  newLst[10]= prefix + "calc_jac_lsoda";
+
+  newNme[11]= "ode_solver_solvedata";
+  newLst[11]= prefix + "ode_solver_solvedata";
+
+  newNme[12] = "ode_solver_get_solvedata";
+  newLst[12] = prefix+"ode_solver_get_solvedata";
+
+  newNme[13]= "dydt_liblsoda";
+  newLst[13]= prefix + "dydt_liblsoda";
+
+  newNme[14]="F";
+  newLst[14]= prefix + "F";
+
+  newNme[15] ="Lag";
+  newLst[15] = prefix + "Lag";
+
+  newNme[16]= "Rate";
+  newLst[16] = prefix + "Rate";
+
+  newNme[17] ="Dur";
+  newLst[17] = prefix + "Dur";
+
+  newNme[18] = "mtime";
+  newLst[18] = prefix + "mtime";
+
+  newNme[19] = "assignFuns";
+  newLst[19] = prefix + "assignFuns";
+
+  newNme[20] = "ME";
+  newLst[20] = prefix + "ME";
+
+  newNme[21] = "IndF";
+  newLst[21]= prefix + "IndF";
+
+  newLst.attr("names") = newNme;
+
+  ret[3] = newLst;
+
+  return(ret);
 }
