@@ -177,7 +177,7 @@ static inline void handleFunctionRxDur1Lin(transFunctions *tf) {
   handleFunctionRxLinGeneric(tf, DUR, 1);
 }
 
-static inline int handleFunctionLinCmt(transFunctions *tf) {
+static inline int handleFunctionLinCmtJitProp(transFunctions *tf) {
   if (!strcmp("rxAlagLin", tf->v)) {
     handleFunctionRxAlagLin(tf);
     return 1;
@@ -210,6 +210,11 @@ static inline int handleFunctionLinCmt(transFunctions *tf) {
     handleFunctionRxDur1Lin(tf);
     return 1;
   }
+  return 0;
+}
+
+static inline int handleFunctionLinCmt(transFunctions *tf) {
+  if (handleFunctionLinCmtJitProp(tf)) return 1;
   if (!strcmp("linCmtA", tf->v) || !strcmp("linCmtC", tf->v) ||
       (tf->isLinB=!strcmp("linCmtB", tf->v))) {
     D_ParseNode *xpn1 = d_get_child(tf->pn, 3);
