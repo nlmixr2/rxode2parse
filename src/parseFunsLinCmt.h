@@ -39,10 +39,10 @@ static inline void handleFunctionRxLinGeneric(transFunctions *tf, int propId, in
     sAppendN(&sb, "+1", 2);
     sAppendN(&sbDt, "+1", 2);
   }
-  sAppendN(&sb, "] = (" , 5);
-  sAppendN(&sbDt, "] = (", 5);
-  tf->i[0] = 1;// Parse next arguments
-  tf->depth[0]=1;
+  sAppendN(&sb, "] = " , 4);
+  sAppendN(&sbDt, "] = ", 4);
+  /* tf->i[0] = 1;// Parse next arguments */
+  /* tf->depth[0]=1; */
 }
 
 static inline void handleFunctionRxAlagLin(transFunctions *tf) {

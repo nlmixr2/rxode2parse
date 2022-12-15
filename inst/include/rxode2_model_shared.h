@@ -192,6 +192,14 @@
 #define _tlast1(x) _solveData->subjects[_cSub].tlastS[x]
 #define _tfirst0()  _solveData->subjects[_cSub].tfirst
 #define _tfirst1(x) _solveData->subjects[_cSub].tfirstS[x]
+#define rxAlagLin(x) x
+#define rxAlag1Lin(x) x
+#define rxFLin(x) x
+#define rxF1Lin(x) x
+#define rxRateLin(x) x
+#define rxRate1Lin(x) x
+#define rxDurLin(x) x
+#define rxDur1Lin(x) x
 #undef rf
 #define rf(ind, x, y) rxf(ind, x, y)
 // int compareFactorVal(int val, const char *valStr, const char *cmpValue)
