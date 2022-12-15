@@ -32,6 +32,10 @@ static inline void handleFunctionRxLinGeneric(transFunctions *tf, int propId, in
     sAppendN(&sb, "_rate[", 6);
     sAppendN(&sbDt, "_rate[", 6);
     break;
+  case DUR:
+    sAppendN(&sb, "_dur[", 5);
+    sAppendN(&sbDt, "_dur[", 5);
+    break;
   }
   sAppendN(&sb, "(&_solveData->subjects[_cSub])->linCmt", 38);
   sAppendN(&sbDt, "(&_solveData->subjects[_cSub])->linCmt", 38);
