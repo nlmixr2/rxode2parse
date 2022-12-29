@@ -670,4 +670,5 @@ test_that("linear compartmental error", {
     expect_false(file.exists("rxode2parse_test_code.c"))
     expect_true(any(regexpr("_alag[(&_solveData->subjects[_cSub])->linCmt]", lines, fixed=TRUE) != -1))
   }
+  expect_error(rxode2parse("rx_yj_~2\nrx_lambda_~1\nrx_hi_~1\nrx_low_~0\nrx_pred_=1000*linCmtB(rx__PTR__,t,0,1,1,0,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)\nrx__sens_rx_pred__BY_ETA_1___=1000*exp(ETA[1]+THETA[2])*linCmtB(rx__PTR__,t,0,1,1,1,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)\nrx_r_=1e+06*Rx_pow_di(linCmtB(rx__PTR__,t,0,1,1,0,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0),2)*Rx_pow_di(THETA[5],2)+Rx_pow_di(THETA[4],2)\nrx__sens_rx_r__BY_ETA_1___=2e+06*exp(ETA[1]+THETA[2])*linCmtB(rx__PTR__,t,0,1,1,0,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)*linCmtB(rx__PTR__,t,0,1,1,1,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)*Rx_pow_di(THETA[5],2)\n"), NA)
 })
