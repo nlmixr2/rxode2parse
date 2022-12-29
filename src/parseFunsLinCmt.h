@@ -7,7 +7,11 @@ extern D_Parser *curP;
 static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // 10 tlag
   xpn2 = d_get_child(xpn1, 10+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
@@ -57,7 +61,11 @@ static inline void handleFunctionRxAlagLin(transFunctions *tf) {
 static inline void handleFunctionLinCmtF1(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // 11 f1
   xpn2 = d_get_child(xpn1, 11+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "1") || !strcmp(v2, "1.0") ||
 	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
@@ -74,7 +82,11 @@ static inline void handleFunctionRxFLin(transFunctions *tf) {
 static inline void handleFunctionLinCmtDur1(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // 13 dur1
   xpn2 = d_get_child(xpn1, 13+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s + 2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s + ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.")) || !strcmp(v2, ""))) {
     // has interesting dur
@@ -91,7 +103,11 @@ static inline void handleFunctionRxDurLin(transFunctions *tf) {
 static inline void handleFunctionLinCmtRate1(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // 12 rate1
   xpn2 = d_get_child(xpn1, 12+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting rate
@@ -109,7 +125,11 @@ static inline void handleFunctionRxRateLin(transFunctions *tf) {
 static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // 14 -- ka
   xpn2 = d_get_child(xpn1, 14+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.")))) {
     tb.hasKa=1;
@@ -117,7 +137,11 @@ static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1,
   /* Free(v2); */
   // lag2 = 15
   xpn2 = d_get_child(xpn1, 15+tf->isLinB);
-  v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
@@ -135,7 +159,11 @@ static inline void handleFunctionRxAlag1Lin(transFunctions *tf) {
 static inline void handleFunctionLinCmtF2(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // f2 = 16 ; This is 1 instead of zero
   xpn2 = d_get_child(xpn1, 16+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "1") || !strcmp(v2, "1.0") ||
 	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
@@ -151,7 +179,11 @@ static inline void handleFunctionRxF1Lin(transFunctions *tf) {
 static inline void handleFunctionLinCmtRate2(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   // rate2 = 17
   xpn2 = d_get_child(xpn1, 17+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting rate
@@ -165,11 +197,13 @@ static inline void handleFunctionRxRate1Lin(transFunctions *tf) {
   handleFunctionRxLinGeneric(tf, RATE, 1);
 }
 
-
-
 static inline void handleFunctionLinCmtDur2(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
   xpn2 = d_get_child(xpn1, 18+tf->isLinB);
-  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+  int ii = 1;
+  while (xpn2->start_loc.s[ii] == ' ') {
+    ii++;
+  }
+  char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
 	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting duration
@@ -246,7 +280,11 @@ static inline int handleFunctionLinCmt(transFunctions *tf) {
     aType(TLIN);
     if (tb.linB){
       xpn2 = d_get_child(xpn1, 4);
-      v2 = (char*)rc_dup_str(xpn2->start_loc.s+2, xpn2->end);
+      int ii = 1;
+      while (xpn2->start_loc.s[ii] == ' ') {
+        ii++;
+      }
+      v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
       int tmp = toInt(v2);
       if (tmp > 0) {
 	tmp--;
