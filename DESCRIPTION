@@ -5,7 +5,8 @@ Authors@R: c(
     person("Matthew L.", "Fidler", , "matthew.fidler@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-8538-6691")),
     person("Wenping", "Wang", , "wwang8198@gmail.com", role = "aut"),
-    person("Richard", "Upton", role = "ctb")
+    person("Richard", "Upton", role = "ctb"),
+    person("Gabriel", "Staples", role="ctb")
   )
 Maintainer: Matthew L. Fidler <matthew.fidler@gmail.com>
 Description: Provides the parsing needed for 'rxode2' (Wang, Hallow and

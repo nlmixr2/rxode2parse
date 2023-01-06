@@ -672,3 +672,13 @@ test_that("linear compartmental error", {
   }
   expect_error(rxode2parse("rx_yj_~2\nrx_lambda_~1\nrx_hi_~1\nrx_low_~0\nrx_pred_=1000*linCmtB(rx__PTR__,t,0,1,1,0,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)\nrx__sens_rx_pred__BY_ETA_1___=1000*exp(ETA[1]+THETA[2])*linCmtB(rx__PTR__,t,0,1,1,1,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)\nrx_r_=1e+06*Rx_pow_di(linCmtB(rx__PTR__,t,0,1,1,0,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0),2)*Rx_pow_di(THETA[5],2)+Rx_pow_di(THETA[4],2)\nrx__sens_rx_r__BY_ETA_1___=2e+06*exp(ETA[1]+THETA[2])*linCmtB(rx__PTR__,t,0,1,1,0,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)*linCmtB(rx__PTR__,t,0,1,1,1,exp(ETA[1]+THETA[2]),exp(THETA[3]),0,0,0,0,0,1,0,0,exp(THETA[1]),exp(THETA[6]),1,0,0)*Rx_pow_di(THETA[5],2)\n"), NA)
 })
+
+
+
+test_that("TIME conundrums", {
+
+  p <- rxode2parse("param(emax_fcfb,lec50,le0,let50_emax,propSd,etale0,TIME,PK);\ne0=exp(le0+etale0);\nemax=emax_fcfb;\nec50=exp(lec50);\net50_emax=exp(let50_emax);\nfoo=e0*(1+emax*(TIME/168)/(et50_emax+(TIME/168))*PK/(ec50+PK));\nrx_yj_~2;\nrx_lambda_~1;\nrx_low_~0;\nrx_hi_~1;\nrx_pred_f_~foo;\nrx_pred_~rx_pred_f_;\nrx_r_~(rx_pred_f_*propSd)^2;\nipredSim=rxTBSi(rx_pred_,rx_lambda_,rx_yj_,rx_low_,rx_hi_);\nsim=rxTBSi(rx_pred_+sqrt(rx_r_)*err.foo,rx_lambda_,rx_yj_,rx_low_,rx_hi_);\ncmt(foo);\ndvid(1);\n")
+
+  expect_false(any(p$params == "TIME"))
+  
+})

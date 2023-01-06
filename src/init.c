@@ -75,8 +75,11 @@ void _rxode2parse_assignFuns2(rx_solve rx,
                             t_handle_evidL handleEvid,
                             t_getDur getdur);
 
+SEXP _rxode2_parse_strncmpci(SEXP str1, SEXP str2, int num);
+
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2_parse_strncmpci", (DL_FUNC) &_rxode2_parse_strncmpci, 3},
     {"_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded, 0},
     {"_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen, 6},
     {"_rxode2parse_parseModel", (DL_FUNC) &_rxode2parse_parseModel, 1},

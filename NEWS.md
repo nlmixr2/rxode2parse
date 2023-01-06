@@ -1,5 +1,7 @@
 # rxode2parse (development version)
 
+* 'time' in model is now case insensitive
+
 * Use function declaration in `rxode2parseGetTranslation()` to
   determine thread safety
 
