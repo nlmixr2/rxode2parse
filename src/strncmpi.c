@@ -118,9 +118,11 @@ extern int rxstrcmpi(const char * str1, const char * str2) {
 }
 
 
-SEXP _rxode2_parse_strncmpci(SEXP str1, SEXP str2, int num) {
-  int pro = 0;
-  SEXP reti = Rf_allocVector(INTSXP, 1);
-  INTEGER(reti)[0] = 0;
+SEXP _rxode2_parse_strncmpci(SEXP str1, SEXP str2, SEXP num) {
+  SEXP reti = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(reti)[0] = strncmpci(R_CHAR(STRING_ELT(str1, 0)),
+                               R_CHAR(STRING_ELT(str2, 0)),
+                               INTEGER(num)[0]);
+  UNPROTECT(1);
   return reti;
 }
