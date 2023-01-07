@@ -1,3 +1,5 @@
+#include "strncmpi.h"
+
 static inline int assertForbiddenVariables(const char *s) {
   if (!strcmp("printf", s)){
     updateSyntaxCol();
@@ -36,13 +38,13 @@ static inline int assertForbiddenVariables(const char *s) {
     tb.ix=-2;
     return 0;
   }
-  if (!strcmp("evid", s)){ // This is mangled by rxode2 so don't use it.
+  if (!rxstrcmpi("evid", s)){ // This is mangled by rxode2 so don't use it.
     updateSyntaxCol();
     trans_syntax_error_report_fn(_("'evid' cannot be a variable in an rxode2 model"));
     tb.ix=-2;
     return 0;
   }
-  if (!strcmp("ii", s)){ // This is internally driven and not in the
+  if (!rxstrcmpi("ii", s)){ // This is internally driven and not in the
   			 // covariate table so don't use it.
     updateSyntaxCol();
     trans_syntax_error_report_fn(_("'ii' cannot be a variable in an rxode2 model"));
@@ -52,8 +54,8 @@ static inline int assertForbiddenVariables(const char *s) {
   return 1;
 }
 static inline int isReservedVariable(const char *s) {
-  return !strcmp("amt", s) ||
-    !strcmp("time", s) ||
+  return !rxstrcmpi("amt", s) ||
+    !rxstrcmpi("time", s) ||
     !strcmp("rx__PTR__", s) ||
     !strcmp("tlast", s) ||
     // Ignore M_ constants

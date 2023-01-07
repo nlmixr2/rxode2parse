@@ -23,8 +23,9 @@
 #include "../inst/include/rxode2parseSbuf.h"
 #include "tran.h"
 
+int rxstrcmpi(const char * str1, const char * str2);
 static inline int nodeTime(char *value) {
-  if (!strcmp("time",value)){
+  if (!rxstrcmpi("time",value)){
     aAppendN("t", 1);
     sAppendN(&sbt, "t", 1);
     return 1;
