@@ -134,6 +134,7 @@ static inline void linCmtCmt(linCmtStruct *lin, const int cmt){
     lin->cmtc = cmt;
   }
   if (lin->cmtc != cmt){
+    _rxode2parse_unprotect();
     err_trans("inconsistent central compartment numbers, not sure if central compartment no is '1' or '2'");
   }
 }

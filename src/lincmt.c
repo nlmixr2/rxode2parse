@@ -40,6 +40,9 @@ extern t_locateTimeIndex _rxode2parse_locateTimeIndex;
 #define _as_zero(a) (fabs(a) < sqrt(DBL_EPSILON) ? 0.0 : a)
 #define _as_dbleps(a) (fabs(a) < sqrt(DBL_EPSILON) ? ((a) < 0 ? -sqrt(DBL_EPSILON)  : sqrt(DBL_EPSILON)) : a)
 
+void _rxode2parse_unprotect();
+
+
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #define _(String) dgettext ("rxode2parse", String)
@@ -1632,6 +1635,7 @@ SEXP toReal(SEXP in){
     UNPROTECT(1);
     return ret;
   }
+  _rxode2parse_unprotect();
   Rf_errorcall(R_NilValue, _("not an integer/real"));
   return R_NilValue;
 }
@@ -1650,6 +1654,7 @@ SEXP derived1(int trans, SEXP inp, double dig) {
     if (lenP == 1){
       lenOut = lenV;
     } else if (lenV != 1){
+      _rxode2parse_unprotect();
       Rf_errorcall(R_NilValue, _("The dimensions of the parameters must match"));
     }
   }
@@ -1760,6 +1765,7 @@ SEXP derived2(int trans, SEXP inp, double dig) {
         (lenP2 != 1 && lenP2 != lenOut) ||
         (lenP3 != 1 && lenP3 != lenOut) ||
         (lenV != 1  && lenV != lenOut)) {
+      _rxode2parse_unprotect();
       Rf_errorcall(R_NilValue, _("The dimensions of the parameters must match"));
     }
   }
@@ -1932,6 +1938,7 @@ SEXP derived3(int trans, SEXP inp, double dig) {
         (lenP4 != 1 && lenP4 != lenOut) ||
         (lenP5 != 1 && lenP5 != lenOut) ||
         (lenV != 1  && lenV != lenOut)) {
+      _rxode2parse_unprotect();
       Rf_errorcall(R_NilValue, _("The dimensions of the parameters must match"));
     }
   }
@@ -2147,9 +2154,11 @@ SEXP _calcDerived(SEXP ncmtSXP, SEXP transSXP, SEXP inp, SEXP sigdigSXP) {
       return derived3(trans, inp, dig);
       break;
     default:
+      _rxode2parse_unprotect();
       Rf_errorcall(R_NilValue, _("'ncmt' needs to be 1-3"));
     }
   } else {
+    _rxode2parse_unprotect();
     Rf_errorcall(R_NilValue, _("'inp' needs to be list/data frame"));
   }
   return R_NilValue;
@@ -2803,6 +2812,7 @@ double linCmtD(rx_solve *rx, unsigned int id, double t, int linCmt,
                        p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2 + h) - v0);
   default:
+    _rxode2parse_unprotect();
     Rf_errorcall(R_NilValue, "undef diff");
   }
 #undef h
@@ -2932,6 +2942,7 @@ double linCmtE(rx_solve *rx, unsigned int id, double t, int linCmt,
                        p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2 - h));
   default:
+    _rxode2parse_unprotect();
     Rf_errorcall(R_NilValue, "undef diff");
   }
 #undef h

@@ -220,6 +220,7 @@ void err_msg(int chk, const char *msg, int code)
 {
   if(!chk) {
     parseFree(0);
+    _rxode2parse_unprotect();
     Rf_errorcall(R_NilValue, "%s",msg);
   }
 }
@@ -536,6 +537,7 @@ static inline int setupTrans(SEXP parse_file, SEXP prefix, SEXP model_md5, SEXP 
   if (isString(prefix) && length(prefix) == 1){
     model_prefix = CHAR(STRING_ELT(prefix,0));
   } else {
+    _rxode2parse_unprotect();
     err_trans("model prefix must be specified");
   }
 
@@ -543,6 +545,7 @@ static inline int setupTrans(SEXP parse_file, SEXP prefix, SEXP model_md5, SEXP 
     me_code = CHAR(STRING_ELT(inME,0));
   } else {
     freeP();
+    _rxode2parse_unprotect();
     err_trans("extra ME code must be specified");
   }
 
@@ -581,8 +584,10 @@ static inline void finalizeSyntaxError(void) {
     }
     if (firstErrD == 1) {
       firstErrD=0;
+      _rxode2parse_unprotect();
       err_trans(firstErr.s);
     } else {
+      _rxode2parse_unprotect();
       err_trans("syntax errors (see above)");
     }
   }
@@ -601,11 +606,13 @@ SEXP _rxode2parse_trans(SEXP parse_file, SEXP prefix, SEXP model_md5, SEXP parse
   SEXP lst = PROTECT(generateModelVars());
   finalizeSyntaxError();
   UNPROTECT(1);
+  _rxode2parse_unprotect();
   return lst;
 }
 
 SEXP _rxode2parse_parseModel(SEXP type){
   if (!sbPm.o){
+    _rxode2parse_unprotect();
     err_trans("model no longer loaded in memory");
   }
   int iT = INTEGER(type)[0];

@@ -331,6 +331,8 @@ void parseFree(int last);
 
 #define err_trans(chr) Rf_errorcall(R_NilValue, _(chr));
 
+void _rxode2parse_unprotect();
+
 char *getLine (char *src, int line, int *lloc);
 
 #endif // __TRAN_H__

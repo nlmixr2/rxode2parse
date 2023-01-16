@@ -4,16 +4,19 @@ static inline void linCmtParseAOB(linCmtStruct *lin, int verbose) {
   if (lin->v == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("cannot figure out a central volume");
   }
   if (lin->alpha == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("need an 'alpha' with 'aob'");
   }
   if (lin->beta == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("need a 'beta' with 'aob'");
   }
   sAppend(&(lin->ret0), "%d, %s", lin->trans, lin->mid);
@@ -29,11 +32,13 @@ static inline void linCmtParseTransAlphaBeta(linCmtStruct *lin, int verbose) {
   if (lin->beta == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("need a 'beta'");
   }
   if (lin->b == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("need a 'b'");
   }
   sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->beta)));
@@ -48,6 +53,7 @@ static inline void linCmtParseTransAlphaBeta(linCmtStruct *lin, int verbose) {
     if (lin->c == -1) {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("need a 'c'");
     }
     sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->gamma)));
@@ -72,6 +78,7 @@ static inline void linCmtParseTransAlpha(linCmtStruct *lin, int verbose) {
     if (lin->v == -1) {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("cannot figure out a central volume");
     }
     sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->v)));
@@ -81,6 +88,7 @@ static inline void linCmtParseTransAlpha(linCmtStruct *lin, int verbose) {
   } else if (lin->gamma != -1 || lin->c != -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("a 'gamma' or 'c' specified without 'b' or 'beta'");
   } else {
     sAppendN(&(lin->ret0), "0.0, 0.0, 0.0, 0.0, ", 20);

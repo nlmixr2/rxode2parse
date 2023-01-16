@@ -20,22 +20,29 @@ SEXP _rxode2parse_packages;
 
 SEXP getRxode2ParseDfBuiltin(void);
 
+int _rxode2parse_protected = 0;
 void _rxode2parse_assignTranslationBuiltin() {
   SEXP df = getRxode2ParseDfBuiltin();
-  _rxode2parse_funName = VECTOR_ELT(df, 0);
-  _rxode2parse_funNameInt = VECTOR_ELT(df, 1);
+  _rxode2parse_funName = PROTECT(VECTOR_ELT(df, 0)); _rxode2parse_protected++;
+  _rxode2parse_funNameInt = PROTECT(VECTOR_ELT(df, 1)); _rxode2parse_protected++;
 }
 
 void _rxode2parse_assignTranslation(SEXP df) {
-  _rxode2parse_rxFunctionName = VECTOR_ELT(df, 0);
-  _rxode2parse_functionName = VECTOR_ELT(df, 1);
-  _rxode2parse_functionType = VECTOR_ELT(df, 2);
-  _rxode2parse_functionPackageName = VECTOR_ELT(df, 3);
-  _rxode2parse_functionPackageFunction = VECTOR_ELT(df, 4);
-  _rxode2parse_functionArgMin = VECTOR_ELT(df, 5);
-  _rxode2parse_functionArgMax = VECTOR_ELT(df, 6);
-  _rxode2parse_functionThreadSafe = VECTOR_ELT(df, 7);
+  _rxode2parse_unprotect();
+  _rxode2parse_rxFunctionName = PROTECT(VECTOR_ELT(df, 0)); _rxode2parse_protected++;
+  _rxode2parse_functionName = PROTECT(VECTOR_ELT(df, 1)); _rxode2parse_protected++;
+  _rxode2parse_functionType = PROTECT(VECTOR_ELT(df, 2)); _rxode2parse_protected++;
+  _rxode2parse_functionPackageName = PROTECT(VECTOR_ELT(df, 3)); _rxode2parse_protected++;
+  _rxode2parse_functionPackageFunction = PROTECT(VECTOR_ELT(df, 4)); _rxode2parse_protected++;
+  _rxode2parse_functionArgMin = PROTECT(VECTOR_ELT(df, 5)); _rxode2parse_protected++;
+  _rxode2parse_functionArgMax = PROTECT(VECTOR_ELT(df, 6)); _rxode2parse_protected++;
+  _rxode2parse_functionThreadSafe = PROTECT(VECTOR_ELT(df, 7));_rxode2parse_protected++;
   _rxode2parse_assignTranslationBuiltin();
+}
+
+void _rxode2parse_unprotect() {
+  if (_rxode2parse_protected) UNPROTECT(_rxode2parse_protected);
+  _rxode2parse_protected = 0;
 }
 
 
@@ -500,6 +507,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
       sAppendN(&sbOut,  "}\n", 2);
     }
   }
+  _rxode2parse_unprotect();
 }
 
 void writeSb(sbuf *sbb, FILE *fp){
@@ -512,6 +520,7 @@ void writeSb(sbuf *sbb, FILE *fp){
     register unsigned written = fwrite(sbb->s + totalWritten, 1, toWrite, fp);
     if( toWrite != written){
       fclose(fp);
+      _rxode2parse_unprotect();
       err_trans("IO error writing parsed C file");
     } else{
       totalWritten += written; // add the written bytes
@@ -519,6 +528,7 @@ void writeSb(sbuf *sbb, FILE *fp){
   }
   if (totalWritten != sbb->o) {
     fclose(fp);
+    _rxode2parse_unprotect();
     err_trans("IO error writing parsed C file");
   }
 }
@@ -526,12 +536,15 @@ void writeSb(sbuf *sbb, FILE *fp){
 SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname,
                      SEXP pMd5, SEXP timeId, SEXP mvLast){
   if (!sbPm.o || !sbNrm.o){
+    _rxode2parse_unprotect();
     err_trans("nothing in output queue to write");
   }
   if (!isString(c_file) || length(c_file) != 1){
+    _rxode2parse_unprotect();
     err_trans("c_file should only be 1 file");
   }
   if (length(libname) != 2){
+    _rxode2parse_unprotect();
     err_trans("libname needs 2 elements");
   }
   fpIO = fopen(CHAR(STRING_ELT(c_file,0)), "wb");
@@ -614,12 +627,15 @@ SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname,
     }
     if (badCentral && badDepot){
       fclose(fpIO);
+      _rxode2parse_unprotect();
       err_trans("linCmt() and ode have 'central' and 'depot' compartments, rename ODE 'central'/'depot'");
     } else if (badCentral) {
       fclose(fpIO);
+      _rxode2parse_unprotect();
       err_trans("linCmt() and ode has a 'central' compartment, rename ODE 'central'");
     } else if (badDepot) {
       fclose(fpIO);
+      _rxode2parse_unprotect();
       err_trans("linCmt() and ode has a 'depot' compartment, rename ODE 'depot'");
     }
     (&sbOut)->s[0]='\0';
@@ -629,6 +645,7 @@ SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname,
     } else if (tb.hasCentral == 1) {
       if (tb.hasDepot){
         fclose(fpIO);
+        _rxode2parse_unprotect();
         err_trans("linCmt() does not have 'depot' compartment without a 'ka'");
         return R_NilValue;
       }

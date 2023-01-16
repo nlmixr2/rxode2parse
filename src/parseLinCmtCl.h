@@ -10,14 +10,16 @@ static inline int isLinCmtKeOrKel(linCmtStruct *lin, const char *in, int *index)
   if ((in[1] == 'e' || in[1] == 'E')) {
     if (in[2] == '\0') {
       if (lin->kel != -1) {
-	err_trans("Ambiguous 'kel'");
+        _rxode2parse_unprotect();
+        err_trans("Ambiguous 'kel'");
       }
       lin->kel = *index;
       return 1;
     }
     if ((in[2] == 'l' || in[2] == 'L') && in[3] == '\0') {
       if (lin->kel != -1) {
-	err_trans("Ambiguous 'kel'");
+        _rxode2parse_unprotect();
+        err_trans("Ambiguous 'kel'");
       }
       lin->kel = *index;
       return 1;
@@ -40,7 +42,8 @@ static inline int isLinCmtK10orK12orK13(linCmtStruct *lin, const char *in, int *
     if (in[2] == '0' && in[3] == '\0') {
       linCmtCmt(lin, 1);
       if (lin->kel != -1) {
-	err_trans("Ambiguous 'kel'");
+        _rxode2parse_unprotect();
+        err_trans("Ambiguous 'kel'");
       }
       lin->kel = *index;
       return 1;
@@ -64,7 +67,8 @@ static inline int isLinCmtK20orK21orK23orK24(linCmtStruct *lin, const char *in, 
     if (in[2] == '0' && in[3] == '\0') {
       linCmtCmt(lin, 2);
       if (lin->kel != -1) {
-	err_trans("Ambiguous 'kel'");
+        _rxode2parse_unprotect();
+        err_trans("Ambiguous 'kel'");
       }
       lin->kel = *index;
       return 1;
@@ -164,6 +168,7 @@ static inline void linCmtClStyle(linCmtStruct *lin, const int style) {
     linCmtClStr(style);
     snprintf(errLin + errOff, errLinLen - errOff, "' clearance styles");
     errOff+=18;
+    _rxode2parse_unprotect();
     err_trans(errLin);
   }
 }
@@ -280,16 +285,16 @@ static inline int isLinCmtCld3(linCmtStruct *lin, const char *in, int *index){
 static inline int isLinCmtCl(linCmtStruct *lin, const char *in, int *index) {
   if (in[1] == 'l' || in[1] == 'L') {
     if  (isLinCmtCl0(lin, in, index) ||
-	 isLinCmtCl1(lin, in, index) ||
-	 isLinCmtCl2(lin, in, index) ||
-	 isLinCmtCl3(lin, in, index) ||
-	 isLinCmtCl4(lin, in, index)){
+         isLinCmtCl1(lin, in, index) ||
+         isLinCmtCl2(lin, in, index) ||
+         isLinCmtCl3(lin, in, index) ||
+         isLinCmtCl4(lin, in, index)){
       return 1;
     } else if (in[2] == 'd' || in[2] == 'D') {
       return isLinCmtCld0(lin, in, index) ||
-	 isLinCmtCld1(lin, in, index) ||
-	 isLinCmtCld2(lin, in, index) ||
-	isLinCmtCld3(lin, in, index);
+        isLinCmtCld1(lin, in, index) ||
+        isLinCmtCld2(lin, in, index) ||
+        isLinCmtCld3(lin, in, index);
     }
   }
   return 0;

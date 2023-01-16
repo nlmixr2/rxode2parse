@@ -3,10 +3,12 @@ static inline void assertK12andK21mustBePresent(linCmtStruct *lin, int verbose) 
     if (lin->cmtc == 1){
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k12' not found when 'k21' present");
     } else {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k23' not found when 'k32' present");
     }
   }
@@ -14,10 +16,12 @@ static inline void assertK12andK21mustBePresent(linCmtStruct *lin, int verbose) 
     if (lin->cmtc == 1){
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k21' not found when 'k12' present");
     } else {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k32' not found when 'k23' present");
     }
   }
@@ -28,10 +32,12 @@ static inline void assertK13andK31mustBePresent(linCmtStruct *lin, int verbose) 
     if (lin->cmtc == 1){
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k13' not found when 'k31' present");
     } else {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k24' not found when 'k42' present");
     }
   }
@@ -39,10 +45,12 @@ static inline void assertK13andK31mustBePresent(linCmtStruct *lin, int verbose) 
     if (lin->cmtc == 1){
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k31' not found when 'k13' present");
     } else {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k42' not found when 'k24' present");
     }
   }
@@ -67,6 +75,7 @@ static inline void linCmtParseTranKel(linCmtStruct *lin, int verbose) {
   if (lin->v == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("cannot figure out a central volume");
   }
   lin->ncmt = 1;
@@ -80,10 +89,12 @@ static inline void linCmtParseTranKel(linCmtStruct *lin, int verbose) {
     if (lin->cmtc == 1){
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k13' or 'k31' present when 'k12' and 'k21' not present");
     } else {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("'k24' or 'k42' present when 'k23' and 'k32' not present");
     }
   } else {
@@ -98,16 +109,19 @@ static inline void linCmtParseTransK21(linCmtStruct *lin, int verbose) {
   if (lin->v == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("cannot figure out a central volume");
   }
   if (lin->alpha == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("need an 'alpha'");
   }
   if (lin->beta == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("need a 'beta'");
   }
   sAppend(&(lin->ret0), "%d, %s", lin->trans, lin->mid);
