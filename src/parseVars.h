@@ -28,12 +28,14 @@ static inline int assertForbiddenVariables(const char *s) {
   }
   if (!strcmp("ifelse", s)){
     updateSyntaxCol();
+    _rxode2parse_unprotect();
     err_trans("'ifelse' cannot be a state in an rxode2 model");
     tb.ix=-2;
     return 0;
   }
   if (!strcmp("if", s)){
     updateSyntaxCol();
+    _rxode2parse_unprotect();
     err_trans("'if' cannot be a variable/state in an rxode2 model");
     tb.ix=-2;
     return 0;

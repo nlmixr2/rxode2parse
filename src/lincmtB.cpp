@@ -23,6 +23,7 @@
 #define _locateTimeIndex _rxode2parse_locateTimeIndex
 
 #include "../inst/include/rxode2parse.h"
+extern "C" void _rxode2parse_unprotect();
 
 extern "C" {
   rx_solving_options _rxode2parse_op_global;
@@ -2926,6 +2927,7 @@ extern "C" double linCmtB(rx_solve *rx, unsigned int id,
 		   dd_rate, dd_dur, dd_ka, dd_tlag2, dd_F2,
 		   dd_rate2, dd_dur2);
   default:
+    _rxode2parse_unprotect();
     Rf_errorcall(R_NilValue, "unsupported sensitivity");
   }
 }

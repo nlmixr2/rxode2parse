@@ -39,6 +39,7 @@ static inline void linCmtVStyle(linCmtStruct *lin, int style) {
     linCmtVStr(style);
     snprintf(errLin + errOff, errLinLen-errOff, "' volume styles");
     errOff += 15;
+    _rxode2parse_unprotect();
     err_trans(errLin);
   }
 }

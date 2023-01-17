@@ -11,16 +11,19 @@ static inline void linCmtParseTransClVss(linCmtStruct *lin, int verbose) {
     errOff+=9;
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans(errLin);
   }
   if (lin->v == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("cannot figure out a central volume");
   }
   if (lin->cl2 == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("cannot figure out distributional clearance");
   }
   sAppend(&(lin->ret0), "%d, %s", lin->trans, lin->mid);
@@ -34,6 +37,7 @@ static inline void linCmtParseTransClV(linCmtStruct *lin, int verbose) {
   if (lin->v == -1) {
     sFree(&(lin->ret0));
     sFree(&(lin->ret));
+    _rxode2parse_unprotect();
     err_trans("cannot figure out a central volume");
   }
   lin->ncmt = 1;
@@ -46,11 +50,13 @@ static inline void linCmtParseTransClV(linCmtStruct *lin, int verbose) {
     if (lin->cl2 == -1) {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("cannot figure out distributional clearance");
     }
     if (lin->v2 == -1) {
       sFree(&(lin->ret0));
       sFree(&(lin->ret));
+      _rxode2parse_unprotect();
       err_trans("cannot figure out distributional volume");
     }
     sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->cl2)));
@@ -58,14 +64,16 @@ static inline void linCmtParseTransClV(linCmtStruct *lin, int verbose) {
     if (lin->v3 != -1 || lin->cl3 != -1) {
       lin->ncmt = 3;
       if (lin->cl3 == -1) {
-	sFree(&(lin->ret0));
-	sFree(&(lin->ret));
-	err_trans("cannot figure out 2nd distributional clearance");
+        sFree(&(lin->ret0));
+        sFree(&(lin->ret));
+        _rxode2parse_unprotect();
+        err_trans("cannot figure out 2nd distributional clearance");
       }
       if (lin->v3 == -1) {
-	sFree(&(lin->ret0));
-	sFree(&(lin->ret));
-	err_trans("cannot figure out 2nd distributional volume");
+        sFree(&(lin->ret0));
+        sFree(&(lin->ret));
+        _rxode2parse_unprotect();
+        err_trans("cannot figure out 2nd distributional volume");
       }
       sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->cl3)));
       sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->v3)));

@@ -72,6 +72,7 @@ static inline SEXP linCmtParseSEXP(linCmtStruct *lin) {
   if (lin->trans == -1) {
     UNPROTECT(_linCmtParsePro);
     _linCmtParsePro=0;
+    _rxode2parse_unprotect();
     err_trans("could not figure out linCmt() model");
   }
   _linCmtParsePro=0;
@@ -184,6 +185,7 @@ static inline void linCmtGenBolus(linCmtGenStruct *linG) {
     errOff=0;
     snprintf(errLin, errLinLen, "%s does not exist without a 'depot' compartment, specify a 'ka' parameter", linG->last.s);
     errOff=strlen(errLin);
+    _rxode2parse_unprotect();
     err_trans(errLin);
   }
   // central only
@@ -275,10 +277,12 @@ static inline SEXP linCmtGenSEXP(linCmtGenStruct *linG, SEXP linCmt, SEXP vars, 
   switch(linCmtGenFinalize(linG, linCmt, vars, linCmtSens, verbose, linCmtP)) {
   case 1:
     UNPROTECT(pro);
+    _rxode2parse_unprotect();
     err_trans("linCmt() bad parse");
     return R_NilValue;
   case 2:
     UNPROTECT(pro);
+    _rxode2parse_unprotect();
     err_trans("linCmt() cannot have any extra parentheses in it");
     return R_NilValue;
     break;
