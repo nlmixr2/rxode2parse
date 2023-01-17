@@ -8,23 +8,23 @@ static inline void handleIdentifier(nodeInfo ni, char *name, char *value) {
       addSymbolStr(value);
       // Ignored variables
       if (isTbsVar(value)){
-	// If it is Transform both sides, suppress printouts
-	tb.lh[NV-1] = isSuppressedParam; // Suppress param printout.
+        // If it is Transform both sides, suppress printouts
+        tb.lh[NV-1] = isSuppressedParam; // Suppress param printout.
       }
     } else if (isDefiningParameterRecursively(value)){
       // This is x = x*exp(matt)
       // lhs defined in terms of a parameter
       if (tb.lh[tb.ix] == isSuppressedLHS){
-	tb.lh[tb.ix] = notLHS;
+        tb.lh[tb.ix] = notLHS;
       } else {
-	tb.lh[tb.ix] = isLHSparam;
+        tb.lh[tb.ix] = isLHSparam;
       }
     }
   }
 }
 
 static inline void handleOperatorsOrPrintingIdentifiers(int depth, print_node_fn_t fn, void *client_data,
-							nodeInfo ni, char *name, char *value) {
+                                                        nodeInfo ni, char *name, char *value) {
   if (isOperatorOrPrintingIdentifier(ni, name))
     fn(depth, name, value, client_data);
   if (!strcmp("=", name)){
@@ -99,15 +99,15 @@ static inline void handleSafeZero(nodeInfo ni, char *name, int i, int *safe_zero
     char *v = (char*)rc_dup_str(xpn->start_loc.s, xpn->end);
     if (i == 0){
       if (!strcmp("/",v)){
-	aAppendN("safe_zero(", 10);
-	*safe_zero = 1;
+        aAppendN("safe_zero(", 10);
+        *safe_zero = 1;
       } else {
-	*safe_zero = 0;
+        *safe_zero = 0;
       }
     }
     if (i == 1){
       if (*safe_zero){
-	aAppendN(")", 1);
+        aAppendN(")", 1);
       }
       *safe_zero = 0;
     }
