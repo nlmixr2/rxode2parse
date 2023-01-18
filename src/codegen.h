@@ -348,7 +348,7 @@ void writeSb(sbuf *sbb, FILE *fp);
   writeSb(&sbOut, fpIO);
 
 SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname,
-                          SEXP pMd5, SEXP timeId, SEXP mvLast);
+                          SEXP pMd5, SEXP timeId, SEXP mvLast, SEXP goodFuns);
 
 extern int fullPrint;
 #endif // __CODEGEN_H__

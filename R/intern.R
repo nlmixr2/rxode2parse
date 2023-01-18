@@ -2,8 +2,8 @@
   .Call(`_rxode2parse_codeLoaded`)
 }
 
-.codegen <- function(c_file, prefix, libname, pMd5, timeId, lastMv) {
-  .Call(`_rxode2parse_codegen`, c_file, prefix, libname, pMd5, timeId, lastMv)
+.codegen <- function(c_file, prefix, libname, pMd5, timeId, lastMv, goodFun) {
+  .Call(`_rxode2parse_codegen`, c_file, prefix, libname, pMd5, timeId, lastMv, goodFun)
 }
 
 .parseModel <- function(type) {

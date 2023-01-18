@@ -522,7 +522,7 @@ void trans_internal(const char* parse_file, int isStr){
 extern int _rxode2parse_protected;
 static inline int setupTrans(SEXP parse_file, SEXP prefix, SEXP model_md5, SEXP parseStr,
                              SEXP isEscIn, SEXP inME, SEXP goodFuns, SEXP fullPrintIn) {
-  _goodFuns = PROTECT(goodFuns); ic++;
+  _goodFuns = PROTECT(goodFuns); _rxode2parse_protected++;
   // Make sure buffers are initialized.
   isEsc=INTEGER(isEscIn)[0];
   fullPrint=INTEGER(fullPrintIn)[0];

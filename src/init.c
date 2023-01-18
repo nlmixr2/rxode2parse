@@ -13,7 +13,7 @@
 #include "../inst/include/rxode2parseSbuf.h"
 
 SEXP _rxode2parse_codeLoaded(void);
-SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname, SEXP pMd5, SEXP timeId, SEXP lastMv);
+SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname, SEXP pMd5, SEXP timeId, SEXP lastMv, SEXP goodFuns);
 SEXP _rxode2parse_parseModel(SEXP type);
 SEXP _rxode2parse_isLinCmt(void);
 
@@ -81,7 +81,7 @@ void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
     {"_rxode2_parse_strncmpci", (DL_FUNC) &_rxode2_parse_strncmpci, 0},
     {"_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded, 0},
-    {"_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen, 6},
+    {"_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen, 7},
     {"_rxode2parse_parseModel", (DL_FUNC) &_rxode2parse_parseModel, 1},
     {"_rxode2parse_isLinCmt", (DL_FUNC) &_rxode2parse_isLinCmt, 0},
     {"_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans, 8},
