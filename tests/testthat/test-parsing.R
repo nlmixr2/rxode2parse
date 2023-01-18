@@ -674,7 +674,6 @@ test_that("linear compartmental error", {
 })
 
 
-
 test_that("TIME conundrums", {
 
   p <- rxode2parse("param(emax_fcfb,lec50,le0,let50_emax,propSd,etale0,TIME,PK);\ne0=exp(le0+etale0);\nemax=emax_fcfb;\nec50=exp(lec50);\net50_emax=exp(let50_emax);\nfoo=e0*(1+emax*(TIME/168)/(et50_emax+(TIME/168))*PK/(ec50+PK));\nrx_yj_~2;\nrx_lambda_~1;\nrx_low_~0;\nrx_hi_~1;\nrx_pred_f_~foo;\nrx_pred_~rx_pred_f_;\nrx_r_~(rx_pred_f_*propSd)^2;\nipredSim=rxTBSi(rx_pred_,rx_lambda_,rx_yj_,rx_low_,rx_hi_);\nsim=rxTBSi(rx_pred_+sqrt(rx_r_)*err.foo,rx_lambda_,rx_yj_,rx_low_,rx_hi_);\ncmt(foo);\ndvid(1);\n")
@@ -687,8 +686,7 @@ test_that("TIME conundrums", {
 test_that("pow problems", {
   expect_error(rxode2parse("pow=3+4"), NA)
 
-  rxode2parse("pow = 3+1+pow(4, 3)\npow2 = pow*2", code="rxode2parse_test_code.c")
-
+  rxode2parse("pow=4\nif (CMT==5){pow = 3+1+pow(4, 3)}\npow2 = pow*2", code="rxode2parse_test_code.c")
   expect_true(file.exists("rxode2parse_test_code.c"))
   if (file.exists("rxode2parse_test_code.c")) {
     lines <- readLines("rxode2parse_test_code.c")
@@ -697,5 +695,6 @@ test_that("pow problems", {
     expect_true(any(regexpr("+pow(4,3)", lines, fixed=TRUE) != -1))
     expect_true(any(regexpr("_rxNotFun_pow=", lines, fixed=TRUE) != -1))
     expect_true(any(regexpr("=_rxNotFun_pow*2", lines, fixed=TRUE) != -1))
+    expect_true(any(regexpr("(_CMT==5)", lines, fixed=TRUE)) != -1)
   }
 })
