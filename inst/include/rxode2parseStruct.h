@@ -184,6 +184,11 @@ typedef struct {
   int _update_par_ptr_in;
   int badIni;
   double *llikSave;
+  // Add pointers for drifting atol/rtol values during optimization
+  double *rtol2;
+  double *atol2;
+  double *ssRtol;
+  double *ssAtol;
 } rx_solving_options_ind;
 
 typedef struct {
