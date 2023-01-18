@@ -3,6 +3,8 @@
 #include "print_node.h"
 #include "tran.h"
 
+extern SEXP _goodFuns;
+
 void wprint_node(int depth, char *name, char *value, void *client_data) {
   int i;
   nodeInfo ni;
@@ -25,6 +27,15 @@ void wprint_node(int depth, char *name, char *value, void *client_data) {
       nodeFunLinCmtC(value);
   }
   if (!tmp) {
+    // See if this variable is a function too
+    if (!nodeHas(identifier)) {
+      for (int j = Rf_length(_goodFuns); j--;){
+        if (!strcmp(CHAR(STRING_ELT(_goodFuns, j)),value)) {
+          aAppendN("_rxNotFun_", 10);
+          break;
+        }
+      }
+    }
     // Apply fix for dot.syntax
     for (i = 0; i < (int)strlen(value); i++){
       if (value[i] == '.' && nodeHas(identifier_r)){

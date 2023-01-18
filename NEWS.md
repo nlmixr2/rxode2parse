@@ -7,6 +7,9 @@
 
 * Add check for correct number of function arguments to parser
 
+* Like R, known functions can be assigned as a variable and the
+  function can still be called (while not changing the variable value)
+
 * Fix garbled error messages that occur with certain messages.
 
 # rxode2parse 2.0.13

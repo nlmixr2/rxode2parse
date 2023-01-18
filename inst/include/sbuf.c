@@ -219,7 +219,15 @@ void curLineType(vLines *sbb, int propId) {
   sbb->lType[sbb->n] = propId;
 }
 
+extern SEXP _goodFuns;
+
 void doDot(sbuf *out, char *buf) {
+  for (int j = Rf_length(_goodFuns); j--;){
+    if (!strcmp(CHAR(STRING_ELT(_goodFuns, j)), buf)) {
+      sAppendN(out, "_rxNotFun_", 10);
+      break;
+    }
+  }
   for (int k = 0; k < (int)strlen(buf); k++){
     if (buf[k] == '.'){
       sAppend(out,"_DoT_");
@@ -230,6 +238,13 @@ void doDot(sbuf *out, char *buf) {
 }
 
 void doDot2(sbuf *sb, sbuf *sbDt, char *buf) {
+  for (int j = Rf_length(_goodFuns); j--;){
+    if (!strcmp(CHAR(STRING_ELT(_goodFuns, j)), buf)) {
+      sAppendN(sb, "_rxNotFun_", 10);
+      sAppendN(sbDt, "_rxNotFun_", 10);
+      break;
+    }
+  }
   for (int k = 0; k < (int)strlen(buf); k++) {
     if (buf[k] == '.') {
       sAppend(sb,"_DoT_");
@@ -240,5 +255,3 @@ void doDot2(sbuf *sb, sbuf *sbDt, char *buf) {
     }
   }
 }
-
-

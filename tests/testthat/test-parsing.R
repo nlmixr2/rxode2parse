@@ -682,3 +682,20 @@ test_that("TIME conundrums", {
   expect_false(any(p$params == "TIME"))
   
 })
+
+
+test_that("pow problems", {
+  expect_error(rxode2parse("pow=3+4"), NA)
+
+  rxode2parse("pow = 3+1+pow(4, 3)\npow2 = pow*2", code="rxode2parse_test_code.c")
+
+  expect_true(file.exists("rxode2parse_test_code.c"))
+  if (file.exists("rxode2parse_test_code.c")) {
+    lines <- readLines("rxode2parse_test_code.c")
+    unlink("rxode2parse_test_code.c")
+    expect_false(file.exists("rxode2parse_test_code.c"))
+    expect_true(any(regexpr("+pow(4,3)", lines, fixed=TRUE) != -1))
+    expect_true(any(regexpr("_rxNotFun_pow=", lines, fixed=TRUE) != -1))
+    expect_true(any(regexpr("=_rxNotFun_pow*2", lines, fixed=TRUE) != -1))
+  }
+})
