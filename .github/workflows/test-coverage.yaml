@@ -25,7 +25,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr
+          cache-version: 2
+          extra-packages: |
+            any::covr
+            nlmixr2/dparser-R
+            local::.
           needs: coverage
 
       - name: Test coverage
