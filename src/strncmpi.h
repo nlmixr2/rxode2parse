@@ -1,5 +1,5 @@
-#ifndef __genModelVars_H__
-#define __genModelVars_H__
+#ifndef __STRNCMPI_H__
+#define __STRNCMPI_H__
 #pragma once
 #if defined(__cplusplus)
 extern "C" {
