@@ -19,5 +19,6 @@ if (requireNamespace("devtools", quietly = TRUE)) {
   writeLines(.l, parseFuns.R)
   close(rxode2parse_control.h)
   message("done")
+
 }
 
