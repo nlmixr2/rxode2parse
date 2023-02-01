@@ -93,7 +93,7 @@ rxode2parseFuns <- function() {
   message("rebuild parseFuns.R from rxode2")
   try(source(devtools::package_file("build/refresh.R")))
   message("done")
-  cat("Update Parser c for trans block\n");
+  cat("Update Parser c for trans block\n")
   dparser::mkdparse(devtools::package_file("inst/tran.g"),
                     devtools::package_file("src/"),
                     grammar_ident="rxode2")
