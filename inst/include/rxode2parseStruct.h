@@ -189,6 +189,12 @@ typedef struct {
   double *atol2;
   double *ssRtol;
   double *ssAtol;
+  double *linTime;
+  double *linDose;
+  double *linTinf;
+  int *linCmtCmt;
+  int *linEvidF;
+  int *linEvid0;
 } rx_solving_options_ind;
 
 typedef struct {
