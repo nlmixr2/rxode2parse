@@ -23,8 +23,7 @@ unlink("src/tran.g.d_parser.c")
                                .badStan)),
             .in)
 
-.in <- gsub("@SL@", "", paste(capture.output(StanHeaders:::LdFlags()), capture.output(RcppParallel:::RcppParallelLibs())),
-            .in)
+.in <- gsub("@SL@", paste(capture.output(StanHeaders:::LdFlags()), capture.output(RcppParallel:::RcppParallelLibs())), .in)
 
 if (.Platform$OS.type == "windows" && !file.exists("src/Makevars.win")) {
   .in <- gsub("@CXX14STD@", "-std=c++1y", .in)
