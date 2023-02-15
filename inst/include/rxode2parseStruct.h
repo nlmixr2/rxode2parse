@@ -189,9 +189,11 @@ typedef struct {
   double *atol2;
   double *ssRtol;
   double *ssAtol;
+  // linear compartment data-sets
   double *linTime;
   double *linDose;
   double *linTinf;
+  double *linIi;
   int *linCmtCmt;
   int *linEvidF;
   int *linEvid0;
