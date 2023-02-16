@@ -18,7 +18,24 @@
 #else
 #define _(String) (String)
 #endif
+#define op_global _rxode2parse_op_global
+#define rx_global _rxode2parse_rx_global
+#define AMT _rxode2parse_AMT
+#define LAG _rxode2parse_LAG
+#define RATE _rxode2parse_RATE
+#define DUR _rxode2parse_DUR
+#define calc_mtime _rxode2parse_calc_mtime
+#define getTime_ _rxode2parse_getTime_
+#define getTime _rxode2parse_getTime
+#define _locateTimeIndex _rxode2parse_locateTimeIndex
+#define handle_evidL _rxode2parse_handle_evidL
+
 #include "../inst/include/rxode2parse.h"
+extern rx_solve _rxode2parse_rx_global;
+extern t_handle_evidL _rxode2parse_handle_evidL;
+extern t_getDur _rxode2parse_getDur;
+
+#include "../inst/include/rxode2parseHandleEvid.h"
 
 int _setSilentErr=0, _isRstudio2=0;
 extern void setSilentErr(int silent){
@@ -50,3 +67,25 @@ extern void RSprintf(const char *format, ...) {
   }
 }
 
+
+
+SEXP _rxode2parse_getWh(SEXP in) {
+  int wh, cmt, wh100, whI, wh0;
+  getWh(INTEGER(in)[0], &wh, &cmt, &wh100, &whI, &wh0);
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 5));
+  int *retI = INTEGER(ret);
+  SEXP retN = PROTECT(Rf_allocVector(STRSXP, 5));
+  retI[0] = wh;
+  SET_STRING_ELT(retN, 0,Rf_mkChar("wh"));
+  retI[1] = cmt;
+  SET_STRING_ELT(retN, 1,Rf_mkChar("cmt"));
+  retI[2] = wh100;
+  SET_STRING_ELT(retN, 2,Rf_mkChar("wh100"));
+  retI[3] = whI;
+  SET_STRING_ELT(retN, 3,Rf_mkChar("whI"));
+  retI[4] = wh0;
+  SET_STRING_ELT(retN, 4,Rf_mkChar("wh0"));
+  Rf_setAttrib(ret, R_NamesSymbol, retN);
+  UNPROTECT(2);
+  return ret;
+}

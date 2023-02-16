@@ -42,14 +42,6 @@ double linCmtA(rx_solve *rx, unsigned int id, double t, int linCmt,
                double d_tlag, double d_tlag2, double d_F, double d_F2,
                double d_rate, double d_dur, double d_rate2, double d_dur2);
 
-double linCmtC(rx_solve *rx, unsigned int id, double t, int linCmt,
-               int ncmt, int trans, double d_ka,
-               double p1, double v1,
-               double p2, double p3,
-               double p4, double p5,
-               double d_tlag, double d_tlag2, double d_F, double d_F2,
-               double d_rate, double d_dur, double d_rate2, double d_dur2);
-
 double linCmtB(rx_solve *rx, unsigned int id, double t, int linCmt,
                int i_cmt, int trans, int val,
                double dd_p1, double dd_v1,
@@ -77,8 +69,11 @@ void _rxode2parse_assignFuns2(rx_solve rx,
 
 SEXP _rxode2_parse_strncmpci();
 
+SEXP _rxode2parse_getWh(SEXP in);
+
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_getWh", (DL_FUNC) &_rxode2parse_getWh, 1},
     {"_rxode2_parse_strncmpci", (DL_FUNC) &_rxode2_parse_strncmpci, 0},
     {"_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded, 0},
     {"_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen, 7},
@@ -123,7 +118,6 @@ void R_init_rxode2parse(DllInfo *info){
   R_RegisterCCallable("rxode2parse", "_rxode2parse_doDot2", (DL_FUNC) &_rxode2parse_doDot2);
   R_RegisterCCallable("rxode2parse", "linCmtA", (DL_FUNC) &linCmtA);
   R_RegisterCCallable("rxode2parse", "linCmtB", (DL_FUNC) &linCmtB);
-  R_RegisterCCallable("rxode2parse", "linCmtC", (DL_FUNC) &linCmtC);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_assignFuns2",
                       (DL_FUNC) &_rxode2parse_assignFuns2);
   // Backward compatible registration

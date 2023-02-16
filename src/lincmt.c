@@ -856,17 +856,30 @@ double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
                // Oral parameters
                double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2) {
   rx_solving_options_ind *ind = &(rx->subjects[id]);
-  return 0.0;
-}
-
-
-double linCmtC(rx_solve *rx, unsigned int id, double _t, int linCmt,
-               int i_cmt, int trans,
-               double p1, double v1,
-               double p2, double p3,
-               double p4, double p5,
-               double d_tlag, double d_F, double d_rate1, double d_dur1,
-               // Oral parameters
-               double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2) {
+  double t = _t - ind->curShift;
+  int evid = 0;
+  int idx = ind->idx;
+  double Alast0[4] = {0, 0, 0, 0};
+  rx_solving_options *op = rx->op;
+  int oral0;
+  oral0 = (d_ka > 0) ? 1 : 0;
+  double *A;
+  double *Alast;
+  /* A = Alast0; Alast=Alast0; */
+  double tlast;
+  unsigned int ncmt = 1;
+  double rx_k=0, rx_v=0;
+  double rx_k12=0;
+  double rx_k21=0;
+  double rx_k13=0;
+  double rx_k31=0;
+  double b1=0, b2=0, r1 = 0, r2 = 0;
+  double curTime = getTime(ind->ix[idx], ind);
+  int sameTime = isSameTime(t, curTime);
+  if (!parTrans(&trans, &p1, &v1, &p2, &p3, &p4, &p5,
+                &ncmt, &rx_k, &rx_v, &rx_k12,
+                &rx_k21, &rx_k13, &rx_k31)){
+    return NA_REAL;
+  }
   return 0.0;
 }

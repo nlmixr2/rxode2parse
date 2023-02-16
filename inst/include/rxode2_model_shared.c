@@ -18,7 +18,6 @@ rxode2_fn0i _sumType = NULL;
 _update_par_ptr_p _update_par_ptr=NULL;
 _getParCov_p _getParCov=NULL;
 linCmtA_p linCmtA;
-linCmtA_p linCmtC;
 linCmtB_p linCmtB;
 _rx_asgn _rxode2_rxAssignPtr =NULL;
 _rx_asgn _rxQr =NULL;
@@ -262,7 +261,6 @@ void _assignFuns0(void) {
   // dynamic start
   linCmtA=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtA");
   linCmtB=(linCmtB_p)R_GetCCallable("rxode2parse", "linCmtB");
-  linCmtC=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtC");
     
   rxnorm = (rxode2i_fn2)R_GetCCallable("rxode2random", "rxnorm");
   rxbinom = (rxode2i_rxbinom)R_GetCCallable("rxode2random","rxbinom");
