@@ -69,10 +69,6 @@ typedef struct {
   double infSSstep;
   int mxhnil;
   double hmxi;
-  int nlin;
-  int nlin2;
-  int nlinR;
-  int linBflag;
   bool cTlag;
   double hTlag;
   bool cF;
@@ -163,10 +159,6 @@ typedef struct {
   int _rxFlag;
   int err;
   int solved;
-  double *linCmtAdvan;
-  double *linCmtRate;
-  int linCmt;
-  int linCmtAdvanSetup;
   int cacheME;
   int inLhs;
   // Cache alag
