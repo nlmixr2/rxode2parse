@@ -17,13 +17,13 @@ unlink("src/tran.g.d_parser.c")
 
 .badStan <- ""
 .in <- gsub("@SH@", gsub("-I", "-@ISYSTEM@",
-                         paste(## capture.output(StanHeaders:::CxxFlags()),
-                               ## capture.output(RcppParallel:::CxxFlags()),
+                         paste(capture.output(StanHeaders:::CxxFlags()), #nolint
+                               capture.output(RcppParallel:::CxxFlags()), # nolint
                                paste0("-@ISYSTEM@'", system.file('include', 'src', package = 'StanHeaders', mustWork = TRUE), "'"),
                                .badStan)),
             .in)
 
-.in <- gsub("@SL@", "", ##paste(capture.output(StanHeaders:::LdFlags()), capture.output(RcppParallel:::RcppParallelLibs())),
+.in <- gsub("@SL@", paste(capture.output(StanHeaders:::LdFlags()), capture.output(RcppParallel:::RcppParallelLibs())),
             .in)
 
 if (.Platform$OS.type == "windows" && !file.exists("src/Makevars.win")) {

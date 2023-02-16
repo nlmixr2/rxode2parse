@@ -50,7 +50,6 @@ void _rxode2parse_unprotect();
 #else
 #define _(String) (String)
 #endif
-#include "lincmtB1.h"
 
 static inline int parTrans(int *trans, 
                            double *p1, double *v1,
