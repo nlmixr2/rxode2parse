@@ -182,13 +182,14 @@ typedef struct {
   double *ssRtol;
   double *ssAtol;
   // linear compartment data-sets
-  double *linTime;
-  double *linDose;
-  double *linTinf;
-  double *linIi;
-  int *linCmtCmt;
-  int *linEvidF;
-  int *linEvid0;
+  int linCmtNdose; // number of linCmt() doses in subject
+  double *linTime; // [linCmtNdose]
+  double *linDose; // [linCmtNdose]
+  double *linTinf; // [linCmtNdose]
+  double *linIi; // [linCmtNdose]
+  int *linCmtCmt; // [linCmtNdose]
+  int *linEvidF; // [linCmtNdose]
+  int *linEvid0; // [linCmtNdose]
 } rx_solving_options_ind;
 
 typedef struct {
@@ -247,6 +248,10 @@ typedef struct {
   int *ovar;
   int hasEvid2;
   int useStdPow;
+  // linear compartment flags
+  int linKa; // does this solution have a depot compartment
+  int linNcmt; // how many compartments are in the system
+  int linB; // is this a sensitivity problem?
 } rx_solve;
 
 
