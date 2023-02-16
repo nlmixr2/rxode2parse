@@ -4,8 +4,7 @@
 #define __rxode2parse_H__
 #define rxLlikSaveSize 9
 
-#define getAdvan(idx) ind->solve + (op->neq + op->nlin)*(idx) + op->neq
-#define getSolve(idx) ind->solve + (op->neq + op->nlin)*(idx)
+#define getSolve(idx) ind->solve + (op->neq)*(idx)
 #define isDose(evid) ((evid) == 3 || (evid) >= 100)
 #define isObs(evid) ((evid) == 0 || (evid) == 2 || ((evid) >= 9 && (evid) <= 99))
 
