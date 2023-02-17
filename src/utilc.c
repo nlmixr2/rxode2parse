@@ -89,3 +89,21 @@ SEXP _rxode2parse_getWh(SEXP in) {
   UNPROTECT(2);
   return ret;
 }
+
+SEXP _rxode2parse_getClassicEvid(SEXP cmtS, SEXP amtS, SEXP rateS,
+                                 SEXP durS, SEXP iiS, SEXP evidS, SEXP ssS) {
+  int *cmt= INTEGER(cmtS);
+  double *amt = REAL(amtS);
+  double *dur = REAL(durS);
+  double *rate = REAL(rateS);
+  double *ii = REAL(iiS);
+  int *evid = INTEGER(evidS);
+  double *ss = REAL(ssS);
+  SEXP retS = PROTECT(Rf_allocVector(INTSXP, Rf_length(cmtS)));
+  int *ret = INTEGER(retS);
+  for (int i = Rf_length(cmtS); i--;) {
+    ret[i] = getEvidClassic(cmt[i], amt[i], rate[i], dur[i], ii[i], evid[i], ss[i]);
+  }
+  UNPROTECT(1);
+  return retS;
+}
