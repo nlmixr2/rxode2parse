@@ -13,7 +13,7 @@ static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
-	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
+         !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
     if (foundLag == 0) needSort+=needSortAlag; // & 2 when alag
     foundLag=1;
@@ -67,7 +67,7 @@ static inline void handleFunctionLinCmtF1(transFunctions *tf, D_ParseNode *xpn1,
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "1") || !strcmp(v2, "1.0") ||
-	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
+         !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
     if (foundF == 0) needSort+=needSortF;// & 1 when F
     foundF=1;
@@ -88,7 +88,7 @@ static inline void handleFunctionLinCmtDur1(transFunctions *tf, D_ParseNode *xpn
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s + ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
-	 !strcmp(v2, "0.")) || !strcmp(v2, ""))) {
+         !strcmp(v2, "0.")) || !strcmp(v2, ""))) {
     // has interesting dur
     if (foundDur == 0) needSort+= needSortDur;// & 4 when dur
     foundDur=1;
@@ -109,7 +109,7 @@ static inline void handleFunctionLinCmtRate1(transFunctions *tf, D_ParseNode *xp
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
-	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
+         !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting rate
     if (foundRate == 0) needSort+= needSortRate;// & 8 when rate
     foundRate=1;
@@ -131,7 +131,7 @@ static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1,
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
-	 !strcmp(v2, "0.")))) {
+         !strcmp(v2, "0.")))) {
     tb.hasKa=1;
   }
   /* Free(v2); */
@@ -143,7 +143,7 @@ static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1,
   }
   v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
-	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
+         !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting tlag
     if (foundLag == 0) needSort+= needSortAlag; // & 2 when alag
     foundLag=1;
@@ -165,7 +165,7 @@ static inline void handleFunctionLinCmtF2(transFunctions *tf, D_ParseNode *xpn1,
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "1") || !strcmp(v2, "1.0") ||
-	 !strcmp(v2, "1.") || !strcmp(v2, "")))) {
+         !strcmp(v2, "1.") || !strcmp(v2, "")))) {
     // has interesting f1
     if (foundF == 0) needSort+= needSortF;// & 1 when F
     foundF=1;
@@ -185,7 +185,7 @@ static inline void handleFunctionLinCmtRate2(transFunctions *tf, D_ParseNode *xp
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
-	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
+         !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting rate
     if (foundRate == 0) needSort+= needSortRate;// & 8 when rate
     foundRate=1;
@@ -205,7 +205,7 @@ static inline void handleFunctionLinCmtDur2(transFunctions *tf, D_ParseNode *xpn
   }
   char* v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
   if (!((!strcmp(v2, "0") || !strcmp(v2, "0.0") ||
-	 !strcmp(v2, "0.") || !strcmp(v2, "")))) {
+         !strcmp(v2, "0.") || !strcmp(v2, "")))) {
     // has interesting duration
     if (foundDur == 0) needSort+= needSortDur;// & 4 when dur
     foundDur=1;
@@ -255,7 +255,7 @@ static inline int handleFunctionLinCmtJitProp(transFunctions *tf) {
 
 static inline int handleFunctionLinCmt(transFunctions *tf) {
   if (handleFunctionLinCmtJitProp(tf)) return 1;
-  if (!strcmp("linCmtA", tf->v) || !strcmp("linCmtC", tf->v) ||
+  if (!strcmp("linCmtA", tf->v) ||
       (tf->isLinB=!strcmp("linCmtB", tf->v))) {
     D_ParseNode *xpn1 = d_get_child(tf->pn, 3);
     D_ParseNode *xpn2 = d_get_child(xpn1, 1);
@@ -287,11 +287,11 @@ static inline int handleFunctionLinCmt(transFunctions *tf) {
       v2 = (char*)rc_dup_str(xpn2->start_loc.s+ii, xpn2->end);
       int tmp = toInt(v2);
       if (tmp > 0) {
-	tmp--;
-	tmp = 1 << tmp;
-	if ((tb.linCmtFlg & tmp) == 0){
-	  tb.linCmtFlg += tmp;
-	}
+        tmp--;
+        tmp = 1 << tmp;
+        if ((tb.linCmtFlg & tmp) == 0){
+          tb.linCmtFlg += tmp;
+        }
       }
     }
     return 1;
