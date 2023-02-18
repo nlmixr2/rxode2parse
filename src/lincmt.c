@@ -51,7 +51,7 @@ void _rxode2parse_unprotect();
 #define _(String) (String)
 #endif
 
-static inline int parTrans(int *trans, 
+static inline int parTrans(int *trans,
                            double *p1, double *v1,
                            double *p2, double *p3,
                            double *p4, double *p5,
@@ -213,7 +213,7 @@ static inline int parTrans(int *trans,
   return 1;
 }
 
-void linCmtPar1(double *v, double *k, 
+void linCmtPar1(double *v, double *k,
                 double *vss,
                 double *cl,
                 double *A,
@@ -349,37 +349,37 @@ SEXP derived1(int trans, SEXP inp, double dig) {
   SEXP vcS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vc = REAL(vcS);
   SET_VECTOR_ELT(ret, 0, vcS);
-  
+
   SET_STRING_ELT(retN,1,mkChar("kel"));
   SEXP kelS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *kel = REAL(kelS);
   SET_VECTOR_ELT(ret, 1, kelS);
-  
+
   SET_STRING_ELT(retN,2,mkChar("vss"));
   SEXP vssS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vss = REAL(vssS);
   SET_VECTOR_ELT(ret, 2, vssS);
-  
+
   SET_STRING_ELT(retN,3,mkChar("cl"));
   SEXP clS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *cl = REAL(clS);
   SET_VECTOR_ELT(ret, 3, clS);
-  
+
   SET_STRING_ELT(retN,4,mkChar("t12alpha"));
   SEXP thalfS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *thalf = REAL(thalfS);
   SET_VECTOR_ELT(ret, 4, thalfS);
-  
+
   SET_STRING_ELT(retN,5,mkChar("alpha"));
   SEXP alphaS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *alpha = REAL(alphaS);
   SET_VECTOR_ELT(ret, 5, alphaS);
-  
+
   SET_STRING_ELT(retN,6,mkChar("A"));
   SEXP AS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *A = REAL(AS);
   SET_VECTOR_ELT(ret, 6, AS);
-  
+
   SET_STRING_ELT(retN,7,mkChar("fracA"));
   SEXP fracAS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *fracA = REAL(fracAS);
@@ -438,7 +438,7 @@ SEXP derived2(int trans, SEXP inp, double dig) {
   tmp = PROTECT(toReal(VECTOR_ELT(inp, 3))); pro++;
   int lenP3 = Rf_length(tmp);
   double *p3 = REAL(tmp);
-  
+
   int lenOut = max2(lenV, lenP1);
   lenOut = max2(lenOut, lenP2);
   lenOut = max2(lenOut, lenP3);
@@ -461,7 +461,7 @@ SEXP derived2(int trans, SEXP inp, double dig) {
   SEXP vcS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vc = REAL(vcS);
   SET_VECTOR_ELT(ret, 0, vcS);
-  
+
   SET_STRING_ELT(retN,1,mkChar("kel"));
   SEXP kelS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *kel = REAL(kelS);
@@ -607,7 +607,7 @@ SEXP derived3(int trans, SEXP inp, double dig) {
   tmp = PROTECT(toReal(VECTOR_ELT(inp, 5))); pro++;
   int lenP5 = Rf_length(tmp);
   double *p5 = REAL(tmp);
-  
+
   int lenOut = max2(lenV, lenP1);
   lenOut = max2(lenOut, lenP2);
   lenOut = max2(lenOut, lenP3);
@@ -634,7 +634,7 @@ SEXP derived3(int trans, SEXP inp, double dig) {
   SEXP vcS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vc = REAL(vcS);
   SET_VECTOR_ELT(ret, 0, vcS);
-  
+
   SET_STRING_ELT(retN,1,mkChar("kel"));
   SEXP kelS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *kel = REAL(kelS);
@@ -847,39 +847,274 @@ SEXP _calcDerived(SEXP ncmtSXP, SEXP transSXP, SEXP inp, SEXP sigdigSXP) {
   return R_NilValue;
 }
 
-double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
-               int i_cmt, int trans,
-               double p1, double v1,
-               double p2, double p3,
-               double p4, double p5,
-               double d_tlag, double d_F, double d_rate1, double d_dur1,
-               // Oral parameters
-               double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2) {
-  rx_solving_options_ind *ind = &(rx->subjects[id]);
-  double t = _t - ind->curShift;
-  int evid = 0;
-  int idx = ind->idx;
-  double Alast0[4] = {0, 0, 0, 0};
-  rx_solving_options *op = rx->op;
-  int oral0;
-  oral0 = (d_ka > 0) ? 1 : 0;
-  double *A;
-  double *Alast;
-  /* A = Alast0; Alast=Alast0; */
-  double tlast;
-  unsigned int ncmt = 1;
+static inline double linCmtAA(int linCmtNdose,
+                              double *linTime, // [linCmtNdose]
+                              double *linDose, // [linCmtNdose]
+                              double *linTinf, // [linCmtNdose]
+                              double *linIi, // [linCmtNdose]
+                              int *linCmtCmt, // [linCmtNdose]
+                              int *linEvidF, // [linCmtNdose]
+                              int *linEvid0, // [linCmtNdose]
+                              double t, // time of observation
+                              int *linCmt, //  This is the offset cmt, ie with 1 ode compartment this will be 1
+                              int i_cmt, // Number of compartments
+                              int trans, // trans type (number)
+                              // parameters (different based on trans)
+                              double p1, double v1,
+                              double p2, double p3,
+                              double p4, double p5,
+                              // bio-availability and related parameters
+                              // with ka d_F, d_rate1 is of the depot d_F2 d_rate1 is the central
+                              double d_tlag, double d_F, double d_rate1, double d_dur1,
+                              // Oral parameters
+                              double d_ka, double d_tlag2, double d_F2,  double d_rate2,
+                              double d_dur2) {
+  double ret = 0.0;
   double rx_k=0, rx_v=0;
   double rx_k12=0;
   double rx_k21=0;
   double rx_k13=0;
   double rx_k31=0;
-  double b1=0, b2=0, r1 = 0, r2 = 0;
-  double curTime = getTime(ind->ix[idx], ind);
-  int sameTime = isSameTime(t, curTime);
+  int isOral = d_ka > 0;
+  unsigned int ncmt = i_cmt;
   if (!parTrans(&trans, &p1, &v1, &p2, &p3, &p4, &p5,
                 &ncmt, &rx_k, &rx_v, &rx_k12,
                 &rx_k21, &rx_k13, &rx_k31)){
     return NA_REAL;
   }
+  double pA[3];
+  double pAO[3];
+  double kalpha[3];
+  double alpha, beta, gamma, A, B, C, ka, theta,
+    a0, a1, a2, p, q, r1, r2, sum, t1, t2, res, tau;
+  ka = isOral ? d_ka : 1.0;
+
+  switch(i_cmt) {
+  case 1:
+    A = 1.0/v1;
+
+    pA[0] = A;
+    kalpha[0] =  rx_k;
+
+    pAO[0] = ka / (ka - kalpha[0]) * pA[0];
+    break;
+  case 2:
+    beta  = 0.5 * (rx_k12 + rx_k21 + rx_k -
+                   sqrt((rx_k12 + rx_k21 + rx_k) *
+                        (rx_k12 + rx_k21 + rx_k) -
+                        4.0 * rx_k21 * rx_k));
+    alpha = rx_k21 * rx_k / beta;
+
+    A     = (alpha - rx_k21) / (alpha - beta) / v1;
+    B     = (beta - rx_k21) / (beta - alpha) / v1;
+
+    pA[0] = A;
+    pA[1] = B;
+
+    kalpha[0] = alpha;
+    kalpha[1] = beta;
+
+    pAO[0] = ka / (ka - alpha) * A;
+    pAO[1] = ka / (ka - beta) * B;
+
+    break;
+  case 3:
+    a0      = rx_k * rx_k21 * rx_k31;
+    a1      = rx_k * rx_k31 + rx_k21 * rx_k31 +
+      rx_k21 * rx_k13 + rx_k * rx_k21 + rx_k31 * rx_k12;
+    a2      = rx_k + rx_k12 + rx_k13 + rx_k21 + rx_k31;
+
+    p       = a1 - a2 * a2 / 3.0;
+    q       = 2.0 * a2 * a2 * a2 / 27.0 - a1 * a2 /3.0 + a0;
+
+    r1      = sqrt(-p * p * p / 27.0);
+    r2      = 2 * pow(r1 , 1.0 / 3.0);
+
+    theta   = acos(-q / (2.0 * r1)) / 3.0;
+
+    alpha   = -(cos(theta) * r2 - a2 / 3.0);
+    beta    = -(cos(theta + 2.0 / 3.0 * M_PI) * r2 - a2 / 3.0);
+    gamma   = -(cos(theta + 4.0 / 3.0 * M_PI) * r2 - a2 / 3.0);
+
+    A       = (rx_k21 - alpha) * (rx_k31 - alpha) / (alpha - beta) / (alpha - gamma) / rx_v;
+    B       = (rx_k21 - beta) * (rx_k31 - beta) / (beta - alpha) / (beta - gamma) / rx_v;
+    C       = (rx_k21 - gamma) * (rx_k31 - gamma) / (gamma - alpha) / (gamma - beta) / rx_v;
+
+    kalpha[0] = alpha;
+    kalpha[1] = beta;
+    kalpha[2] = gamma;
+
+    pA[0] = A;
+    pA[1] = B;
+    pA[2] = C;
+
+    pAO[0] = ka / (ka - alpha) * A;
+    pAO[1] = ka / (ka - beta) * B;
+    pAO[2] = ka / (ka - gamma) * C;
+
+    break;
+  default:
+    return NA_REAL;
+  }
+  for (int i = 0; i < linCmtNdose; i++) {
+    if (t > linTime[i]) break;
+    int cmt = linCmtCmt[i] - *linCmt;
+    double tinf = linTinf[i];
+    double curt, F, rate, dur;
+    double dose = linDose[i];
+    if (linEvid0[i] == EVID0_REGULAR) {
+      /* if (linEvid0[i] == EVID0_SS || */
+      /*     linEvid0[i] == EVID0_SS2) { */
+      
+      /* } else if (linEvid0[i] == EVID0_SSINF) { */
+      
+      /* } */
+      // Can dose to the depot (0) or central compartment (1)
+      if (isOral && cmt == 0) {
+        // dosing to the depot compartment
+        curt = t - linTime[i] - d_tlag;
+        if (curt < 0) continue;
+        F = d_F;
+        rate = d_rate1;
+        dur = d_dur1;
+        sum = 0.0;
+        for (int i = 0; i < ncmt; i++) {
+          sum += pAO[i] * (exp(-kalpha[i] * curt) - exp(-ka * curt));
+        }
+        ret += dose * sum;
+      } else if ((isOral && cmt == 1) || (!isOral && cmt ==  0)) {
+        // dosing to the central compartment
+        if (isOral) {
+          curt = t - linTime[i] - d_tlag2;
+          if (curt < 0) continue;
+
+          F = d_F2;
+          rate = d_rate2;
+          dur = d_dur2;
+          res = exp(-ka * curt);
+        } else {
+          curt = t - linTime[i] - d_tlag;
+          if (curt < 0) continue;
+          F = d_F;
+          rate = d_rate1;
+          dur = d_dur1;
+          res = 0.0;
+        }
+        if (tinf > 0) {
+          // infusion to central compartment
+          sum = 0.0;
+          t1 = curt < tinf ? curt : tinf;        //during infusion
+          t2 = curt > tinf ? curt - tinf : 0.0;  // after infusion
+          for (int j = 0; j < i_cmt; ++j) {
+            sum += pA[i] / kalpha[i] * (1 - exp(-kalpha[i] * t1)) * exp(-kalpha[i] * t2);
+          }
+          ret += dose / tinf * sum;
+        } else {
+          sum = 0.0;
+          for (int i = 0; i < ncmt; i++) {
+            sum += pA[i] * (exp(-kalpha[i] * curt) - res);
+          }
+          ret += dose * sum;
+        }
+      }
+    } else if (linEvid0[i] == EVID0_SS || linEvid0[i] == EVID0_SS2) {
+      ////////////////////////////////////////////////////////////////////////////////
+      // steady state
+      ////////////////////////////////////////////////////////////////////////////////
+      tau = linIi[i];
+      if (isOral && cmt == 0) {
+        curt = t - linTime[i] - d_tlag;
+        if (curt < 0) continue;
+        F = d_F;
+        rate = d_rate1;
+        dur = d_dur1;
+        res = exp(-ka*curt)/(1-exp(-ka*tau));
+        sum = 0.0;
+        for (int i = 0; i < ncmt; i++) {
+          sum += pAO[i]*(exp(-kalpha[i]*curt)/(1-exp(-kalpha[i]*tau))-res);
+        }
+        ret += dose * sum;
+      } else if ((isOral && cmt == 1) || (!isOral && cmt ==  0)) {
+        // dosing to the central compartment
+        if (isOral) {
+          curt = t - linTime[i] - d_tlag2;
+          if (curt < 0) continue;
+          F = d_F2;
+          rate = d_rate2;
+          dur = d_dur2;
+          res = exp(-ka * curt);
+        } else {
+          curt = t - linTime[i] - d_tlag;
+          if (curt < 0) continue;
+          F = d_F;
+          rate = d_rate1;
+          dur = d_dur1;
+          res = 0.0;
+        }
+        if (tinf > 0) {
+          // 1 cmt = A
+          if (curt < tinf) {
+            sum = 0.0;
+            for (int j = 0; j < i_cmt; ++j) {
+              sum += pA[i]/kalpha[i]*((1-exp(-kalpha[i]*curt)) +
+                                      exp(-kalpha[i]*tau)*(1-exp(-kalpha[i]*tinf))*
+                                      exp(-kalpha[i]*(curt-tinf))/(1-exp(-kalpha[i]*tau)));
+            }
+            if (linEvid0[i] == EVID0_SS) { // ss =1
+              ret = dose / tinf *sum;
+            } else { // ss = 2
+              ret += dose / tinf *sum;
+            }
+          } else {
+            sum = 0.0;
+            for (int j = 0; j < i_cmt; ++j) {
+              sum += pA[i]/kalpha[i]*((1-exp(-kalpha[i]*curt)) +
+                                      exp(-kalpha[i]*tau)*(1-exp(-kalpha[i]*tinf))*
+                                      exp(-kalpha[i]*(curt-tinf))/(1-exp(-kalpha[i]*tau)));
+            }
+            if (linEvid0[i] == EVID0_SS) { // ss=1
+              ret = dose / tinf *sum;
+            } else { // ss=2
+              ret += dose / tinf *sum;
+            }
+          }
+        } else {
+          // bolus steady state
+          // 1 cmt = A*exp(-k*curt)
+          // 2 cmt =
+          sum = 0.0;
+          // res = 0
+          for (int j = 0; j < i_cmt; ++j) {
+            sum += pA[i]*(exp(-kalpha[i]*curt)/(1-exp(-kalpha[i]*tau)));
+          }
+          if (linEvid0[i] == EVID0_SS) { // ss=1
+            ret = dose * sum;
+          } else { // ss=2
+            ret += dose * sum;
+          }
+        }
+      }
+      
+    } else if (linEvid0[i] == EVID0_SSINF) {
+      sum = 0.0;
+      for (int j = 0; j < i_cmt; ++j) {
+        sum += pA[i]/kalpha[i];
+      }
+      ret = rate * sum;
+    } else if (linEvid0[i] == 3) {
+      // reset event
+      ret = 0.0;
+    }
+  }
+  return ret;
+}
+
+double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
+               int i_cmt, int trans,               double p1, double v1,
+               double p2, double p3,
+               double p4, double p5,
+               double d_tlag, double d_F, double d_rate1, double d_dur1,
+               // Oral parameters
+               double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2) {
   return 0.0;
 }
