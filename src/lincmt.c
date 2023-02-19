@@ -55,7 +55,8 @@ static inline int parTrans(int *trans,
                            double *p1, double *v1,
                            double *p2, double *p3,
                            double *p4, double *p5,
-                           unsigned int *ncmt, double *rx_k, double *rx_v, double *rx_k12,
+                           unsigned int *ncmt,
+                           double *rx_k, double *rx_v, double *rx_k12,
                            double *rx_k21, double *rx_k13, double *rx_k31){
   double btemp, ctemp, dtemp;
   if ((*p5) > 0.) {
@@ -847,6 +848,84 @@ SEXP _calcDerived(SEXP ncmtSXP, SEXP transSXP, SEXP inp, SEXP sigdigSXP) {
   return R_NilValue;
 }
 
+static inline int calcMacros(double *pA, double *pAO, double *kalpha,
+                              double *rx_k, double *rx_v, double *rx_k12,
+                              double *rx_k21, double *rx_k13, double *rx_k31,
+                             double *v1, double *d_ka, int *i_cmt) {
+  double alpha, beta, gamma, A, B, C, ka, theta,
+    a0, a1, a2, p, q, r1, r2;
+  ka = d_ka[0] > 0 ? d_ka[0] : 1.0;
+
+  switch(i_cmt[0]) {
+  case 1:
+    A = 1.0/v1[0];
+
+    pA[0] = A;
+    kalpha[0] =  rx_k[0];
+
+    pAO[0] = ka / (ka - kalpha[0]) * pA[0];
+    break;
+  case 2:
+    beta  = 0.5 * (rx_k12[0] + rx_k21[0] + rx_k[0] -
+                   sqrt((rx_k12[0] + rx_k21[0] + rx_k[0]) *
+                        (rx_k12[0] + rx_k21[0] + rx_k[0]) -
+                        4.0 * rx_k21[0] * rx_k[0]));
+    alpha = rx_k21[0] * rx_k[0] / beta;
+
+    A     = (alpha - rx_k21[0]) / (alpha - beta) / v1[0];
+    B     = (beta - rx_k21[0]) / (beta - alpha) / v1[0];
+
+    pA[0] = A;
+    pA[1] = B;
+
+    kalpha[0] = alpha;
+    kalpha[1] = beta;
+
+    pAO[0] = ka / (ka - alpha) * A;
+    pAO[1] = ka / (ka - beta) * B;
+
+    break;
+  case 3:
+    a0      = rx_k[0] * rx_k21[0] * rx_k31[0];
+    a1      = rx_k[0] * rx_k31[0] + rx_k21[0] * rx_k31[0] +
+      rx_k21[0] * rx_k13[0] + rx_k[0] * rx_k21[0] + rx_k31[0] * rx_k12[0];
+    a2      = rx_k[0] + rx_k12[0] + rx_k13[0] + rx_k21[0] + rx_k31[0];
+
+    p       = a1 - a2 * a2 / 3.0;
+    q       = 2.0 * a2 * a2 * a2 / 27.0 - a1 * a2 /3.0 + a0;
+
+    r1      = sqrt(-p * p * p / 27.0);
+    r2      = 2 * pow(r1 , 1.0 / 3.0);
+
+    theta   = acos(-q / (2.0 * r1)) / 3.0;
+
+    alpha   = -(cos(theta) * r2 - a2 / 3.0);
+    beta    = -(cos(theta + 2.0 / 3.0 * M_PI) * r2 - a2 / 3.0);
+    gamma   = -(cos(theta + 4.0 / 3.0 * M_PI) * r2 - a2 / 3.0);
+
+    A       = (rx_k21[0] - alpha) * (rx_k31[0] - alpha) / (alpha - beta) / (alpha - gamma) / rx_v[0];
+    B       = (rx_k21[0] - beta) * (rx_k31[0] - beta) / (beta - alpha) / (beta - gamma) / rx_v[0];
+    C       = (rx_k21[0] - gamma) * (rx_k31[0] - gamma) / (gamma - alpha) / (gamma - beta) / rx_v[0];
+
+    kalpha[0] = alpha;
+    kalpha[1] = beta;
+    kalpha[2] = gamma;
+
+    pA[0] = A;
+    pA[1] = B;
+    pA[2] = C;
+
+    pAO[0] = ka / (ka - alpha) * A;
+    pAO[1] = ka / (ka - beta) * B;
+    pAO[2] = ka / (ka - gamma) * C;
+
+    break;
+  default:
+    return 0;
+  }
+  return 1;
+}
+
 static inline double linCmtAA(int linCmtNdose,
                               double *linTime, // [linCmtNdose]
                               double *linDose, // [linCmtNdose]
@@ -854,7 +933,8 @@ static inline double linCmtAA(int linCmtNdose,
                               double *linIi, // [linCmtNdose]
                               int *linCmtCmt, // [linCmtNdose]
                               int *linEvidF, // [linCmtNdose]
-                              int *linEvid0, // [linCmtNdose]
+                              int *linEvid0, // [linCmtNdose] 
+                              int evid,
                               double t, // time of observation
                               int *linCmt, //  This is the offset cmt, ie with 1 ode compartment this will be 1
                               int i_cmt, // Number of compartments
@@ -877,6 +957,7 @@ static inline double linCmtAA(int linCmtNdose,
   double rx_k31=0;
   int isOral = d_ka > 0;
   unsigned int ncmt = i_cmt;
+  double sum, t1, t2;
   if (!parTrans(&trans, &p1, &v1, &p2, &p3, &p4, &p5,
                 &ncmt, &rx_k, &rx_v, &rx_k12,
                 &rx_k21, &rx_k13, &rx_k31)){
@@ -885,75 +966,10 @@ static inline double linCmtAA(int linCmtNdose,
   double pA[3];
   double pAO[3];
   double kalpha[3];
-  double alpha, beta, gamma, A, B, C, ka, theta,
-    a0, a1, a2, p, q, r1, r2, sum, t1, t2, res, tau;
-  ka = isOral ? d_ka : 1.0;
-
-  switch(i_cmt) {
-  case 1:
-    A = 1.0/v1;
-
-    pA[0] = A;
-    kalpha[0] =  rx_k;
-
-    pAO[0] = ka / (ka - kalpha[0]) * pA[0];
-    break;
-  case 2:
-    beta  = 0.5 * (rx_k12 + rx_k21 + rx_k -
-                   sqrt((rx_k12 + rx_k21 + rx_k) *
-                        (rx_k12 + rx_k21 + rx_k) -
-                        4.0 * rx_k21 * rx_k));
-    alpha = rx_k21 * rx_k / beta;
-
-    A     = (alpha - rx_k21) / (alpha - beta) / v1;
-    B     = (beta - rx_k21) / (beta - alpha) / v1;
-
-    pA[0] = A;
-    pA[1] = B;
-
-    kalpha[0] = alpha;
-    kalpha[1] = beta;
-
-    pAO[0] = ka / (ka - alpha) * A;
-    pAO[1] = ka / (ka - beta) * B;
-
-    break;
-  case 3:
-    a0      = rx_k * rx_k21 * rx_k31;
-    a1      = rx_k * rx_k31 + rx_k21 * rx_k31 +
-      rx_k21 * rx_k13 + rx_k * rx_k21 + rx_k31 * rx_k12;
-    a2      = rx_k + rx_k12 + rx_k13 + rx_k21 + rx_k31;
-
-    p       = a1 - a2 * a2 / 3.0;
-    q       = 2.0 * a2 * a2 * a2 / 27.0 - a1 * a2 /3.0 + a0;
-
-    r1      = sqrt(-p * p * p / 27.0);
-    r2      = 2 * pow(r1 , 1.0 / 3.0);
-
-    theta   = acos(-q / (2.0 * r1)) / 3.0;
-
-    alpha   = -(cos(theta) * r2 - a2 / 3.0);
-    beta    = -(cos(theta + 2.0 / 3.0 * M_PI) * r2 - a2 / 3.0);
-    gamma   = -(cos(theta + 4.0 / 3.0 * M_PI) * r2 - a2 / 3.0);
-
-    A       = (rx_k21 - alpha) * (rx_k31 - alpha) / (alpha - beta) / (alpha - gamma) / rx_v;
-    B       = (rx_k21 - beta) * (rx_k31 - beta) / (beta - alpha) / (beta - gamma) / rx_v;
-    C       = (rx_k21 - gamma) * (rx_k31 - gamma) / (gamma - alpha) / (gamma - beta) / rx_v;
-
-    kalpha[0] = alpha;
-    kalpha[1] = beta;
-    kalpha[2] = gamma;
-
-    pA[0] = A;
-    pA[1] = B;
-    pA[2] = C;
-
-    pAO[0] = ka / (ka - alpha) * A;
-    pAO[1] = ka / (ka - beta) * B;
-    pAO[2] = ka / (ka - gamma) * C;
-
-    break;
-  default:
+  double tau=0.0, res=0.0, ka = d_ka;
+  if (!calcMacros(pA, pAO, kalpha,
+                  &rx_k, &rx_v, &rx_k12, &rx_k21, &rx_k13, &rx_k31, &v1,
+                  &d_ka, &i_cmt)) {
     return NA_REAL;
   }
   for (int i = 0; i < linCmtNdose; i++) {
