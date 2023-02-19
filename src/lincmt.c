@@ -1003,7 +1003,6 @@ static inline double linCmtAA(int linCmtNdose,
         if (isOral) {
           curt = t - linTime[i] - d_tlag2;
           if (curt < 0) continue;
-
           F = d_F2;
           rate = d_rate2;
           dur = d_dur2;
@@ -1077,9 +1076,9 @@ static inline double linCmtAA(int linCmtNdose,
                                       exp(-kalpha[i]*(curt-tinf))/(1-exp(-kalpha[i]*tau)));
             }
             if (linEvid0[i] == EVID0_SS) { // ss =1
-              ret = dose / tinf *sum;
+              ret = rate *sum;
             } else { // ss = 2
-              ret += dose / tinf *sum;
+              ret += rate *sum;
             }
           } else {
             sum = 0.0;
@@ -1089,9 +1088,9 @@ static inline double linCmtAA(int linCmtNdose,
                                       exp(-kalpha[i]*(curt-tinf))/(1-exp(-kalpha[i]*tau)));
             }
             if (linEvid0[i] == EVID0_SS) { // ss=1
-              ret = dose / tinf *sum;
+              ret = rate *sum;
             } else { // ss=2
-              ret += dose / tinf *sum;
+              ret += rate * sum;
             }
           }
         } else {
