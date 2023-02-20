@@ -849,8 +849,8 @@ SEXP _calcDerived(SEXP ncmtSXP, SEXP transSXP, SEXP inp, SEXP sigdigSXP) {
 }
 
 static inline int calcMacros(double *pA, double *pAO, double *kalpha,
-                              double *rx_k, double *rx_v, double *rx_k12,
-                              double *rx_k21, double *rx_k13, double *rx_k31,
+                             double *rx_k, double *rx_v, double *rx_k12,
+                             double *rx_k21, double *rx_k13, double *rx_k31,
                              double *v1, double *d_ka, int *i_cmt) {
   double alpha, beta, gamma, A, B, C, ka, theta,
     a0, a1, a2, p, q, r1, r2;
@@ -976,14 +976,12 @@ static inline double linCmtAA(int linCmtNdose,
     return NA_REAL;
   }
   for (int i = 0; i < linCmtNdose; i++) {
-    if (t > linTime[i]) break;
     int cmt = linCmtCmt[i] - *linCmt;
     double tinf = linTinf[i];
     double curt=0;
     double dose = linDose[i];
     double tlag, F, rate;
     rate = dose; // dose = rate in classic/underlying rxode2 event tables
-
     // save/restore the possible time-varying dosing parameters.
     int atDose = (linTime[i] == t && !isObs);
     // Dose at current time.
@@ -1153,6 +1151,7 @@ static inline double linCmtAA(int linCmtNdose,
   return ret;
 }
 
+// This is the rxode2parse interface
 SEXP _rxode2parse_linCmtA(SEXP linDat, SEXP linPar) {
   //.toLinCmtData( gives linDat)
   int outLen = Rf_length(VECTOR_ELT(linDat, 0));
@@ -1206,8 +1205,10 @@ SEXP _rxode2parse_linCmtA(SEXP linDat, SEXP linPar) {
   return retS;
 }
 
+// this is the rxode2 interface, should be quite similar as above
 double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
-               int i_cmt, int trans,               double p1, double v1,
+               int i_cmt, int trans,
+               double p1, double v1,
                double p2, double p3,
                double p4, double p5,
                double d_tlag, double d_F, double d_rate1, double d_dur1,

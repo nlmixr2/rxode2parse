@@ -2,21 +2,21 @@
 #'
 #' @param i evid to breakdown
 #' @return named evid integer vector
-#' @export 
+#' @export
 #' @author Matthew L. Fidler
 #' @keywords internal
 #' @examples
-#' 
+#'
 #' .getWh(1001)
 #' .getWh(10401)
-#' 
+#'
 .getWh <- function(i) {
   checkmate::assertIntegerish(i,len=1, any.missing=FALSE)
   .Call(`_rxode2parse_getWh`, as.integer(i))
 }
 
 #' This converts NONMEM-style EVIDs to classic RxODE events
-#'  
+#'
 #' @param cmt compartment flag
 #' @param amt dose amount
 #' @param rate dose rate
@@ -59,7 +59,7 @@
         .df$ii, .df$evid, .df$ss)
 }
 #' This converts data to a format similar to what rxode2 will use
-#'  
+#'
 #' @param data input dataset
 #' @return linCmt dataset
 #' @noRd
@@ -89,7 +89,7 @@
       .dat[[.v]] <- 0.0
     }
   }
-  
+
   .evid <- .toClassicEvid(cmt=.dat$cmt, amt=.dat$amt,
                           rate=.dat$rate, dur=.dat$dur,
                           ii=.dat$ii, evid=.dat$evid,
@@ -115,7 +115,7 @@
                                        dose=.dat0$amt[i],
                                        tinf=.tinf,
                                        ii=.dat0$ii[i],
-                                       cmt=.dat0$cmt,
+                                       cmt=.dat0$cmt-1L,
                                        evidF=as.integer(.wh["whI"]),
                                        evid0=as.integer(.wh["wh0"]),
                                        # these are saved/modified
@@ -289,14 +289,14 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
   }
 }
 
-#' Linear compartmental concentrations based on input data  
-#'  
+#' Linear compartmental concentrations based on input data
+#'
 #' @param data This dataest should have the following columns:
-#' 
+#'
 #'   - `evid` - `rxode2` style evid
-#' 
+#'
 #'   - `amt` - amount of dose
-#' 
+#'
 #'   - `time` - time of observation
 #'
 #' The following columns are optional:
@@ -304,7 +304,7 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
 #' - `id` the identifier of the individual
 #'
 #'  - `cmt` the compartment of dose
-#' 
+#'
 #'  - `rate` the rate of dose
 #'
 #'  - `dur` the duration of the dose
@@ -314,11 +314,20 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
 #'  - `ss` the steady state flag
 #'
 #' This cannot have the an `id` column
-#' 
-#' @param ... Parameters for linear compartment model
-#' 
+#'
+#' @param ... Parameters for linear compartment model, parsed automatically
+#'
+#' @param tlag This is the lag time of the first compartment.
+#' @param F This is the bioavailability of the first compartment
+#' @param rate1 This is the modeled rate for the first compartment
+#' @param dur1 This is the modeled duration for the first compartment
+#' @param tlag2 This is the lag time of the second compartment
+#' @param F2 This is the modeled bioavailability of the second
+#'   compartment
+#' @param rate2 This is the modeled rate of the second compartment
+#' @param dur2 This is the modeled duration of the second compartment
 #' @inheritParams rxDerived
-#' 
+#'
 #' @return original dataset `data` with an additional column `Cp` with
 #'   the
 #' @export
@@ -326,7 +335,7 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
 #' @examples
 #'
 #' rxLinCmt(data=nlmixr2data::theo_sd, CL = 29.4, V = 3)
-#' 
+#'
 rxLinCmt <- function(data, ..., tlag=0, F=1, rate1=0, dur1=0,
                      tlag2=0, F2=1, rate2=0, dur2=0,
                      verbose = FALSE) {
@@ -376,5 +385,64 @@ rxLinCmt <- function(data, ..., tlag=0, F=1, rate1=0, dur1=0,
     return(.data)
   } else {
     stop("cannot figure out PK parameters to use for PK curve", call. = FALSE)
+  }
+}
+#' Get the information about the rxode2 derived parameter transformation
+#'
+#'
+#' @param ... Parameters translated, should be unquoted and not assigned to anything.
+#' @return Translation information; This list contains:
+#'
+#' - `$str` A named string of the parameters as seen in the underlying C/C++
+#'   code. The parameters that are NA are not used in the linear
+#'   compartment model calculations.
+#'
+#' - `$ncmt` the number of compartments in the model
+#'
+#' - `$trans` the rxode2 translation number of the parameterization
+#'
+#' This contains the linCmt()
+#'   translation number, the number of compartments and the parameters
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+#' @examples
+#'
+#' .rxTransInfo(cl, v , Vp, vp2, q, q2)
+#'
+#' .rxTransInfo(k12, k21, k13, k31, kel, v)
+#'
+#' .rxTransInfo(k12, k21, k13, k31, kel, v, ka)
+#'
+#' .rxTransInfo(CL, V)
+#'
+.rxTransInfo <- function(...) {
+  .args <- as.list(match.call(expand.dots = TRUE))[-1]
+  .args <- as.character(.args)
+  .namesU <- toupper(as.character(.args))
+  .w <- which(regexpr(.rxDerivedReg, .namesU) != -1)
+  if (length(.w) > 1L) {
+    .linCmt <- .Call(
+      `_rxode2parse_linCmtParse`, .args[.w],
+      c(
+        "", "", "tlag, F, rate1, dur1, ",
+        ", tlag2, F2, rate2, dur2"
+      ),
+      FALSE
+    )
+    .str <- .linCmt$str
+    .str <- strsplit(.str, ", +")[[1]]
+    .str <- .str[-(1:2)]
+    .str <- .str[c(1:6, 11)]
+    .str <- vapply(seq_along(.str), function(i) {
+      .num <- suppressWarnings(as.numeric(.str[i]))
+      if (is.na(.num)) return(.str[i])
+      NA_character_
+    }, character(1), USE.NAMES=FALSE)
+    names(.str) <- c("p1", "v1", "p2", "p3","p4", "p5", "ka")
+    .linCmt$str <- .str
+    .linCmt
+  } else {
+    stop("cannot figure out PK parameters to use", call. = FALSE)
   }
 }
