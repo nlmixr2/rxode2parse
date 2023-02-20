@@ -29,7 +29,8 @@ Imports:
     qs,
     Rcpp (>= 1.0.8),
     utils,
-    digest
+    digest,
+    rex
 Suggests:
     testthat (>= 3.0.0),
     devtools

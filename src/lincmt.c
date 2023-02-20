@@ -933,8 +933,11 @@ static inline double linCmtAA(int linCmtNdose,
                               double *linIi, // [linCmtNdose]
                               int *linCmtCmt, // [linCmtNdose]
                               int *linEvidF, // [linCmtNdose]
-                              int *linEvid0, // [linCmtNdose] 
-                              int evid,
+                              int *linEvid0, // [linCmtNdose]
+                              double *linCmtTlag,
+                              double *linCmtF,
+                              double *linCmtRate,
+                              int isObs,
                               double t, // time of observation
                               int *linCmt, //  This is the offset cmt, ie with 1 ode compartment this will be 1
                               int i_cmt, // Number of compartments
@@ -966,7 +969,7 @@ static inline double linCmtAA(int linCmtNdose,
   double pA[3];
   double pAO[3];
   double kalpha[3];
-  double tau=0.0, res=0.0, ka = d_ka;
+  double tau=0.0, ka = d_ka;
   if (!calcMacros(pA, pAO, kalpha,
                   &rx_k, &rx_v, &rx_k12, &rx_k21, &rx_k13, &rx_k31, &v1,
                   &d_ka, &i_cmt)) {
@@ -976,23 +979,80 @@ static inline double linCmtAA(int linCmtNdose,
     if (t > linTime[i]) break;
     int cmt = linCmtCmt[i] - *linCmt;
     double tinf = linTinf[i];
-    double curt, F, rate, dur;
+    double curt=0;
     double dose = linDose[i];
+    double tlag, F, rate;
+    rate = dose; // dose = rate in classic/underlying rxode2 event tables
+
+    // save/restore the possible time-varying dosing parameters.
+    int atDose = (linTime[i] == t && !isObs);
+    // Dose at current time.
+    if (atDose) {
+      if (cmt == 0) {
+        tlag = linCmtTlag[i] = d_tlag;
+        F = linCmtF[i] = d_F;
+      } else {
+        tlag = linCmtTlag[i] = d_tlag2;
+        F = linCmtF[i] = d_F2;
+      }
+    } else {
+      tlag = linCmtTlag[i];
+      F = linCmtF[i];
+    }
+    if (linEvidF[i] == EVIDF_INF_RATE) {
+      // data specified infusion rate
+      // here rate remains constant but infusion
+      // duration increases/decreases with different F
+      //linCmtRate[i] = rate;
+      tinf *= F;
+    } else if (linEvidF[i] == EVIDF_INF_DUR) {
+      // data specified infusion duration
+      // here duration remains constant but infusion
+      // rate increases/decreases with different F
+      //linCmtRate[i] = rate;
+      rate *=F;
+    } else if (linEvidF[i] == EVIDF_MODEL_DUR_ON) {
+      // modeled duration; here duration remains constant, but
+      // infusion rate increases/decreases with different F
+      // in this case the dose
+      if (atDose) {
+        if (cmt == 0) {
+          tinf = d_dur1;
+          rate = dose/tinf;
+          linCmtRate[i] = rate;
+        } else {
+          tinf = d_dur2;
+          rate = dose/tinf;
+          linCmtRate[i] = rate;
+        }
+      } else {
+        rate = linCmtRate[i];
+        tinf = dose/rate;
+      }
+      rate *=F;
+    } else if (linEvidF[i] == EVIDF_MODEL_RATE_ON) {
+      // modeled rate
+      // duration changes
+      if (atDose) {
+        if (cmt == 0) {
+          rate = d_rate1;
+          linCmtRate[i] = rate;
+        } else {
+          rate = d_rate2;
+          linCmtRate[i] = rate;
+        }
+      } else {
+        rate = linCmtRate[i];
+      }
+      tinf = dose/rate;
+      tinf *= F;
+    }
     if (linEvid0[i] == EVID0_REGULAR) {
-      /* if (linEvid0[i] == EVID0_SS || */
-      /*     linEvid0[i] == EVID0_SS2) { */
-      
-      /* } else if (linEvid0[i] == EVID0_SSINF) { */
-      
-      /* } */
       // Can dose to the depot (0) or central compartment (1)
       if (isOral && cmt == 0) {
         // dosing to the depot compartment
-        curt = t - linTime[i] - d_tlag;
+        curt = t - linTime[i] - tlag;
         if (curt < 0) continue;
-        F = d_F;
-        rate = d_rate1;
-        dur = d_dur1;
         sum = 0.0;
         for (int i = 0; i < ncmt; i++) {
           sum += pAO[i] * (exp(-kalpha[i] * curt) - exp(-ka * curt));
@@ -1000,21 +1060,8 @@ static inline double linCmtAA(int linCmtNdose,
         ret += dose * sum;
       } else if ((isOral && cmt == 1) || (!isOral && cmt ==  0)) {
         // dosing to the central compartment
-        if (isOral) {
-          curt = t - linTime[i] - d_tlag2;
-          if (curt < 0) continue;
-          F = d_F2;
-          rate = d_rate2;
-          dur = d_dur2;
-          res = exp(-ka * curt);
-        } else {
-          curt = t - linTime[i] - d_tlag;
-          if (curt < 0) continue;
-          F = d_F;
-          rate = d_rate1;
-          dur = d_dur1;
-          res = 0.0;
-        }
+        curt = t - linTime[i] - tlag;
+        if (curt < 0) continue;
         if (tinf > 0) {
           // infusion to central compartment
           sum = 0.0;
@@ -1023,11 +1070,12 @@ static inline double linCmtAA(int linCmtNdose,
           for (int j = 0; j < i_cmt; ++j) {
             sum += pA[i] / kalpha[i] * (1 - exp(-kalpha[i] * t1)) * exp(-kalpha[i] * t2);
           }
-          ret += dose / tinf * sum;
+          ret += rate * sum;
         } else {
+          // bolus to central cmt.
           sum = 0.0;
           for (int i = 0; i < ncmt; i++) {
-            sum += pA[i] * (exp(-kalpha[i] * curt) - res);
+            sum += pA[i] * (exp(-kalpha[i] * curt));
           }
           ret += dose * sum;
         }
@@ -1038,34 +1086,18 @@ static inline double linCmtAA(int linCmtNdose,
       ////////////////////////////////////////////////////////////////////////////////
       tau = linIi[i];
       if (isOral && cmt == 0) {
-        curt = t - linTime[i] - d_tlag;
+        curt = t - linTime[i] - tlag;
         if (curt < 0) continue;
-        F = d_F;
-        rate = d_rate1;
-        dur = d_dur1;
-        res = exp(-ka*curt)/(1-exp(-ka*tau));
         sum = 0.0;
         for (int i = 0; i < ncmt; i++) {
-          sum += pAO[i]*(exp(-kalpha[i]*curt)/(1-exp(-kalpha[i]*tau))-res);
+          sum += pAO[i]*(exp(-kalpha[i]*curt)/(1-exp(-kalpha[i]*tau))-
+                         exp(-ka*curt)/(1-exp(-ka*tau)));
         }
         ret += dose * sum;
       } else if ((isOral && cmt == 1) || (!isOral && cmt ==  0)) {
         // dosing to the central compartment
-        if (isOral) {
-          curt = t - linTime[i] - d_tlag2;
-          if (curt < 0) continue;
-          F = d_F2;
-          rate = d_rate2;
-          dur = d_dur2;
-          res = exp(-ka * curt);
-        } else {
-          curt = t - linTime[i] - d_tlag;
-          if (curt < 0) continue;
-          F = d_F;
-          rate = d_rate1;
-          dur = d_dur1;
-          res = 0.0;
-        }
+        curt = t - linTime[i] - tlag;
+        if (curt < 0) continue;
         if (tinf > 0) {
           // 1 cmt = A
           if (curt < tinf) {
@@ -1095,8 +1127,6 @@ static inline double linCmtAA(int linCmtNdose,
           }
         } else {
           // bolus steady state
-          // 1 cmt = A*exp(-k*curt)
-          // 2 cmt =
           sum = 0.0;
           // res = 0
           for (int j = 0; j < i_cmt; ++j) {
@@ -1109,7 +1139,6 @@ static inline double linCmtAA(int linCmtNdose,
           }
         }
       }
-      
     } else if (linEvid0[i] == EVID0_SSINF) {
       sum = 0.0;
       for (int j = 0; j < i_cmt; ++j) {
@@ -1121,6 +1150,59 @@ static inline double linCmtAA(int linCmtNdose,
       ret = 0.0;
     }
   }
+  return ret;
+}
+
+SEXP _rxode2parse_linCmtA(SEXP linDat, SEXP linPar) {
+  //.toLinCmtData( gives linDat)
+  int outLen = Rf_length(VECTOR_ELT(linDat, 0));
+  double *time=REAL(VECTOR_ELT(linDat, 0));
+  int *evid=INTEGER(VECTOR_ELT(linDat, 1));
+  double *linTime = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 0)); // [linCmtNdose]
+  double *linDose = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 1));// [linCmtNdose]
+  double *linTinf = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 2)); // [linCmtNdose]
+  double *linIi = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 3)); // [linCmtNdose]
+  int *linCmtCmt = INTEGER(VECTOR_ELT(VECTOR_ELT(linDat, 2), 4)); // [linCmtNdose]
+  int *linEvidF = INTEGER(VECTOR_ELT(VECTOR_ELT(linDat, 2), 5)); // [linCmtNdose]
+  int *linEvid0 = INTEGER(VECTOR_ELT(VECTOR_ELT(linDat, 2), 6)); // [linCmtNdose]
+  // in rxode2 these will be per thread
+  double *linCmtTlag = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 7));
+  double *linCmtF = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 8));
+  double *linCmtRate = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 9));
+  int linCmtNdose = INTEGER(VECTOR_ELT(linDat, 3))[0];
+  SEXP retS = PROTECT(Rf_allocVector(REALSXP, outLen));
+  double *ret = REAL(retS);
+  int *linParI = INTEGER(VECTOR_ELT(linPar, 0));
+  double *linParD = REAL(VECTOR_ELT(linPar, 1)); 
+  int linCmt = 0;
+  for (int i = 0; i < outLen; i++) {
+    ret[i] = linCmtAA(linCmtNdose, linTime, // [linCmtNdose]
+                      linDose, // [linCmtNdose]
+                      linTinf, // [linCmtNdose]
+                      linIi, // [linCmtNdose]
+                      linCmtCmt, // [linCmtNdose]
+                      linEvidF, // [linCmtNdose]
+                      linEvid0, // [linCmtNdose]
+                      linCmtTlag,
+                      linCmtF,
+                      linCmtRate,
+                      isObs(evid[i]),
+                      time[i], // time of observation
+                      &linCmt, //  This is the offset cmt, ie with 1 ode compartment this will be 1
+                      linParI[0], // Number of compartments
+                      linParI[1], // trans type (number)
+                      // parameters (different based on trans)
+                      linParD[0], linParD[1],
+                      linParD[2], linParD[3],
+                      linParD[4], linParD[5],
+                      // bio-availability and related parameters
+                      // with ka d_F, d_rate1 is of the depot d_F2 d_rate1 is the central
+                      linParD[6], linParD[7], linParD[8], linParD[9],
+                              // Oral parameters
+                      linParD[10], linParD[11], linParD[12],  linParD[13],
+                      linParD[14]);
+  }
+  UNPROTECT(1);
   return ret;
 }
 
