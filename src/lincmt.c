@@ -1170,11 +1170,11 @@ SEXP _rxode2parse_linCmtA(SEXP linDat, SEXP linPar) {
   double *linCmtF = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 8));
   double *linCmtRate = REAL(VECTOR_ELT(VECTOR_ELT(linDat, 2), 9));
   int linCmtNdose = INTEGER(VECTOR_ELT(linDat, 3))[0];
-  SEXP retS = PROTECT(Rf_allocVector(REALSXP, outLen));
-  double *ret = REAL(retS);
   int *linParI = INTEGER(VECTOR_ELT(linPar, 0));
   double *linParD = REAL(VECTOR_ELT(linPar, 1)); 
   int linCmt = 0;
+  SEXP retS = PROTECT(Rf_allocVector(REALSXP, outLen));
+  double *ret = REAL(retS);
   for (int i = 0; i < outLen; i++) {
     ret[i] = linCmtAA(linCmtNdose, linTime, // [linCmtNdose]
                       linDose, // [linCmtNdose]
@@ -1203,7 +1203,7 @@ SEXP _rxode2parse_linCmtA(SEXP linDat, SEXP linPar) {
                       linParD[14]);
   }
   UNPROTECT(1);
-  return ret;
+  return retS;
 }
 
 double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,

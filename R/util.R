@@ -90,7 +90,7 @@
     }
   }
   
-.evid <- .toClassicEvid(cmt=.dat$cmt, amt=.dat$amt,
+  .evid <- .toClassicEvid(cmt=.dat$cmt, amt=.dat$amt,
                           rate=.dat$rate, dur=.dat$dur,
                           ii=.dat$ii, evid=.dat$evid,
                           ss=.dat$ss)
@@ -115,8 +115,9 @@
                                        dose=.dat0$amt[i],
                                        tinf=.tinf,
                                        ii=.dat0$ii[i],
-                                       evidF=.wh["whI"],
-                                       evid0=.wh["wh0"],
+                                       cmt=.dat0$cmt,
+                                       evidF=as.integer(.wh["whI"]),
+                                       evid0=as.integer(.wh["wh0"]),
                                        # these are saved/modified
                                        # because of time-varying
                                        # possibilities
@@ -131,11 +132,14 @@
        len=length(.datL$time))
 }
 
-.toLinCmtParam <- function() {
-  return(list(c(cmt=1L, trans=1L),
-              c(p1=1, v1=1, p2=1, p3=1, p4=1, p5=1,
-                tlag=0, F=1, rate1=0, dur1=0,
-                ka=0, tlag2=0, F2=1, rate2=0, dur2=0)))
+.toLinCmtParam <- function(cmt, trans,
+                           p1, v1, p2, p3, p4, p5,
+                           tlag, F, rate1, dur1,
+                           ka, tlag2, F2, rate2, dur2) {
+  return(list(c(cmt=as.integer(cmt), trans=as.integer(trans)),
+              c(p1=p1, v1=v1, p2=p2, p3=p3, p4=p4, p5=p5,
+                tlag=tlag, F=F, rate1=rate1, dur1=dur1,
+                ka=ka, tlag2=tlag2, F2=F2, rate2=rate2, dur2=dur2)))
 }
 
 
@@ -282,5 +286,95 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
     return(eval(parse(text = .linCmt), envir = .env))
   } else {
     stop("cannot figure out PK parameters to convert", call. = FALSE)
+  }
+}
+
+#' Linear compartmental concentrations based on input data  
+#'  
+#' @param data This dataest should have the following columns:
+#' 
+#'   - `evid` - `rxode2` style evid
+#' 
+#'   - `amt` - amount of dose
+#' 
+#'   - `time` - time of observation
+#'
+#' The following columns are optional:
+#'
+#' - `id` the identifier of the individual
+#'
+#'  - `cmt` the compartment of dose
+#' 
+#'  - `rate` the rate of dose
+#'
+#'  - `dur` the duration of the dose
+#'
+#'  - `ii` the inter-dose interval
+#'
+#'  - `ss` the steady state flag
+#'
+#' This cannot have the an `id` column
+#' 
+#' @param ... Parameters for linear compartment model
+#' 
+#' @inheritParams rxDerived
+#' 
+#' @return original dataset `data` with an additional column `Cp` with
+#'   the
+#' @export
+#' @author Matthew L. Fidler
+#' @examples
+#'
+#' rxLinCmt(data=nlmixr2data::theo_sd, CL = 29.4, V = 3)
+#' 
+rxLinCmt <- function(data, ..., tlag=0, F=1, rate1=0, dur1=0,
+                     tlag2=0, F2=1, rate2=0, dur2=0,
+                     verbose = FALSE) {
+  .lowNames <- tolower(names(data))
+  .w <- which(.lowNames == "id")
+  .wt <- which(.lowNames == "time")
+  if (length(.wt) != 1L) stop("need one time column", call.=FALSE)
+  if (length(.w) == 0L) {
+    .ids <- 1
+    .data <- data[order(data[, .wt]),]
+    .datLin <- list(.toLinCmtData(.data))
+  } else if (length(.w) == 1L) {
+    .data <- data[order(data[, .w], data[, .wt]),]
+    .ids <- unique(data[,.w])
+    .datLin <- lapply(seq_along(.ids),
+                      function(id){
+                        .d <- .data[data[,.w] == id, ]
+                        .d <- .d[, -.w]
+                        .toLinCmtData(.d)
+                      })
+  } else {
+    stop("can't determine 'id' column, there seems to be duplicates",
+         call.=FALSE)
+  }
+  .lst <- list(...)
+  .namesU <- toupper(names(.lst))
+  .w <- which(regexpr(.rxDerivedReg, .namesU) != -1)
+  if (length(.w) > 1L) {
+    if (verbose) {
+      message("parameters: ", paste(names(.lst)[.w], collapse = ","))
+    }
+    .linCmt <- .Call(
+      `_rxode2parse_linCmtParse`, names(.lst)[.w],
+      c(
+        "with(.lst, .toLinCmtParam(", "", "tlag, F, rate1, dur1, ",
+        ", tlag2, F2, rate2, dur2))"
+      ),
+      verbose
+    )
+    .param <- eval(parse(text=.linCmt$str))
+    .res <- lapply(seq_along(.datLin),
+                   function(i) {
+                     .Call(`_rxode2parse_linCmtA`, .datLin[[i]],
+                           .param)
+                   })
+    .data <- data.frame(.data, Cp=unlist(.res))
+    return(.data)
+  } else {
+    stop("cannot figure out PK parameters to use for PK curve", call. = FALSE)
   }
 }
