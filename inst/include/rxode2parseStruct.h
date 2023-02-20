@@ -182,6 +182,7 @@ typedef struct {
   double *ssRtol;
   double *ssAtol;
   // linear compartment data-sets
+  int linCmt; // linear compartment offset from ode system
   int linCmtNdose; // number of linCmt() doses in subject
   double *linTime; // [linCmtNdose]
   double *linDose; // [linCmtNdose]
@@ -190,6 +191,11 @@ typedef struct {
   int *linCmtCmt; // [linCmtNdose]
   int *linEvidF; // [linCmtNdose]
   int *linEvid0; // [linCmtNdose]
+  // these should be per thread
+  double *linCmtTlag;
+  double *linCmtF;
+  double *linCmtRate;
+
 } rx_solving_options_ind;
 
 typedef struct {
