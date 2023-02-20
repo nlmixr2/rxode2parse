@@ -3,6 +3,7 @@
 S3method(print,rxModelVars)
 export(.getWh)
 export(.toClassicEvid)
+export(rxDerived)
 export(rxParseSetSilentErr)
 export(rxParseSuppressMsg)
 export(rxode2parse)
