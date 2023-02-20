@@ -195,7 +195,6 @@ typedef struct {
   double *linCmtTlag;
   double *linCmtF;
   double *linCmtRate;
-
 } rx_solving_options_ind;
 
 typedef struct {
@@ -256,6 +255,7 @@ typedef struct {
   int linKa; // does this solution have a depot compartment
   int linNcmt; // how many compartments are in the system
   int linB; // is this a sensitivity problem?
+  int maxLinCmtDose; // maximum number of doses for linCmt() problem
 } rx_solve;
 
 
