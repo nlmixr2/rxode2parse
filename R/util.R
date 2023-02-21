@@ -44,7 +44,9 @@
 #' .toClassicEvid(evid=2)
 #' .toClassicEvid(evid=4)
 .toClassicEvid <- function(cmt=1L, amt=0.0, rate=0.0, dur=0.0, ii=0.0, evid=0L, ss=0.0) {
-  checkmate::assertIntegerish(cmt, any.missing=FALSE)
+  .w <- which(is.na(cmt))
+  if (length(.w) > 0) cmt[.w] <- 1
+  checkmate::assertIntegerish(cmt)
   checkmate::assertIntegerish(evid, any.missing=FALSE)
   checkmate::assertNumeric(amt)
   checkmate::assertNumeric(dur, any.missing=FALSE)
@@ -110,26 +112,25 @@
                             } else if (.dat0$dur[i] > 0) {
                               .tinf <- .dat0$dur[i]
                             }
-                            .len <- length(.tinf)
                             data.frame(time=.dat0$time[i],
                                        dose=.dat0$amt[i],
                                        tinf=.tinf,
                                        ii=.dat0$ii[i],
-                                       cmt=.dat0$cmt-1L,
+                                       cmt=.dat0$cmt[i]-1L,
                                        evidF=as.integer(.wh["whI"]),
-                                       evid0=as.integer(.wh["wh0"]),
-                                       # these are saved/modified
-                                       # because of time-varying
-                                       # possibilities
-                                       tlag=rep(0.0, .len),
-                                       f=rep(1.0, .len),
-                                       rate=rep(0.0, .len))
+                                       evid0=as.integer(.wh["wh0"]))
                           }))
+  .len <- length(.datL$tinf)
+  # these are saved/modified because of time-varying possibilities
+  .datL <-  data.frame(.datL, tlag=rep(0.0, .len),
+                       f=rep(1.0, .len),
+                       rate=rep(0.0, .len))
   row.names(.datL) <- NULL
-  list(time=as.double(.dat$time),
-       evid=as.integer(.dat$evid),
-       linDat=.datL,
-       len=length(.datL$time))
+  .ret <-  list(time=as.double(.dat$time),
+                evid=as.integer(.dat$evid),
+                linDat=.datL,
+                len=length(.datL$time))
+  .ret
 }
 
 .toLinCmtParam <- function(cmt, trans,
