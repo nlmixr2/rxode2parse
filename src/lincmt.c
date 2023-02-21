@@ -1113,8 +1113,7 @@ static inline double linCmtAA(int linCmtNdose,
           } else {
             sum = 0.0;
             for (int j = 0; j < i_cmt; ++j) {
-              sum += pA[j]/kalpha[j]*((1-exp(-kalpha[j]*curt)) +
-                                      exp(-kalpha[j]*tau)*(1-exp(-kalpha[j]*tinf))*
+              sum += pA[j]/kalpha[j]*((1-exp(-kalpha[j]*tinf))*
                                       exp(-kalpha[j]*(curt-tinf))/(1-exp(-kalpha[j]*tau)));
             }
             if (linEvid0[i] == EVID0_SS) { // ss=1
