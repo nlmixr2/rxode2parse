@@ -1052,8 +1052,8 @@ static inline double linCmtAA(int linCmtNdose,
         curt = t - linTime[i] - tlag;
         if (curt < 0) continue;
         sum = 0.0;
-        for (int i = 0; i < ncmt; i++) {
-          sum += pAO[i] * (exp(-kalpha[i] * curt) - exp(-ka * curt));
+        for (int j = 0; j < i_cmt; j++) {
+          sum += pAO[j] * (exp(-kalpha[j] * curt) - exp(-ka * curt));
         }
         ret += dose * sum;
       } else if ((isOral && cmt == 1) || (!isOral && cmt ==  0)) {
@@ -1066,14 +1066,14 @@ static inline double linCmtAA(int linCmtNdose,
           t1 = curt < tinf ? curt : tinf;        //during infusion
           t2 = curt > tinf ? curt - tinf : 0.0;  // after infusion
           for (int j = 0; j < i_cmt; ++j) {
-            sum += pA[i] / kalpha[i] * (1 - exp(-kalpha[i] * t1)) * exp(-kalpha[i] * t2);
+            sum += pA[j] / kalpha[j] * (1 - exp(-kalpha[j] * t1)) * exp(-kalpha[j] * t2);
           }
           ret += rate * sum;
         } else {
           // bolus to central cmt.
           sum = 0.0;
-          for (int i = 0; i < ncmt; i++) {
-            sum += pA[i] * (exp(-kalpha[i] * curt));
+          for (int j = 0; j < i_cmt; j++) {
+            sum += pA[j] * (exp(-kalpha[j] * curt));
           }
           ret += dose * sum;
         }
@@ -1087,8 +1087,8 @@ static inline double linCmtAA(int linCmtNdose,
         curt = t - linTime[i] - tlag;
         if (curt < 0) continue;
         sum = 0.0;
-        for (int i = 0; i < ncmt; i++) {
-          sum += pAO[i]*(exp(-kalpha[i]*curt)/(1-exp(-kalpha[i]*tau))-
+        for (int j = 0; j < i_cmt; j++) {
+          sum += pAO[j]*(exp(-kalpha[j]*curt)/(1-exp(-kalpha[j]*tau))-
                          exp(-ka*curt)/(1-exp(-ka*tau)));
         }
         ret += dose * sum;
@@ -1101,9 +1101,9 @@ static inline double linCmtAA(int linCmtNdose,
           if (curt < tinf) {
             sum = 0.0;
             for (int j = 0; j < i_cmt; ++j) {
-              sum += pA[i]/kalpha[i]*((1-exp(-kalpha[i]*curt)) +
-                                      exp(-kalpha[i]*tau)*(1-exp(-kalpha[i]*tinf))*
-                                      exp(-kalpha[i]*(curt-tinf))/(1-exp(-kalpha[i]*tau)));
+              sum += pA[j]/kalpha[j]*((1-exp(-kalpha[j]*curt)) +
+                                      exp(-kalpha[j]*tau)*(1-exp(-kalpha[j]*tinf))*
+                                      exp(-kalpha[j]*(curt-tinf))/(1-exp(-kalpha[j]*tau)));
             }
             if (linEvid0[i] == EVID0_SS) { // ss =1
               ret = rate *sum;
@@ -1113,9 +1113,9 @@ static inline double linCmtAA(int linCmtNdose,
           } else {
             sum = 0.0;
             for (int j = 0; j < i_cmt; ++j) {
-              sum += pA[i]/kalpha[i]*((1-exp(-kalpha[i]*curt)) +
-                                      exp(-kalpha[i]*tau)*(1-exp(-kalpha[i]*tinf))*
-                                      exp(-kalpha[i]*(curt-tinf))/(1-exp(-kalpha[i]*tau)));
+              sum += pA[j]/kalpha[j]*((1-exp(-kalpha[j]*curt)) +
+                                      exp(-kalpha[j]*tau)*(1-exp(-kalpha[j]*tinf))*
+                                      exp(-kalpha[j]*(curt-tinf))/(1-exp(-kalpha[j]*tau)));
             }
             if (linEvid0[i] == EVID0_SS) { // ss=1
               ret = rate *sum;
@@ -1128,7 +1128,7 @@ static inline double linCmtAA(int linCmtNdose,
           sum = 0.0;
           // res = 0
           for (int j = 0; j < i_cmt; ++j) {
-            sum += pA[i]*(exp(-kalpha[i]*curt)/(1-exp(-kalpha[i]*tau)));
+            sum += pA[j]*(exp(-kalpha[j]*curt)/(1-exp(-kalpha[j]*tau)));
           }
           if (linEvid0[i] == EVID0_SS) { // ss=1
             ret = dose * sum;
@@ -1140,7 +1140,7 @@ static inline double linCmtAA(int linCmtNdose,
     } else if (linEvid0[i] == EVID0_SSINF) {
       sum = 0.0;
       for (int j = 0; j < i_cmt; ++j) {
-        sum += pA[i]/kalpha[i];
+        sum += pA[j]/kalpha[j];
       }
       ret = rate * sum;
     } else if (linEvid0[i] == 3) {
