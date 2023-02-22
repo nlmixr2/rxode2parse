@@ -36,3 +36,18 @@ test_that(sprintf("one compartment infusion tau steady state (%s)", .txt), {
 })
 
 
+etSsR.ode.1c <- .qr("test-lincmt-etSsR.ode.1c.qs")
+
+d <- etSsR.ode.1c[,c("evid", "cmt", "amt", "ii", "ss", "rate", "time")]
+
+s1 <- rxLinCmt(d, V=20, CL=25)
+
+test_that(sprintf("one compartment infusion tau steady state (%s)", .txt), {
+  expect_equal(etSsR.ode.1c$C2, s1$Cp, tolerance = tolSS)
+})
+
+
+## library(ggplot2)
+
+## ggplot(s1, aes(time, Cp)) + geom_line() +
+##   geom_line(data=etSsR.ode.1c, aes(time, C2), col="red")

@@ -1137,9 +1137,12 @@ static inline double linCmtAA(int linCmtNdose,
         }
       }
     } else if (linEvid0[i] == EVID0_SSINF) {
+      // dosing to the central compartment
+      curt = t - linTime[i] - tlag;
+      if (curt < 0) continue;
       sum = 0.0;
       for (int j = 0; j < i_cmt; ++j) {
-        sum += pA[j]/kalpha[j];
+        sum += pA[j]/kalpha[j]*(exp(-kalpha[j]*curt));
       }
       ret = rate * sum;
     } else if (linEvid0[i] == 3) {
