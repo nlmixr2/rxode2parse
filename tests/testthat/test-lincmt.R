@@ -73,3 +73,35 @@ s2 <- rxLinCmt(d, V = 40, CL = 18, V2 = 297, Q = 10)
 test_that(sprintf("two compartment infusion steady state (%s)", .txt), {
   expect_equal(etSsR.ode.2c$C2, s2$Cp, tolerance=tol)
 })
+
+
+etSsB.ode.3c <- .qr("test-lincmt-etSsB.ode.3c.qs")
+
+d <- etSsB.ode.3c[,c("evid", "cmt", "amt", "ii", "ss", "time")]
+
+s3 <- rxLinCmt(d, V = 40, CL = 18, V2 = 297, Q = 10, Q2 = 7, V3 = 400)
+
+test_that(sprintf("three compartment bolus steady state (%s)", .txt), {
+  expect_equal(etSsB.ode.3c$C2, s3$Cp, tolerance=tol)
+})
+
+etSsI.ode.3c <- .qr("test-lincmt-etSsI.ode.3c.qs")
+
+d <- etSsI.ode.3c[,c("evid", "cmt", "amt", "ii", "ss","rate", "time")]
+
+s3 <- rxLinCmt(d, V = 40, CL = 18, V2 = 297, Q = 10, Q2 = 7, V3 = 400)
+
+test_that(sprintf("three compartment infusion tau steady state (%s)", .txt), {
+  expect_equal(etSsI.ode.3c$C2, s3$Cp, tolerance=tolSS)
+})
+
+
+etSsR.ode.3c <- .qr("test-lincmt-etSsR.ode.3c.qs")
+
+d <- etSsR.ode.3c[,c("evid", "cmt", "amt", "ii", "ss","rate", "time")]
+
+s3 <- rxLinCmt(d, V = 40, CL = 18, V2 = 297, Q = 10, Q2 = 7, V3 = 400)
+
+test_that(sprintf("three compartment infusion tau steady state (%s)", .txt), {
+  expect_equal(etSsR.ode.3c$C2, s3$Cp, tolerance=tolSS)
+})
