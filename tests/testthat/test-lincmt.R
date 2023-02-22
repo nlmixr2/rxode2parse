@@ -46,8 +46,30 @@ test_that(sprintf("one compartment infusion tau steady state (%s)", .txt), {
   expect_equal(etSsR.ode.1c$C2, s1$Cp, tolerance = tolSS)
 })
 
+etSsB.ode.2c <- .qr("test-lincmt-etSsB.ode.2c.qs")
+d <- etSsB.ode.2c[,c("evid", "cmt", "amt", "ii", "ss", "time")]
 
-## library(ggplot2)
+s2 <- rxLinCmt(d, V = 40, CL = 18, V2 = 297, Q = 10)
 
-## ggplot(s1, aes(time, Cp)) + geom_line() +
-##   geom_line(data=etSsR.ode.1c, aes(time, C2), col="red")
+test_that(sprintf("two compartment bolus steady state (%s)", .txt), {
+  expect_equal(etSsB.ode.2c$C2, s2$Cp, tolerance=tol)
+})
+
+
+etSsI.ode.2c <- .qr("test-lincmt-etSsI.ode.2c.qs")
+d <- etSsI.ode.2c[,c("evid", "cmt", "amt", "ii", "ss", "rate", "time")]
+
+s2 <- rxLinCmt(d, V = 40, CL = 18, V2 = 297, Q = 10)
+
+test_that(sprintf("two compartment infusion tau steady state (%s)", .txt), {
+  expect_equal(etSsI.ode.2c$C2, s2$Cp, tolerance=tol)
+})
+
+etSsR.ode.2c <- .qr("test-lincmt-etSsR.ode.2c.qs")
+d <- etSsR.ode.2c[,c("evid", "cmt", "amt", "ii", "ss", "rate", "time")]
+
+s2 <- rxLinCmt(d, V = 40, CL = 18, V2 = 297, Q = 10)
+
+test_that(sprintf("two compartment infusion steady state (%s)", .txt), {
+  expect_equal(etSsR.ode.2c$C2, s2$Cp, tolerance=tol)
+})
