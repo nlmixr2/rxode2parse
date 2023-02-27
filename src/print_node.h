@@ -34,7 +34,7 @@ static inline int nodeTime(char *value) {
 }
 
 static inline int nodeCmt(char *value) {
-  if (!strcmp("CMT",value)){
+  if (!rxstrcmpi("CMT",value)){
     aAppendN("_CMT", 4);
     sAppendN(&sbt, "CMT", 3);
     return 1;
@@ -42,8 +42,17 @@ static inline int nodeCmt(char *value) {
   return 0;
 }
 
+static inline int nodeAmt(char *value) {
+  if (!rxstrcmpi("AMT",value)){
+    aAppendN("amt", 3);
+    sAppendN(&sbt, "amt", 3);
+    return 1;
+  }
+  return 0;
+}
+ 
 static inline int nodeTlast(char *value) {
-  if (!strcmp("tlast",value)){
+  if (!rxstrcmpi("tlast",value)){
     aAppendN("_solveData->subjects[_cSub].tlast", 33);
     sAppendN(&sbt, "tlast", 5);
     return 1;

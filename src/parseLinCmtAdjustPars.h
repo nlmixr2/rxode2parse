@@ -248,7 +248,7 @@ static inline void assertCorrectClV(linCmtStruct *lin) {
     if (lin->v2 != -1) {
       if (lin->cl2 == -1) {
         _rxode2parse_unprotect();
-        err_trans("can find peripheral volume but not distributlin->v2 ional clearance");
+        err_trans("can find peripheral volume but not distributional clearance");
       }
     }
     if (lin->cl3 != -1) {

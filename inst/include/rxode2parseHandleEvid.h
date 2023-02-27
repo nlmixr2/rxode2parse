@@ -401,5 +401,90 @@ static inline int handleEvid1(int *i, rx_solve *rx, int *neq, double *yp, double
 										 ind->BadDose, ind->InfusionRate, ind->dose, yp,
 										 *xout, neq[1], ind);
 }
+
+// time   amt rate          ii  addl evid            ss
+static inline int getEvidFlag(int cmt, double amt, double rate, double ii, int evid, double ss) {
+	// #define  30
+	if (evid == 7) {
+		if (cmt > 0) {
+			return EVID0_PHANTOM;
+		} else {
+			return -1; // bad phantom
+		}
+	}
+	if (ss == 1.0) {
+		if (ii > 0.0) {
+			if (cmt > 0) {
+				return EVID0_SS;
+			} else {
+				return -2; // bad steady state 1
+			}
+		}
+		if (ii == 0.0 && amt == 0.0) {
+			if (cmt > 0) {
+				return EVID0_SSINF;
+			} else {
+				return -3; // bad infinite steady state infusion
+			}
+		}
+	} else if (ss == 2.0 && ii > 0.0) {
+		if (cmt > 0) {
+			return EVID0_SS2;
+		} else {
+			return -4;
+		}
+	}
+	if (cmt < 0) {
+		// turn off the compartment
+		return EVID0_OFF;
+	}
+	if (ss == 0.0 || ISNA(ss)) return EVID0_REGULAR;
+	return EVID0_REGULAR;
+}
+
+
+static inline int getEvidRateI(int cmt, double amt, double rate, double dur, double ii, int evid, double ss) {
+	if (evid == 1) {
+		if (dur == 0.0) {
+			if (rate == -1.0) {
+				return EVIDF_MODEL_RATE_ON;
+				// #define EVIDF_MODEL_RATE_OFF 7
+			} else if  (rate == -2.0) {
+				return EVIDF_MODEL_DUR_ON;
+			} else if (rate > 0.0) {
+				return EVIDF_INF_RATE;
+				// #define EVIDF_MODEL_DUR_OFF  6
+			} 		
+		} else if (rate == 0.0) {
+			if (dur > 0.0 ) {
+				return EVIDF_INF_DUR;
+			}
+		}
+	} else if (evid == 5) {
+		// replace
+		return EVIDF_REPLACE;
+	} else if (evid == 6) {
+		return EVIDF_MULT;
+	}
+	return EVIDF_NORMAL;
+}
+
+static inline int getEvidClassic(int cmt, double amt, double rate, double dur, double ii, int evid, double ss) {
+	if (isObs(evid)) return evid;
+	int cmtP = cmt;
+	int cmt100, cmt99, rateI, flg;
+	if (cmtP < 0) cmtP = -cmtP;
+	if (cmtP <= 99){
+		cmt100=0;
+		cmt99=cmtP;
+	} else {
+		cmt100=cmtP/100;
+		cmt99=cmtP-cmt100*100;
+	}
+	rateI = getEvidRateI(cmt, amt, rate, dur, ii, evid, ss);
+	flg = getEvidFlag(cmt, amt, rate, ii, evid, ss);
+	return cmt100*100000+rateI*10000+cmt99*100+flg;
+}
+
 #endif
 
