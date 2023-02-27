@@ -11,6 +11,7 @@ void wprint_node(int depth, char *name, char *value, void *client_data) {
   niReset(&ni);
   int tmp = nodeTime(value) ||
     nodeCmt(value) ||
+    nodeAmt(value) ||
     nodeTlast(value) ||
     nodePtr(value) ||
     nodeNaN(value) ||

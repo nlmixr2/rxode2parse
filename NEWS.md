@@ -12,6 +12,18 @@
 
 * Fix garbled error messages that occur with certain messages.
 
+* Fixed errors that occurred when using capitalized AMT variables in
+  the Model
+
+* Moved `rxDerived` here and added tests for it here as wel.
+
+* Also have internal functions to convert between classic NONMEM
+  events and rxode2 events
+  
+* Have an internal function that gives information on the linear
+  compartmental model translation type, which could be useful for
+  babelmixr2
+
 # rxode2parse 2.0.13
 
 * Version bump for dparser (so binaries will be built correctly)

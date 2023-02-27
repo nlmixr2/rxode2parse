@@ -76,9 +76,15 @@ void _rxode2parse_assignFuns2(rx_solve rx,
                             t_getDur getdur);
 
 SEXP _rxode2_parse_strncmpci();
+SEXP _rxode2parse_getWh(SEXP in);
+SEXP _rxode2parse_getClassicEvid(SEXP, SEXP, SEXP, SEXP, SEXP,
+                                 SEXP, SEXP);
+SEXP _rxode2parse_linCmtA(SEXP linDat, SEXP linPar);
 
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_getClassicEvid", (DL_FUNC) &_rxode2parse_getClassicEvid, 7},
+    {"_rxode2parse_getWh", (DL_FUNC) &_rxode2parse_getWh, 1},
     {"_rxode2_parse_strncmpci", (DL_FUNC) &_rxode2_parse_strncmpci, 0},
     {"_rxode2parse_codeLoaded", (DL_FUNC) &_rxode2parse_codeLoaded, 0},
     {"_rxode2parse_codegen", (DL_FUNC) &_rxode2parse_codegen, 7},
