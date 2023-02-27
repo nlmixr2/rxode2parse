@@ -205,7 +205,7 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
     stop("cannot figure out PK parameters to convert", call. = FALSE)
   }
 }
-
+ 
 #' Get the information about the rxode2 derived parameter transformation
 #'
 #'
@@ -265,3 +265,10 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
     stop("cannot figure out PK parameters to use", call. = FALSE)
   }
 }
+
+## nocov start
+.dummy <- function() {
+  #dummy import to make check() and CRAN happy
+  .r <- rex::rex(start, end)
+}
+## nocov end
