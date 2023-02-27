@@ -34,7 +34,7 @@ static inline int nodeTime(char *value) {
 }
 
 static inline int nodeCmt(char *value) {
-  if (!rxstrcmpi("CMT",value)){
+  if (!strcmp("CMT",value)){
     aAppendN("_CMT", 4);
     sAppendN(&sbt, "CMT", 3);
     return 1;
