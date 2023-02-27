@@ -13,10 +13,22 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/dot-getWh.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-rxTransInfo.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-toClassicEvid.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
     <loc>/reference/print.rxModelVars.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rxDerived.html</loc>
   </url>
   <url>
     <loc>/reference/rxParseSetSilentErr.html</loc>
