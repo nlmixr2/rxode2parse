@@ -49,7 +49,8 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="rxode2parse-development-version">rxode2parse (development version)<a class="anchor" aria-label="anchor" href="#rxode2parse-development-version"></a></h2>
-<ul><li><p>‘time’ in model is now case insensitive</p></li>
+<ul><li><p>transit compartment internal code now changes dose to 0.0 when no dose has been administered to the depot compartment. This way dosing to the central compartment (without dosing to the transit compartment) will not give a <code>NA</code> for the depot compartment (and consequently for the central compartment)</p></li>
+<li><p>‘time’ in model is now case insensitive</p></li>
 <li><p>Use function declaration in <code><a href="../reference/rxode2parseGetTranslation.html">rxode2parseGetTranslation()</a></code> to determine thread safety</p></li>
 <li><p>Add check for correct number of function arguments to parser</p></li>
 <li><p>Like R, known functions can be assigned as a variable and the function can still be called (while not changing the variable value)</p></li>
