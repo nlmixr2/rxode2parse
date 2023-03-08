@@ -49,16 +49,18 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="rxode2parse-development-version">rxode2parse (development version)<a class="anchor" aria-label="anchor" href="#rxode2parse-development-version"></a></h2>
-<ul><li><p>transit compartment internal code now changes dose to 0.0 when no dose has been administered to the depot compartment. This way dosing to the central compartment (without dosing to the transit compartment) will not give a <code>NA</code> for the depot compartment (and consequently for the central compartment)</p></li>
-<li><p>‘time’ in model is now case insensitive</p></li>
-<li><p>Use function declaration in <code><a href="../reference/rxode2parseGetTranslation.html">rxode2parseGetTranslation()</a></code> to determine thread safety</p></li>
-<li><p>Add check for correct number of function arguments to parser</p></li>
-<li><p>Like R, known functions can be assigned as a variable and the function can still be called (while not changing the variable value)</p></li>
-<li><p>Fix garbled error messages that occur with certain messages.</p></li>
-<li><p>Fixed errors that occurred when using capitalized AMT variables in the Model</p></li>
-<li><p>Moved <code>rxDerived</code> here and added tests for it here as wel.</p></li>
+<ul><li>
+<p>transit compartment internal code now changes dose to 0.0 when no dose has been administered to the depot compartment. This way dosing to the central compartment (without dosing to the transit compartment) will not give a <code>NA</code> for the depot compartment (and consequently for the central compartment)</p>
+<ul><li>Moved <code>rxDerived</code> here and added tests for it here as well.</li>
+</ul></li>
 <li><p>Also have internal functions to convert between classic NONMEM events and rxode2 events</p></li>
 <li><p>Have an internal function that gives information on the linear compartmental model translation type, which could be useful for babelmixr2</p></li>
+<li><p>‘time’ in model is now case insensitive</p></li>
+<li><p>Use function declaration in <code><a href="../reference/rxode2parseGetTranslation.html">rxode2parseGetTranslation()</a></code> to determine thread safety of functions available to rxode2</p></li>
+<li><p>Add check for correct number of function arguments to parser.</p></li>
+<li><p>Like R, known functions can be assigned as a variable and the function can still be called (while not changing the variable value). For example you can have a variable <code>gamma</code> as well as a function <code><a href="https://rdrr.io/r/base/Special.html" class="external-link">gamma()</a></code>.</p></li>
+<li><p>Fix garbled error messages that occur with certain messages.</p></li>
+<li><p>Fixed errors that occurred when using capitalized AMT variables in the model.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.13" id="rxode2parse-2013">rxode2parse 2.0.13<small>2022-11-10</small><a class="anchor" aria-label="anchor" href="#rxode2parse-2013"></a></h2>
