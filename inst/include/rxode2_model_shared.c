@@ -227,9 +227,11 @@ double _transit4P(int cmt, double t, unsigned int id, double n, double mtt, doub
   double ktr = (nd+1)/mtt;
   double lktr = _safe_log(nd+1)-_safe_log(mtt);
   double tlast = _solveData->subjects[id].tlastS[cmt];
+  double dose = _solveData->subjects[id].curDoseS[cmt];
+  if (ISNA(dose)) dose = 0.0;
   if (ISNA(tlast)) tlast = 0.0;
   double tad = (t-tlast);
-  return exp(_safe_log(bio*(_solveData->subjects[id].curDoseS[cmt]))+lktr+n*(lktr+_safe_log(tad))-ktr*(tad)-lgamma1p(nd));
+  return exp(_safe_log(bio*dose)+lktr+n*(lktr+_safe_log(tad))-ktr*(tad)-lgamma1p(nd));
 }
 
 double _transit3P(int cmt, double t, unsigned int id, double n, double mtt){
@@ -240,6 +242,7 @@ double _transit3P(int cmt, double t, unsigned int id, double n, double mtt){
   if (ISNA(tlast)) tlast = 0.0;
   double tad = t-tlast;
   double podo = _solveData->subjects[id].curDoseS[cmt];
+  if (ISNA(podo)) podo = 0.0;
   return exp(_safe_log(podo)+lktr+n*(lktr+_safe_log(tad))-ktr*(tad)-lgamma1p(nd));
 }
 
