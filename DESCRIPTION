@@ -30,7 +30,8 @@ Imports:
     Rcpp (>= 1.0.8),
     utils,
     digest,
-    rex
+    rex,
+    data.table (>= 1.12.4)
 Suggests:
     testthat (>= 3.0.0),
     devtools
