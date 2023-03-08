@@ -6,29 +6,32 @@
   compartment) will not give a `NA` for the depot compartment (and
   consequently for the central compartment)
 
+  * Moved `rxDerived` here and added tests for it here as well.
+
+* Also have internal functions to convert between classic NONMEM
+events and rxode2 events
+
+* Have an internal function that gives information on the linear
+compartmental model translation type, which could be useful for
+babelmixr2
+
+
 * 'time' in model is now case insensitive
 
 * Use function declaration in `rxode2parseGetTranslation()` to
-  determine thread safety
+  determine thread safety of functions available to rxode2
 
-* Add check for correct number of function arguments to parser
+* Add check for correct number of function arguments to parser.
 
 * Like R, known functions can be assigned as a variable and the
-  function can still be called (while not changing the variable value)
+  function can still be called (while not changing the variable
+  value).  For example you can have a variable `gamma` as well as a
+  function `gamma()`.
 
 * Fix garbled error messages that occur with certain messages.
 
 * Fixed errors that occurred when using capitalized AMT variables in
-  the Model
-
-* Moved `rxDerived` here and added tests for it here as wel.
-
-* Also have internal functions to convert between classic NONMEM
-  events and rxode2 events
-  
-* Have an internal function that gives information on the linear
-  compartmental model translation type, which could be useful for
-  babelmixr2
+  the model.
 
 # rxode2parse 2.0.13
 
@@ -52,7 +55,7 @@
 
 # rxode2parse 2.0.9
 
-* Initial release to split of rxode2parse from rxode2 to reduce 
+* Initial release to split of rxode2parse from rxode2 to reduce
   compilation time of 'rxode2'
 
 * Added a `NEWS.md` file to track changes to the package.
