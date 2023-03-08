@@ -1,5 +1,11 @@
 # rxode2parse (development version)
 
+* transit compartment internal code now changes dose to 0.0 when no
+  dose has been administered to the depot compartment. This way dosing
+  to the central compartment (without dosing to the transit
+  compartment) will not give a `NA` for the depot compartment (and
+  consequently for the central compartment)
+
 * 'time' in model is now case insensitive
 
 * Use function declaration in `rxode2parseGetTranslation()` to
