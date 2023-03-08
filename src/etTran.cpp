@@ -425,7 +425,7 @@ bool _ini0=true;
 //'
 //' @export
 //[[Rcpp::export]]
-bool rxSetIni0(bool ini0 = true){
+bool rxSetIni0(bool ini0 = true) {
   _ini0=ini0;
   return _ini0;
 }

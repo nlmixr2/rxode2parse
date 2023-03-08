@@ -81,8 +81,21 @@ SEXP _rxode2parse_getClassicEvid(SEXP, SEXP, SEXP, SEXP, SEXP,
                                  SEXP, SEXP);
 SEXP _rxode2parse_linCmtA(SEXP linDat, SEXP linPar);
 
+SEXP _rxode2parse_etTransEvidIsObs(SEXP);
+SEXP _rxode2parse_forderForceBase(SEXP);
+SEXP _rxode2parse_rxSetIni0(SEXP);
+SEXP _rxode2parse_etTransParse(SEXP, SEXP, SEXP, SEXP, SEXP,
+                               SEXP, SEXP, SEXP);
+
+SEXP _rxode2parse_rxEtTransAsDataFrame_(SEXP);
+
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_rxEtTransAsDataFrame_", (DL_FUNC) &_rxode2parse_rxEtTransAsDataFrame_, 1},
+    {"_rxode2parse_etTransParse", (DL_FUNC) &_rxode2parse_etTransParse, 8},
+    {"_rxode2parse_rxSetIni0", (DL_FUNC) &_rxode2parse_rxSetIni0, 1},
+    {"_rxode2parse_forderForceBase", (DL_FUNC) &_rxode2parse_forderForceBase, 1},
+    {"_rxode2parse_etTransEvidIsObs", (DL_FUNC) &_rxode2parse_etTransEvidIsObs, 1},
     {"_rxode2parse_getClassicEvid", (DL_FUNC) &_rxode2parse_getClassicEvid, 7},
     {"_rxode2parse_getWh", (DL_FUNC) &_rxode2parse_getWh, 1},
     {"_rxode2_parse_strncmpci", (DL_FUNC) &_rxode2_parse_strncmpci, 0},
