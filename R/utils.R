@@ -9,6 +9,18 @@
 .rxode2parseFunPtrs <- function() {
   .Call(`_rxode2parse_funPtrs`)
 }
+#' Convert a factor/char to an id
+#'
+#' @param a value to convert to an id
+#' @return id factor
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+#' @examples
+#' .convertId("a")
+.convertId <- function(a) {
+  .Call(`_rxode2parse_convertId_`, a)
+}
 
 #' Get the internal breakdown of an evid
 #'

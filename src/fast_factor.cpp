@@ -21,8 +21,10 @@ inline SEXP sexp_unique( Rcpp::Vector< RTYPE > x ) {
   return x;
 }
 
+#define get_sexp_unique _rxode2parse_get_sexp_unique
+
 // returns unique values in their original input order
-inline SEXP get_sexp_unique( SEXP s ) {
+extern "C" SEXP get_sexp_unique( SEXP s ) {
 
   SEXP s2 = PROTECT(Rcpp::clone( s ));
 

@@ -90,12 +90,16 @@ SEXP _rxode2parse_etTransParse(SEXP, SEXP, SEXP, SEXP, SEXP,
 SEXP _rxode2parse_rxEtTransAsDataFrame_(SEXP);
 
 SEXP _rxode2parse_convertId_(SEXP x);
+SEXP _rxode2parse_get_sexp_unique( SEXP s );
 
 SEXP _rxode2parse_funPtrs(void) {
   int pro = 0;
-  SEXP ret = PROTECT(allocVector(VECSXP, 1)); pro++;
+  SEXP ret = PROTECT(allocVector(VECSXP, 2)); pro++;
   SET_VECTOR_ELT(ret, 0, R_MakeExternalPtrFn((DL_FUNC) &_rxode2parse_convertId_,
                                              Rf_install("_rxode2parse_convertId_"),
+                                             R_NilValue));
+  SET_VECTOR_ELT(ret, 1, R_MakeExternalPtrFn((DL_FUNC) &_rxode2parse_get_sexp_unique,
+                                             Rf_install("_rxode2parse_get_sexp_unique"),
                                              R_NilValue));
   SEXP cls = PROTECT(Rf_allocVector(STRSXP, 1)); pro++;
   SET_STRING_ELT(cls, 0, Rf_mkChar("rxode2parseFunPtrs"));
@@ -107,6 +111,7 @@ SEXP _rxode2parse_funPtrs(void) {
 
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_convertId_", (DL_FUNC) &_rxode2parse_convertId_, 1},
     {"_rxode2parse_funPtrs", (DL_FUNC) &_rxode2parse_funPtrs, 0},
     {"_rxode2parse_rxEtTransAsDataFrame_", (DL_FUNC) &_rxode2parse_rxEtTransAsDataFrame_, 1},
     {"_rxode2parse_etTransParse", (DL_FUNC) &_rxode2parse_etTransParse, 8},

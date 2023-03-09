@@ -2,6 +2,7 @@
 
 S3method(as.data.frame,rxEtTran)
 S3method(print,rxModelVars)
+export(.convertId)
 export(.getLastIdLvl)
 export(.getWh)
 export(.rxTransInfo)
