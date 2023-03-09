@@ -6,8 +6,12 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-8538-6691")),
     person("Wenping", "Wang", , "wwang8198@gmail.com", role = "aut"),
     person("Richard", "Upton", role = "ctb"),
-    person("Gabriel", "Staples", role="ctb")
-  )
+    person("Gabriel", "Staples", role="ctb"),
+    person("Goro", "Fuji",  role="ctb", email="gfuji@cpan.org"),
+    person("Morwenn","", role="ctb"),
+    person("Igor", "Kushnir", role="ctb"),
+    person("Kevin", "Ushey", role="ctb"),
+    person("David", "Cooley", role="ctb"))
 Maintainer: Matthew L. Fidler <matthew.fidler@gmail.com>
 Description: Provides the parsing needed for 'rxode2' (Wang, Hallow and
     James (2016) <doi:10.1002/psp4.12052>). It also provides the 'stan'

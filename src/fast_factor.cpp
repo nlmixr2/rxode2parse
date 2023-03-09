@@ -149,4 +149,3 @@ SEXP convertId_(SEXP x) {
   }
   return R_NilValue;
 }
-
