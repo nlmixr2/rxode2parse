@@ -165,8 +165,8 @@ IntegerVector convertDvid_(SEXP inCmt, int maxDvid=0){
   }
   return id;
 }
-
-Function getForder(){
+#define getForder _rxode2parse_getForder
+extern "C" SEXP getForder(void) {
   if (!getForder_b){
     Function fn = getRxFn(".getDTEnv");
     dataTable = fn();
@@ -174,11 +174,11 @@ Function getForder(){
   }
   if (!forderForceBase_ && dataTable.exists("forder")){
     dtForder=true;
-    return dataTable["forder"];
+    return wrap(dataTable["forder"]);
   }
   Environment b=Rcpp::Environment::base_namespace();
   dtForder=false;
-  return b["order"];
+  return wrap(b["order"]);
 }
 
 Function getChin() {
@@ -200,8 +200,9 @@ extern "C" SEXP chin(SEXP x, SEXP table) {
   return chin_(x, table);
 }
 
-extern bool useForder(){
-  return getForder_b;
+#define useForder _rxode2parse_useForder
+extern "C" int useForder(void){
+  return (int)(getForder_b);
 }
 
 IntegerVector toCmt(RObject inCmt, CharacterVector& state, const bool isDvid,
@@ -1714,7 +1715,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         }
   }
 #undef sortID
-  Function order = getForder();
+  Function order = as<Function>(getForder());
   IntegerVector ord;
   if (useForder()){
     ord = order(ivId, nvTime, ivEvid,
