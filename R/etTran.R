@@ -1,11 +1,6 @@
 .isIntegerish <- function(v) {
   checkmate::testIntegerish(v)
 }
-.expandPars <- function(object, params, events, control) {
-  .Call(`_rxode2parse_expandPars_`, object, params, events, control,
-    PACKAGE = "rxode2"
-  )
-}
 
 .DTEnv <- NULL
 .getDTEnv <- function() {

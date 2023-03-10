@@ -68,7 +68,7 @@ inline int sexp_uniqueL( Rcpp::Vector< RTYPE > x ) {
   return x.size();
 }
 
-int get_sexp_uniqueL( SEXP s ) {
+extern "C" int get_sexp_uniqueL( SEXP s ) {
 
   SEXP s2 = PROTECT(Rcpp::clone( s ));
 
