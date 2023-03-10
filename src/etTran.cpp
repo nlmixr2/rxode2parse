@@ -194,6 +194,7 @@ Function getChin() {
   return b["%in%"];
 }
 
+#define chin _rxode2parse_chin
 extern "C" SEXP chin(SEXP x, SEXP table) {
   Function chin_ = getChin();
   return chin_(x, table);

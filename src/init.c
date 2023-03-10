@@ -93,9 +93,11 @@ SEXP _rxode2parse_convertId_(SEXP x);
 SEXP _rxode2parse_get_sexp_unique( SEXP s );
 
 
+SEXP _rxode2parse_chin(SEXP x, SEXP table);
+
 SEXP _rxode2parse_funPtrs(void) {
   int pro = 0;
-  SEXP ret = PROTECT(allocVector(VECSXP, 3)); pro++;
+  SEXP ret = PROTECT(allocVector(VECSXP, 4)); pro++;
   SET_VECTOR_ELT(ret, 0, R_MakeExternalPtrFn((DL_FUNC) &_rxode2parse_convertId_,
                                              Rf_install("_rxode2parse_convertId_"),
                                              R_NilValue));
@@ -104,6 +106,9 @@ SEXP _rxode2parse_funPtrs(void) {
                                              R_NilValue));
   SET_VECTOR_ELT(ret, 2, R_MakeExternalPtrFn((DL_FUNC) &_rxode2parse_etTransParse,
                                              Rf_install("_rxode2parse_etTransParse"),
+                                             R_NilValue));
+  SET_VECTOR_ELT(ret, 3, R_MakeExternalPtrFn((DL_FUNC) &_rxode2parse_chin,
+                                             Rf_install("_rxode2parse_chin"),
                                              R_NilValue));
   SEXP cls = PROTECT(Rf_allocVector(STRSXP, 1)); pro++;
   SET_STRING_ELT(cls, 0, Rf_mkChar("rxode2parseFunPtrs"));
