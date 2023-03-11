@@ -39,6 +39,7 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     dplyr,
+    nlmixr2data,
     devtools
 LinkingTo:
     BH (>= 1.78.0.0),
