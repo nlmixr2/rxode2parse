@@ -1,3 +1,27 @@
+#' Return a list of the function parameters to hook into
+#'
+#' @return List of function pointers
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+#' @examples
+#' .rxode2parseFunPtrs()
+.rxode2parseFunPtrs <- function() {
+  .Call(`_rxode2parse_funPtrs`)
+}
+#' Convert a factor/char to an id
+#'
+#' @param a value to convert to an id
+#' @return id factor
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+#' @examples
+#' .convertId("a")
+.convertId <- function(a) {
+  .Call(`_rxode2parse_convertId_`, a)
+}
+
 #' Get the internal breakdown of an evid
 #'
 #' @param i evid to breakdown
@@ -205,7 +229,7 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
     stop("cannot figure out PK parameters to convert", call. = FALSE)
   }
 }
- 
+
 #' Get the information about the rxode2 derived parameter transformation
 #'
 #'
