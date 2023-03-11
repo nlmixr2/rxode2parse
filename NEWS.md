@@ -8,6 +8,25 @@
 
 * Moved `rxDerived` here and added tests for it here as well.
 
+* Moved `etTransParse` here and added tests for it here as well (makes
+  up most of `etTrans`). In addition the following changes were made
+  to `etTransParse()`/`etTrans()`:
+
+  * The internal translation (`etTrans()`) will not drop times when
+    infusions stop. Before, if the infusion stopped after the last
+    observation the time when the infusion stopped would be dropped.
+    This interferes with `linCmt()` models.
+
+  * Breaking change/bug fix `evid=2` are considered observations when
+    translating data to internal `rxode2` event structure
+
+  * Fix edge case to find infusion duration when it is the first item
+    of the dosing record at time 0.
+
+ * Fixed a bug for certain infusions where the `rate`, `ii` and/or
+   `ss` data items were dropped from the output when `addDosing=TRUE`
+
+
 * Also have internal functions to convert between classic NONMEM
   events and rxode2 events
 
