@@ -13,13 +13,28 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/dot-convertId.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-getLastIdLvl.html</loc>
+  </url>
+  <url>
     <loc>/reference/dot-getWh.html</loc>
   </url>
   <url>
     <loc>/reference/dot-rxTransInfo.html</loc>
   </url>
   <url>
+    <loc>/reference/dot-rxode2parseFunPtrs.html</loc>
+  </url>
+  <url>
     <loc>/reference/dot-toClassicEvid.html</loc>
+  </url>
+  <url>
+    <loc>/reference/etTransParse.html</loc>
+  </url>
+  <url>
+    <loc>/reference/forderForceBase.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -35,6 +50,9 @@
   </url>
   <url>
     <loc>/reference/rxParseSuppressMsg.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rxSetIni0.html</loc>
   </url>
   <url>
     <loc>/reference/rxode2parse.html</loc>
