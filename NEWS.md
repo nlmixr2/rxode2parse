@@ -1,4 +1,4 @@
-# rxode2parse (development version)
+# rxode2parse 2.0.14
 
 * transit compartment internal code now changes dose to 0.0 when no
   dose has been administered to the depot compartment. This way dosing
@@ -6,15 +6,14 @@
   compartment) will not give a `NA` for the depot compartment (and
   consequently for the central compartment)
 
-  * Moved `rxDerived` here and added tests for it here as well.
+* Moved `rxDerived` here and added tests for it here as well.
 
 * Also have internal functions to convert between classic NONMEM
-events and rxode2 events
+  events and rxode2 events
 
 * Have an internal function that gives information on the linear
-compartmental model translation type, which could be useful for
-babelmixr2
-
+  compartmental model translation type, which could be useful for
+  babelmixr2
 
 * 'time' in model is now case insensitive
 
