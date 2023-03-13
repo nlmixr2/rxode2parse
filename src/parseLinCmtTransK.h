@@ -104,7 +104,7 @@ static inline void linCmtParseTranKel(linCmtStruct *lin, int verbose) {
 }
 
 static inline void linCmtParseTransK21(linCmtStruct *lin, int verbose) {
-  if (lin->gamma) {
+  if (lin->gamma != -1) {
     lin->ncmt = 3;
     err_trans("'alpha', 'beta', 'gamma', 'k21', 'k31', 'vc' OR\n'alpha', 'beta', 'gamma', 'k32', 'k42', 'vc'\nnot (yet) supported");
   } else {
