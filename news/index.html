@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rxode2parse</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.13.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.14</span>
       </span>
     </div>
 
@@ -48,11 +48,16 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="development version" id="rxode2parse-development-version">rxode2parse (development version)<a class="anchor" aria-label="anchor" href="#rxode2parse-development-version"></a></h2>
-<ul><li>
-<p>transit compartment internal code now changes dose to 0.0 when no dose has been administered to the depot compartment. This way dosing to the central compartment (without dosing to the transit compartment) will not give a <code>NA</code> for the depot compartment (and consequently for the central compartment)</p>
-<ul><li>Moved <code>rxDerived</code> here and added tests for it here as well.</li>
+<h2 class="page-header" data-toc-text="2.0.14" id="rxode2parse-2014">rxode2parse 2.0.14<a class="anchor" aria-label="anchor" href="#rxode2parse-2014"></a></h2>
+<ul><li><p>transit compartment internal code now changes dose to 0.0 when no dose has been administered to the depot compartment. This way dosing to the central compartment (without dosing to the transit compartment) will not give a <code>NA</code> for the depot compartment (and consequently for the central compartment)</p></li>
+<li><p>Moved <code>rxDerived</code> here and added tests for it here as well.</p></li>
+<li>
+<p>Moved <code>etTransParse</code> here and added tests for it here as well (makes up most of <code>etTrans</code>). In addition the following changes were made to <code><a href="../reference/etTransParse.html">etTransParse()</a></code>/<code>etTrans()</code>:</p>
+<ul><li><p>The internal translation (<code>etTrans()</code>) will not drop times when infusions stop. Before, if the infusion stopped after the last observation the time when the infusion stopped would be dropped. This interferes with <code>linCmt()</code> models.</p></li>
+<li><p>Breaking change/bug fix <code>evid=2</code> are considered observations when translating data to internal <code>rxode2</code> event structure</p></li>
+<li><p>Fix edge case to find infusion duration when it is the first item of the dosing record at time 0.</p></li>
 </ul></li>
+<li><p>Fixed a bug for certain infusions where the <code>rate</code>, <code>ii</code> and/or <code>ss</code> data items were dropped from the output when <code>addDosing=TRUE</code></p></li>
 <li><p>Also have internal functions to convert between classic NONMEM events and rxode2 events</p></li>
 <li><p>Have an internal function that gives information on the linear compartmental model translation type, which could be useful for babelmixr2</p></li>
 <li><p>‘time’ in model is now case insensitive</p></li>
