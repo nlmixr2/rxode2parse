@@ -1,5 +1,9 @@
 # rxode2parse 2.0.14
 
+* 'linCmt()' translations of 'alpha', 'beta', 'gamma', 'k21', 'k31',
+  'vc' now error instead of ignoring 'gamma' and 'k31' to give 2 cmt
+  solution
+
 * transit compartment internal code now changes dose to 0.0 when no
   dose has been administered to the depot compartment. This way dosing
   to the central compartment (without dosing to the transit
