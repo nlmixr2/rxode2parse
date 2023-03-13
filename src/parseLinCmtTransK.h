@@ -104,36 +104,41 @@ static inline void linCmtParseTranKel(linCmtStruct *lin, int verbose) {
 }
 
 static inline void linCmtParseTransK21(linCmtStruct *lin, int verbose) {
-  lin->ncmt = 2;
-  lin->trans = 4;
-  if (lin->v == -1) {
-    sFree(&(lin->ret0));
-    sFree(&(lin->ret));
-    _rxode2parse_unprotect();
-    err_trans("cannot figure out a central volume");
-  }
-  if (lin->alpha == -1) {
-    sFree(&(lin->ret0));
-    sFree(&(lin->ret));
-    _rxode2parse_unprotect();
-    err_trans("need an 'alpha'");
-  }
-  if (lin->beta == -1) {
-    sFree(&(lin->ret0));
-    sFree(&(lin->ret));
-    _rxode2parse_unprotect();
-    err_trans("need a 'beta'");
-  }
-  sAppend(&(lin->ret0), "%d, %s", lin->trans, lin->mid);
-  sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->alpha)));
-  sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->v)));
-  sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->beta)));
-  sAppend(&(lin->ret0), "%s, 0.0, 0.0, ", CHAR(STRING_ELT(lin->vars, lin->k21)));
-  if (verbose) {
-    if (lin->cmtc == 1) {
-      RSprintf(_("detected %d-compartment model in terms of 'alpha' or 'k21'"), lin->ncmt);
-    } else {
-      RSprintf(_("detected %d-compartment model in terms of 'alpha' or 'k32'"), lin->ncmt);
+  if (lin->gamma) {
+    lin->ncmt = 3;
+    err_trans("'alpha', 'beta', 'gamma', 'k21', 'k31', 'vc' OR\n'alpha', 'beta', 'gamma', 'k32', 'k42', 'vc'\nnot (yet) supported");
+  } else {
+    lin->ncmt = 2;
+    lin->trans = 4;
+    if (lin->v == -1) {
+      sFree(&(lin->ret0));
+      sFree(&(lin->ret));
+      _rxode2parse_unprotect();
+      err_trans("cannot figure out a central volume");
+    }
+    if (lin->alpha == -1) {
+      sFree(&(lin->ret0));
+      sFree(&(lin->ret));
+      _rxode2parse_unprotect();
+      err_trans("need an 'alpha'");
+    }
+    if (lin->beta == -1) {
+      sFree(&(lin->ret0));
+      sFree(&(lin->ret));
+      _rxode2parse_unprotect();
+      err_trans("need a 'beta'");
+    }
+    sAppend(&(lin->ret0), "%d, %s", lin->trans, lin->mid);
+    sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->alpha)));
+    sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->v)));
+    sAppend(&(lin->ret0), "%s, ", CHAR(STRING_ELT(lin->vars, lin->beta)));
+    sAppend(&(lin->ret0), "%s, 0.0, 0.0, ", CHAR(STRING_ELT(lin->vars, lin->k21)));
+    if (verbose) {
+      if (lin->cmtc == 1) {
+        RSprintf(_("detected %d-compartment model in terms of 'alpha' or 'k21'"), lin->ncmt);
+      } else {
+        RSprintf(_("detected %d-compartment model in terms of 'alpha' or 'k32'"), lin->ncmt);
+      }
     }
   }
 }
