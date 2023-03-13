@@ -1,4 +1,4 @@
-# rxode2parse (development version)
+# rxode2parse 2.0.14
 
 * transit compartment internal code now changes dose to 0.0 when no
   dose has been administered to the depot compartment. This way dosing
@@ -6,15 +6,33 @@
   compartment) will not give a `NA` for the depot compartment (and
   consequently for the central compartment)
 
-  * Moved `rxDerived` here and added tests for it here as well.
+* Moved `rxDerived` here and added tests for it here as well.
+
+* Moved `etTransParse` here and added tests for it here as well (makes
+  up most of `etTrans`). In addition the following changes were made
+  to `etTransParse()`/`etTrans()`:
+
+  * The internal translation (`etTrans()`) will not drop times when
+    infusions stop. Before, if the infusion stopped after the last
+    observation the time when the infusion stopped would be dropped.
+    This interferes with `linCmt()` models.
+
+  * Breaking change/bug fix `evid=2` are considered observations when
+    translating data to internal `rxode2` event structure
+
+  * Fix edge case to find infusion duration when it is the first item
+    of the dosing record at time 0.
+
+ * Fixed a bug for certain infusions where the `rate`, `ii` and/or
+   `ss` data items were dropped from the output when `addDosing=TRUE`
+
 
 * Also have internal functions to convert between classic NONMEM
-events and rxode2 events
+  events and rxode2 events
 
 * Have an internal function that gives information on the linear
-compartmental model translation type, which could be useful for
-babelmixr2
-
+  compartmental model translation type, which could be useful for
+  babelmixr2
 
 * 'time' in model is now case insensitive
 
