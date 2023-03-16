@@ -1,5 +1,5 @@
 # Cran comments
 
-This is a binary resubmit for `roxde2parse` (since dparser was just accepted).
-
-The only difference is the version number.
+- This fixes some bugs and is required for the upcoming StanHeaders release on CRAN
+- This require C++14 because of StanHeaders
+- This also updates the URLs of codecov.io

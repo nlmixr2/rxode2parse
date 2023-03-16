@@ -7,13 +7,14 @@
 
 [![R build
 status](https://github.com/nlmixr2/rxode2parse/workflows/R-CMD-check/badge.svg)](https://github.com/nlmixr2/rxode2parse/actions)
-[![codecov.io](https://codecov.io/github/nlmixr2/rxode2parse/branch/main/graph/badge.svg)](https://codecov.io/github/nlmixr2/rxode2parse)
+[![codecov.io](https://codecov.io/github/nlmixr2/rxode2parse/coverage.svg)](https://codecov.io/github/nlmixr2/rxode2parse)
 [![CRAN
 version](http://www.r-pkg.org/badges/version/rxode2parse)](https://cran.r-project.org/package=rxode2parse)
 [![CRAN total
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/rxode2parse)](https://cran.r-project.org/package=rxode2parse)
 [![CRAN total
 downloads](https://cranlogs.r-pkg.org/badges/rxode2parse)](https://cran.r-project.org/package=rxode2parse)
+
 [![CodeFactor](https://www.codefactor.io/repository/github/nlmixr2/rxode2parse/badge)](https://www.codefactor.io/repository/github/nlmixr2/rxode2parse)
 ![r-universe](https://nlmixr2.r-universe.dev/badges/rxode2parse)
 <!-- badges: end -->

@@ -20,6 +20,8 @@
 #' @importFrom dparser dparse
 #' @importFrom utils capture.output
 #' @importFrom stats setNames
+#' @importFrom methods is
+#' @importFrom utils assignInMyNamespace
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
