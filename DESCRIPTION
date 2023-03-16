@@ -30,6 +30,7 @@ Imports:
     crayon,
     dparser,
     knitr,
+    methods,
     qs,
     Rcpp (>= 1.0.8),
     utils,
