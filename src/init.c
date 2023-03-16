@@ -75,7 +75,7 @@ void _rxode2parse_assignFuns2(rx_solve rx,
                             t_handle_evidL handleEvid,
                             t_getDur getdur);
 
-SEXP _rxode2_parse_strncmpci();
+SEXP _rxode2_parse_strncmpci(void);
 SEXP _rxode2parse_getWh(SEXP in);
 SEXP _rxode2parse_getClassicEvid(SEXP, SEXP, SEXP, SEXP, SEXP,
                                  SEXP, SEXP);

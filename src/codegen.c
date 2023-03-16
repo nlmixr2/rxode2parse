@@ -21,7 +21,7 @@ SEXP _rxode2parse_packages;
 SEXP getRxode2ParseDfBuiltin(void);
 
 int _rxode2parse_protected = 0;
-void _rxode2parse_assignTranslationBuiltin() {
+void _rxode2parse_assignTranslationBuiltin(void) {
   SEXP df = getRxode2ParseDfBuiltin();
   _rxode2parse_funName = PROTECT(VECTOR_ELT(df, 0)); _rxode2parse_protected++;
   _rxode2parse_funNameInt = PROTECT(VECTOR_ELT(df, 1)); _rxode2parse_protected++;
@@ -40,7 +40,7 @@ void _rxode2parse_assignTranslation(SEXP df) {
   _rxode2parse_assignTranslationBuiltin();
 }
 
-void _rxode2parse_unprotect() {
+void _rxode2parse_unprotect(void) {
   if (_rxode2parse_protected) UNPROTECT(_rxode2parse_protected);
   _rxode2parse_protected = 0;
 }

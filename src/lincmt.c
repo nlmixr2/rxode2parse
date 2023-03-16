@@ -40,7 +40,7 @@ extern t_locateTimeIndex _rxode2parse_locateTimeIndex;
 #define _as_zero(a) (fabs(a) < sqrt(DBL_EPSILON) ? 0.0 : a)
 #define _as_dbleps(a) (fabs(a) < sqrt(DBL_EPSILON) ? ((a) < 0 ? -sqrt(DBL_EPSILON)  : sqrt(DBL_EPSILON)) : a)
 
-void _rxode2parse_unprotect();
+void _rxode2parse_unprotect(void);
 
 
 #ifdef ENABLE_NLS
