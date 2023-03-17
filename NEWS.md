@@ -1,3 +1,7 @@
+# rxode2parse 2.0.15
+
+* Updates the make flags to support CXX17.
+
 # rxode2parse 2.0.14
 
 * 'linCmt()' translations of 'alpha', 'beta', 'gamma', 'k21', 'k31',
