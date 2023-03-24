@@ -35,6 +35,8 @@ lhs symbols?
   int *idi;       /* should ith state variable be ignored 0/1 */
   int *idu;       /* Has the ith state been used in a derivative expression? */
   int *lag;  // Lag number (if present)
+  int *alag; // absorption lag compartments seen
+  int alagn;
   int *dvid;
   int dvidn;
   int ix;                       /* ith of curr symbol */

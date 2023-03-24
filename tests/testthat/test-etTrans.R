@@ -893,4 +893,3 @@ test_that("non time varying covariates with evid=9", {
     expect_true(all(t2$EVID == 10210L))
 
   })
-

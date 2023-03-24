@@ -263,6 +263,7 @@ void parseFree(int last) {
   linCmtGenFree(&_linCmtGenStruct);
   R_Free(tb.lh);
   R_Free(tb.lag);
+  R_Free(tb.alag);
   R_Free(tb.ini);
   R_Free(tb.mtime);
   R_Free(tb.iniv);
@@ -334,6 +335,8 @@ void reset(void) {
   tb.idi	= R_Calloc(MXDER, int);
   tb.idu	= R_Calloc(MXDER, int);
   tb.lag	= R_Calloc(MXSYM, int);
+  tb.alag   = R_Calloc(MXSYM, int);
+  tb.alagn  = 0;
   tb.dvid	= R_Calloc(MXDER, int);
   tb.thread     = 1; // Thread safe flag
   tb.dvidn      = 0;

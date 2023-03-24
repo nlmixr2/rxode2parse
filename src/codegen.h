@@ -109,7 +109,7 @@ static inline int shouldSkipPrintLhsI(int scenario, int lhs, int i) {
   case print_paramLags:
     return (tb.lag[i] == notLHS || tb.lh[i] == isState);
   case print_lhsLags:
-    return (tb.lag[i] == 0 ||tb.lh[i] != isLHS);
+    return (tb.lag[i] == 0 || tb.lh[i] != isLHS);
   case print_lastLhsValue:
     return !(tb.lh[i] == isLHS || tb.lh[i] == isLhsStateExtra || tb.lh[i] == isLHSparam);
   }
