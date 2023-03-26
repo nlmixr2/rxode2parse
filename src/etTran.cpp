@@ -1525,9 +1525,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       ndose++;
       if (addLagged) {
         // add lagged dose for steady state
-        nevidLag = cmt100*100000+rateI*10000+cmt99*100+12;
-        amt.push_back(camt);
-        // turn off
+        nevidLag = cmt100*100000+rateI*10000+cmt99*100+9;
         id.push_back(cid);
         evid.push_back(nevidLag);
         cmtF.push_back(cmt);
@@ -1609,8 +1607,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           ndose++;
           if (addLagged) {
             // add lagged dose for steady state
-            amt.push_back(camt);
-            // turn off
             id.push_back(cid);
             evid.push_back(nevidLag);
             cmtF.push_back(cmt);
