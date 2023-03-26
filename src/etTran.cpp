@@ -498,6 +498,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     combineDvidB = as<bool>(getOption("rxode2.combine.dvid", true));
   }
   IntegerVector curDvid = clone(as<IntegerVector>(mv[RxMv_dvid]));
+  IntegerVector curAlag = clone(as<IntegerVector>(mv[RxMv_alag]));
   CharacterVector trans = mv[RxMv_trans];
   if (Rf_inherits(inData,"rxEtTran")){
     CharacterVector cls = Rf_getAttrib(inData, R_ClassSymbol);
@@ -951,6 +952,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   int cmt99;  //= amt[i]-amt100*100;
   int cevid;
   int nevid;
+  int nevidLag;
   int caddl;
   double ctime;
   double cii;
@@ -1055,7 +1057,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       flg=40;
     }
 
-    if (cmtCol != -1){
+    if (cmtCol != -1) {
       tmpCmt = inCmt[i];
       if (inCmt[i] == 0 || IntegerVector::is_na(inCmt[i])){
         if (evidCol == -1){
@@ -1079,6 +1081,19 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     }
     // CMT flag
     else cmt = tmpCmt;
+    // see if you need to adjust for lagged
+    if (flg == 10 || flg == 20) {
+      for (int jj = 0; jj < curAlag.size(); ++jj) {
+        if (cmt == curAlag[jj]) {
+          if (flg == 10) {
+            flg = 11;
+          } else {
+            flg = 21;
+          }
+          break;
+        }
+      }
+    }
     if (cmt <= 99){
       cmt100=0;
       cmt99=cmt;
@@ -1494,7 +1509,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       }
       ii.push_back(cii);
       bool keepIIadl = false;
-      if ((flg == 10 || flg == 20 || flg == 40) && caddl > 0){
+      bool addLagged = false;
+      if (flg == 11 || flg == 21) {
+        keepIIadl = true;
+        addLagged = true;
+      } else if ((flg == 10 || flg == 20 || flg == 40) && caddl > 0){
         keepIIadl = true;
         //stop(_("'ss' with 'addl' not supported (id: %s row: %d)"), CHAR(idLvl[cid-1]), i+1);
       }
@@ -1504,6 +1523,24 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       cens.push_back(0);
       idxOutput.push_back(curIdx);curIdx++;
       ndose++;
+      if (addLagged) {
+        // add lagged dose for steady state
+        nevidLag = cmt100*100000+rateI*10000+cmt99*100+12;
+        amt.push_back(camt);
+        // turn off
+        id.push_back(cid);
+        evid.push_back(nevidLag);
+        cmtF.push_back(cmt);
+        time.push_back(ctime);
+        amt.push_back(camt);
+        ii.push_back(cii);
+        idxInput.push_back(-1);
+        dv.push_back(NA_REAL);
+        limit.push_back(NA_REAL);
+        cens.push_back(0);
+        idxOutput.push_back(curIdx);curIdx++;
+        ndose++;
+      }
       if (rateI > 2 && rateI != 4 && rateI != 5 && flg != 40){
         if (ISNA(camt) || camt == 0.0) {
           if (nevid != 2){
@@ -1570,6 +1607,23 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           cens.push_back(0);
           idxOutput.push_back(curIdx);curIdx++;
           ndose++;
+          if (addLagged) {
+            // add lagged dose for steady state
+            amt.push_back(camt);
+            // turn off
+            id.push_back(cid);
+            evid.push_back(nevidLag);
+            cmtF.push_back(cmt);
+            time.push_back(ctime);
+            amt.push_back(camt);
+            ii.push_back(cii);
+            idxInput.push_back(-1);
+            dv.push_back(NA_REAL);
+            limit.push_back(NA_REAL);
+            cens.push_back(0);
+            idxOutput.push_back(curIdx);curIdx++;
+            ndose++;
+          }
           if (rateI > 2 && rateI != 4 && rateI != 5){
             amt.push_back(camt);
             // turn off
