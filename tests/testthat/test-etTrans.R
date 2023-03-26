@@ -991,6 +991,8 @@ d/dt(blood)     = a*intestine - b*blood
   expect_equal(tmp$AMT, c(5, 5, -5, 5, 5, -5, 5, 5, -5, 5, 5, -5, NA))
   expect_equal(tmp$II, c(24, 0, 0, 24, 0, 0, 24, 0, 0, 24, 0, 0, 0))
 
+  # addl on bolus
+
   d <- data.frame(time=c(0, 200),
                   amt=c(100, 0),
                   ii=c(24, 0),
@@ -1000,6 +1002,10 @@ d/dt(blood)     = a*intestine - b*blood
 
   tmp <- etTransParse(d, mod)
 
+  expect_equal(tmp$TIME, c(0, 0, 24, 24, 48, 48, 72, 72, 200))
+  expect_equal(tmp$EVID, c(109L, 101L, 109L, 101L, 109L, 101L, 109L, 101L, 0L))
+  expect_equal(tmp$AMT, c(100, 100, 100, 100, 100, 100, 100, 100, NA))
+  expect_equal(tmp$II, c(24, 0, 24, 0, 24, 0, 24, 0, 0))
 
   d <- data.frame(time=c(0, 200),
                   amt=c(100, 0),
@@ -1009,6 +1015,11 @@ d/dt(blood)     = a*intestine - b*blood
                   addl=c(3,0))
 
   tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 24, 24, 48, 48, 72, 72, 200))
+  expect_equal(tmp$EVID, c(119L, 101L, 119L, 101L, 119L, 101L, 119L, 101L, 0L))
+  expect_equal(tmp$AMT, c(100, 100, 100, 100, 100, 100, 100, 100, NA))
+  expect_equal(tmp$II, c(24, 0, 24, 0, 24, 0, 24, 0, 0))
 
   
 
