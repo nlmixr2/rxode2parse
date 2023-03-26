@@ -74,11 +74,10 @@ extern "C" {
 // xx = 50, Phantom event, used for transit compartments
 // Steady state events need a II data item > 0
 #define EVID0_REGULAR  1
-#define EVID0_SSL 09
+#define EVID0_SS0 9
 #define EVID0_SS 10
-#define EVID0_SS0 11
+#define EVID0_SS20 19
 #define EVID0_SS2 20
-#define EVID0_SS20 21
 #define EVID0_OFF 30
 #define EVID0_SSINF 40 
 #define EVID0_PHANTOM 50

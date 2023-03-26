@@ -1086,9 +1086,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       for (int jj = 0; jj < curAlag.size(); ++jj) {
         if (cmt == curAlag[jj]) {
           if (flg == 10) {
-            flg = 11;
+            flg = 9;
           } else {
-            flg = 21;
+            flg = 19;
           }
           break;
         }
@@ -1510,7 +1510,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       ii.push_back(cii);
       bool keepIIadl = false;
       bool addLagged = false;
-      if (flg == 11 || flg == 21) {
+      if (flg == 9 || flg == 19) {
         keepIIadl = true;
         addLagged = true;
       } else if ((flg == 10 || flg == 20 || flg == 40) && caddl > 0){
@@ -1525,12 +1525,19 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       ndose++;
       if (addLagged) {
         // add lagged dose for steady state
-        nevidLag = cmt100*100000+rateI*10000+cmt99*100+9;
+        // note that steady state is already calculated with 09 or 19
+        // add lagged dose to continue ss tau
+        // if this is not a calculated rate/dur:
+        nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
         id.push_back(cid);
         evid.push_back(nevidLag);
         cmtF.push_back(cmt);
         time.push_back(ctime);
-        amt.push_back(camt);
+        if  (rateI == 1 || rateI == 2) {
+          amt.push_back(rate);
+        } else {
+          amt.push_back(camt);
+        }
         ii.push_back(cii);
         idxInput.push_back(-1);
         dv.push_back(NA_REAL);
@@ -1566,7 +1573,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         // turn off
         if (flg != 40){
           id.push_back(cid);
-          evid.push_back(cevid);
+          if (flg == 9 || flg == 19) {
+            evid.push_back(cevid-flg+1);
+          } else {
+            evid.push_back(cevid);
+          }
           cmtF.push_back(cmt);
           time.push_back(ctime+dur);
           amt.push_back(-rate);
@@ -1611,7 +1622,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             evid.push_back(nevidLag);
             cmtF.push_back(cmt);
             time.push_back(ctime);
-            amt.push_back(camt);
+            if  (rateI == 1 || rateI == 2) {
+              amt.push_back(rate);
+            } else {
+              amt.push_back(camt);
+            }
             ii.push_back(cii);
             idxInput.push_back(-1);
             dv.push_back(NA_REAL);
@@ -1639,7 +1654,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             amt.push_back(rate);
             // turn off
             id.push_back(cid);
-            evid.push_back(cevid);
+            if (flg == 9 || flg == 19) {
+              evid.push_back(cevid-flg+1);
+            } else {
+              evid.push_back(cevid);
+            }
             cmtF.push_back(cmt);
             time.push_back(ctime+dur);
             amt.push_back(-rate);
