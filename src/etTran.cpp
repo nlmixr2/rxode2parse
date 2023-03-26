@@ -1538,7 +1538,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         } else {
           amt.push_back(camt);
         }
-        ii.push_back(cii);
+        //ii.push_back(cii);
+        ii.push_back(0.0);
         idxInput.push_back(-1);
         dv.push_back(NA_REAL);
         limit.push_back(NA_REAL);
@@ -1627,7 +1628,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             } else {
               amt.push_back(camt);
             }
-            ii.push_back(cii);
+            ii.push_back(0.0);
             idxInput.push_back(-1);
             dv.push_back(NA_REAL);
             limit.push_back(NA_REAL);
