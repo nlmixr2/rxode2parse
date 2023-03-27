@@ -1879,9 +1879,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   NumericVector fPars = NumericVector(pars.size()*nid, NA_REAL);
   // sorted create the vectors/list
   if (addCmt && !hasCmt){
-    baseSize = 7;
+    baseSize = 8;
   } else {
-    baseSize = 6;
+    baseSize = 7;
   }
   int censAdd = 0;
   if (censCol != -1) censAdd=1;
@@ -1919,12 +1919,15 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   nme[4] = "II";
 
   lst[5] = NumericVector(idxOutput.size()-rmAmt);
-  nme[5] = "DV";
+  nme[5] = "DUR";
+
+  lst[6] = NumericVector(idxOutput.size()-rmAmt);
+  nme[6] = "DV";
 
   int cmtAdd = 0;
-  if (baseSize == 7){
-    lst[6] = IntegerVector(idxOutput.size()-rmAmt);
-    nme[6] = "CMT";
+  if (baseSize == 8){
+    lst[7] = IntegerVector(idxOutput.size()-rmAmt);
+    nme[7] = "CMT";
     cmtAdd=1;
   }
 
@@ -2056,8 +2059,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       nvTmp = as<NumericVector>(lst[4]);
       nvTmp[jj]=ii[idxOutput[i]];
       nvTmp = as<NumericVector>(lst[5]);
+      nvTmp[jj]=durV[idxOutput[i]];
+      nvTmp = as<NumericVector>(lst[6]);
       nvTmp[jj]=dv[idxOutput[i]];
-      kk = 6;
+      kk = 7;
       if (cmtAdd){
         ivTmp = as<IntegerVector>(lst[kk]);
         ivTmp[jj] = cmtF[idxOutput[i]];
