@@ -1,3 +1,16 @@
+# rxode2parse development version
+
+* Model variables now tracks which compartments have a lag-time defined
+
+* For compartment with steady state doses (NONMEM equivalent SS=1,
+  SS=2), an additional tracking time-point is added at to track the
+  time when the lagged dose is given.  As an upshot, the lagged dose
+  will start at the steady state concentration shifted by + ii - lag in `rxode2`
+
+* This release calculates non bio-availability adjusted duration for
+  all rates instead of trying to figure the rate duration during
+  solving.
+
 # rxode2parse 2.0.16
 
 * Import `data.table` explicitly in the R code (before was imported only in C/C++ code)
