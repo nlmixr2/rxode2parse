@@ -294,5 +294,6 @@ rxDerived <- function(..., verbose = FALSE, digits = 0) {
 .dummy <- function() {
   #dummy import to make check() and CRAN happy
   .r <- rex::rex(start, end)
+  .d <- data.table::data.table(a=1)
 }
 ## nocov end
