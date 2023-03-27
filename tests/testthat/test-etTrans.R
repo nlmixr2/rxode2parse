@@ -905,7 +905,7 @@ d/dt(blood)     = a*intestine - b*blood
 ")
 
   d <- data.frame(time=c(0, 1),
-                  amt=c(100, 0),
+rrr                  amt=c(100, 0),
                   ii=c(24, 0),
                   evid=c(1,0),
                   ss=c(1, 0))
@@ -933,7 +933,7 @@ d/dt(blood)     = a*intestine - b*blood
   d <- data.frame(time=c(0, 1),
                   amt=c(100, 0),
                   ii=c(24, 0),
-                   evid=c(1,0),
+                  evid=c(1,0),
                   ss=c(1, 0),
                   rate=c(5, 0))
 
@@ -949,12 +949,41 @@ d/dt(blood)     = a*intestine - b*blood
                   amt=c(100, 0),
                   ii=c(24, 0),
                   evid=c(1,0),
+                  ss=c(1, 0),
+                  dur=c(20, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 1, 20))
+  expect_equal(tmp$EVID, c(20109L, 20101L, 0L, 20101L))
+  expect_equal(tmp$II, c(24, 0, 0, 0))
+  expect_equal(tmp$AMT, c(5, 5, NA, -5))
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
                   ss=c(2, 0),
                   rate=c(5, 0))
 
   tmp <- etTransParse(d, mod)
   expect_equal(tmp$TIME, c(0, 0, 1, 20))
   expect_equal(tmp$EVID, c(10119L, 10101L, 0L, 10101L))
+  expect_equal(tmp$II, c(24, 0, 0, 0))
+  expect_equal(tmp$AMT, c(5, 5, NA, -5))
+
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0),
+                  dur=c(20, 0))
+
+  tmp <- etTransParse(d, mod)
+  
+  expect_equal(tmp$TIME, c(0, 0, 1, 20))
+  expect_equal(tmp$EVID, c(20119L, 20101L, 0L, 20101L))
   expect_equal(tmp$II, c(24, 0, 0, 0))
   expect_equal(tmp$AMT, c(5, 5, NA, -5))
 
@@ -979,6 +1008,23 @@ d/dt(blood)     = a*intestine - b*blood
                   amt=c(100, 0),
                   ii=c(24, 0),
                   evid=c(1,0),
+                  ss=c(1, 0),
+                  dur=c(20, 0),
+                  addl=c(3, 0))
+  
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 20, 24, 24, 44, 48, 48, 68, 72, 72, 92, 200))
+  expect_equal(tmp$EVID, c(20109L, 20101L, 20101L, 20109L, 20101L, 20101L, 20109L, 20101L,
+                           20101L, 20109L, 20101L, 20101L, 0L))
+  expect_equal(tmp$AMT, c(5, 5, -5, 5, 5, -5, 5, 5, -5, 5, 5, -5, NA))
+  expect_equal(tmp$II, c(24, 0, 0, 24, 0, 0, 24, 0, 0, 24, 0, 0, 0))
+
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
                   ss=c(2, 0),
                   rate=c(5, 0),
                   addl=c(3, 0))
@@ -988,6 +1034,23 @@ d/dt(blood)     = a*intestine - b*blood
   expect_equal(tmp$TIME, c(0, 0, 20, 24, 24, 44, 48, 48, 68, 72, 72, 92, 200))
   expect_equal(tmp$EVID, c(10119L, 10101L, 10101L, 10119L, 10101L, 10101L, 10119L, 10101L,
                            10101L, 10119L, 10101L, 10101L, 0L))
+  expect_equal(tmp$AMT, c(5, 5, -5, 5, 5, -5, 5, 5, -5, 5, 5, -5, NA))
+  expect_equal(tmp$II, c(24, 0, 0, 24, 0, 0, 24, 0, 0, 24, 0, 0, 0))
+
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0),
+                  dur=c(20, 0),
+                  addl=c(3, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 20, 24, 24, 44, 48, 48, 68, 72, 72, 92, 200))
+  expect_equal(tmp$EVID, c(20119L, 20101L, 20101L, 20119L, 20101L, 20101L, 20119L, 20101L,
+                           20101L, 20119L, 20101L, 20101L, 0L))
   expect_equal(tmp$AMT, c(5, 5, -5, 5, 5, -5, 5, 5, -5, 5, 5, -5, NA))
   expect_equal(tmp$II, c(24, 0, 0, 24, 0, 0, 24, 0, 0, 24, 0, 0, 0))
 
@@ -1020,7 +1083,5 @@ d/dt(blood)     = a*intestine - b*blood
   expect_equal(tmp$EVID, c(119L, 101L, 119L, 101L, 119L, 101L, 119L, 101L, 0L))
   expect_equal(tmp$AMT, c(100, 100, 100, 100, 100, 100, 100, 100, NA))
   expect_equal(tmp$II, c(24, 0, 24, 0, 24, 0, 24, 0, 0))
-
-  
 
 })
