@@ -1,4 +1,4 @@
-# rxode2parse development version
+# rxode2parse (development version)
 
 * Model variables now tracks which compartments have a lag-time defined
 
