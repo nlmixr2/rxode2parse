@@ -22,7 +22,7 @@ d/dt(blood)     = a*intestine - b*blood
   .ctl <- rxode2::rxControl()
 
   .n <- gsub("[.]","_",names(.ctl))
-  sink(devtools::package_file("inst/include/rxode2parse_control.h"))
+  sink(devtools::package_file("inst/include/rxode2parse_control.h")) # nolint
   cat("#pragma once\n")
   cat("#ifndef __rxode2parse_control_H__\n#define __rxode2parse_control_H__\n")
   cat(paste(paste0("#define ", "Rxc_", .n, " ", seq_along(.n)-1),collapse="\n"))
@@ -54,7 +54,7 @@ d/dt(blood)     = a*intestine - b*blood
              paste(paste0("_en[",seq_along(.n)-1,']="', .n, '";'), collapse=""),"e.names() = _en;"))
   cat("\n")
   cat("\n#endif // __rxode2parse_control_H__\n")
-  sink()
+  sink() # nolint
 }
 
 
