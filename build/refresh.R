@@ -1,4 +1,4 @@
- genDefine <- function() {
+genDefine <- function() {
 
   mod1 <-rxode2parse("
     C2 = centr/V2;
@@ -19,9 +19,14 @@ d/dt(blood)     = a*intestine - b*blood
 
   mv <- mod1
 
+  .ctl <- rxode2::rxControl()
+
+  .n <- gsub("[.]","_",names(.ctl))
   sink(devtools::package_file("inst/include/rxode2parse_control.h"))
   cat("#pragma once\n")
   cat("#ifndef __rxode2parse_control_H__\n#define __rxode2parse_control_H__\n")
+  cat(paste(paste0("#define ", "Rxc_", .n, " ", seq_along(.n)-1),collapse="\n"))
+
   .mv <- mod1
 
   .nmv <- gsub("[.]", "_", names(.mv));
@@ -69,4 +74,3 @@ if (requireNamespace("devtools", quietly = TRUE)) {
   genDefine()
   message("done")
 }
-
