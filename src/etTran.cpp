@@ -769,8 +769,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   amt.reserve(resSize);
   std::vector<double> ii;
   ii.reserve(resSize);
-  std::vector<double> durV;
-  durV.reserve(resSize);
   std::vector<double> limit;
   limit.reserve(resSize);
   std::vector<int> idxInput;
@@ -947,7 +945,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   int cid = 0;
   int nMtime = as<int>(mv[RxMv_nMtime]);
   double rate = 0.0;
-  double dur = 0.0;
   int nid=0;
   int cmt = 0;
   int rateI = 0;
@@ -959,6 +956,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   int caddl;
   double ctime;
   double cii;
+  double dur =0.0;
   double camt;
   int curIdx=0;
   double cdv, climit;
@@ -1034,7 +1032,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         cmtF.push_back(0);
         time.push_back(0.0);
         amt.push_back(NA_REAL);
-        durV.push_back(NA_REAL);
         ii.push_back(0.0);
         dv.push_back(NA_REAL);
         cens.push_back(0);
@@ -1109,13 +1106,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     rateI = 0;
     // Rate
     if (durCol == -1 || inDur[i] == 0 || ISNA(inDur[i])){
-      if (rateCol == -1 || inRate[i] == 0 || ISNA(inRate[i])) {
-        rate = 0.0;
-        dur  = 0.0;
-      } else {
-        rate = inRate[i];
-        dur = camt/rate;
-      }
+      if (rateCol == -1 || inRate[i] == 0 || ISNA(inRate[i])) rate = 0.0;
+      else rate = inRate[i];
       if (rate == -1.0){
         // rate is modeled
         rateI = 9;
@@ -1140,18 +1132,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         } else {
           rateI = 0;
           rate = 0.0;
-          dur = 0.0;
         }
       }
     } else if (rateCol == -1 || inRate[i] == 0 || ISNA(inRate[i])) {
-      if (durCol == -1) {
-        rate = 0.0;
-        dur = 0.0;
-      }
-      if (inDur[i] == 0) {
-        rate = 0.0;
-        dur = 0.0;
-      }
+      if (durCol == -1) rate = 0.0;
+      if (inDur[i] == 0) rate = 0;
       // if (inDur[i] > 0)
       if (inDur[i] == -1.0){
         // rate is modeled
@@ -1173,11 +1158,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         if (evidCol == -1 || inEvid[i] == 1 || inEvid[i] == 4){
           rateI = 2;
           rate = camt/inDur[i];
-          dur = inDur[i];
         } else if (inEvid[i] > 4){
           rateI=0;
           rate = 0.0;
-          dur = 0.0;
         }
       }
     } else {
@@ -1250,7 +1233,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         cmtF.push_back(cmt);
         time.push_back(ctime);
         amt.push_back(NA_REAL);
-        durV.push_back(NA_REAL);
         ii.push_back(0.0);
         idxInput.push_back(i);
         cens.push_back(ccens);
@@ -1335,7 +1317,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           }
         }
         amt.push_back(NA_REAL);
-        durV.push_back(NA_REAL);
         ii.push_back(0.0);
         idxInput.push_back(i);
         cens.push_back(ccens);
@@ -1402,7 +1383,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           }
         }
         amt.push_back(NA_REAL);
-        durV.push_back(NA_REAL);
         ii.push_back(0.0);
         idxInput.push_back(i);
         dv.push_back(NA_REAL);
@@ -1419,7 +1399,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           cmtF.push_back(cmt);
           time.push_back(ctime);
           amt.push_back(0.0);
-          durV.push_back(0.0);
           ii.push_back(0.0);
           idxInput.push_back(i);
           dv.push_back(NA_REAL);
@@ -1450,7 +1429,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         }
       }
       amt.push_back(NA_REAL);
-      durV.push_back(NA_REAL);
       ii.push_back(0.0);
       idxInput.push_back(i);
       dv.push_back(NA_REAL);
@@ -1475,7 +1453,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         }
       }
       amt.push_back(NA_REAL);
-      durV.push_back(NA_REAL);
       ii.push_back(0.0);
       idxInput.push_back(-1);
       dv.push_back(NA_REAL);
@@ -1558,10 +1535,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         time.push_back(ctime);
         if  (rateI == 1 || rateI == 2) {
           amt.push_back(rate);
-          durV.push_back(dur);
         } else {
           amt.push_back(camt);
-          durV.push_back(0.0);
         }
         //ii.push_back(cii);
         ii.push_back(0.0);
@@ -1579,14 +1554,12 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           }
         }
         amt.push_back(camt);
-        durV.push_back(0.0);
         // turn off
         id.push_back(cid);
         evid.push_back(nevid);
         cmtF.push_back(cmt);
         time.push_back(ctime);
         amt.push_back(camt);
-        durV.push_back(0.0);
         ii.push_back(0.0);
         idxInput.push_back(-1);
         dv.push_back(NA_REAL);
@@ -1598,7 +1571,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         // In this case amt needs to be changed.
         dur = camt/rate;
         amt.push_back(rate); // turn on
-        durV.push_back(dur);
         // turn off
         if (flg != 40){
           id.push_back(cid);
@@ -1610,7 +1582,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           cmtF.push_back(cmt);
           time.push_back(ctime+dur);
           amt.push_back(-rate);
-          durV.push_back(-dur);
           ii.push_back(0.0);
           idxInput.push_back(-1);
           dv.push_back(NA_REAL);
@@ -1624,7 +1595,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           stop(_("'amt' value NA for dose event; (id: %s, amt: %f, evid: %d rxode2 evid: %d, row: %d)"), CHAR(idLvl[cid-1]), camt, inEvid[i], cevid, (int)i+1);
         }
         amt.push_back(camt);
-        durV.push_back(0.0);
       }
       if (cii > 0 && caddl > 0) {
         if (!keepIIadl) {
@@ -1655,10 +1625,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             time.push_back(ctime);
             if  (rateI == 1 || rateI == 2) {
               amt.push_back(rate);
-              durV.push_back(dur);
             } else {
               amt.push_back(camt);
-              durV.push_back(0.0);
             }
             ii.push_back(0.0);
             idxInput.push_back(-1);
@@ -1670,14 +1638,12 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           }
           if (rateI > 2 && rateI != 4 && rateI != 5){
             amt.push_back(camt);
-            durV.push_back(0.0);
             // turn off
             id.push_back(cid);
             evid.push_back(nevid);
             cmtF.push_back(cmt);
             time.push_back(ctime);
             amt.push_back(camt);
-            durV.push_back(0.0);
             ii.push_back(0.0);
             idxInput.push_back(-1);
             dv.push_back(NA_REAL);
@@ -1687,7 +1653,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             ndose++;
           } else if (rateI == 1 || rateI == 2){
             amt.push_back(rate);
-            durV.push_back(dur);
             // turn off
             id.push_back(cid);
             if (flg == 9 || flg == 19) {
@@ -1698,7 +1663,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             cmtF.push_back(cmt);
             time.push_back(ctime+dur);
             amt.push_back(-rate);
-            durV.push_back(-dur);
             ii.push_back(0.0);
             idxInput.push_back(-1);
             dv.push_back(NA_REAL);
@@ -1708,7 +1672,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             ndose++;
           } else {
             amt.push_back(camt);
-            durV.push_back(0.0);
           }
         }
       }
@@ -1781,7 +1744,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             cmtF.push_back(0);
             time.push_back(0.0);
             amt.push_back(NA_REAL);
-            durV.push_back(NA_REAL);
             ii.push_back(0.0);
             dv.push_back(NA_REAL);
             limit.push_back(NA_REAL);
