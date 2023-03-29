@@ -1,13 +1,13 @@
 genDefine <- function() {
 
   mod1 <-rxode2parse("
-    C2 = centr/V2;
-    C3 = peri/V3;
-    d/dt(depot) =-KA*depot;
+    C2 = centr/V2
+    C3 = peri/V3
+    d/dt(depot) =-KA*depot
     alag(depot) = 3
-    d/dt(centr) = KA*depot - CL*C2 - Q*C2 + Q*C3;
-    d/dt(peri)  =                    Q*C2 - Q*C3;
-    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    d/dt(centr) = KA*depot - CL*C2 - Q*C2 + Q*C3
+    d/dt(peri)  =                    Q*C2 - Q*C3
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff
   ")
 
   mod <- rxode2parse("
@@ -29,8 +29,8 @@ d/dt(blood)     = a*intestine - b*blood
 
   .mv <- mod1
 
-  .nmv <- gsub("[.]", "_", names(.mv));
-  cat("\n");
+  .nmv <- gsub("[.]", "_", names(.mv))
+  cat("\n")
   cat(paste(paste0("#define RxMv_", .nmv, " ", seq_along(.nmv)-1),collapse="\n"))
   .nmvf <- names(.mv$flag)
   cat("\n")
@@ -50,11 +50,11 @@ d/dt(blood)     = a*intestine - b*blood
   .n <- gsub("[.]", "_", names(attr(class(ett1), ".rxode2")))
 
   cat(paste(paste0("#define RxTrans_", .n, " ", seq_along(.n)-1),collapse="\n"))
-  cat(paste0("\n#define RxTransNames CharacterVector _en(29);",
+  cat(paste0("\n#define RxTransNames CharacterVector _en(29)",
              paste(paste0("_en[",seq_along(.n)-1,']="', .n, '";'), collapse=""),"e.names() = _en;"))
-  cat("\n");
+  cat("\n")
   cat("\n#endif // __rxode2parse_control_H__\n")
-  sink();
+  sink()
 }
 
 
