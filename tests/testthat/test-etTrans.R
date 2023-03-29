@@ -673,7 +673,7 @@ test_that("rxode2 constant infusion taken to steady state", {
 
   expect_equal(structure(list(
     ID = structure(1L, class = "factor", .Label = "1"),
-    TIME = 0, EVID = 10140L, AMT = 10, II = 0, DUR=0.0,DV  = NA_real_
+    TIME = 0, EVID = 10140L, AMT = 10, II = 0, DV = NA_real_
   ),
   class = "data.frame", row.names = c(NA, -1L)
   ), trn1)
@@ -685,7 +685,7 @@ test_that("rxode2 constant infusion taken to steady state", {
 
   expect_equal(structure(list(
     ID = structure(1L, class = "factor", .Label = "1"),
-    TIME = 0, EVID = 90140L, AMT = 0, II = 0, DUR=0.0, DV = NA_real_
+    TIME = 0, EVID = 90140L, AMT = 0, II = 0, DV = NA_real_
   ),
   class = "data.frame", row.names = c(NA, -1L)
   ), trn1)
