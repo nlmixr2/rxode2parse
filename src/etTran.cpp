@@ -1523,30 +1523,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       cens.push_back(0);
       idxOutput.push_back(curIdx);curIdx++;
       ndose++;
-      if (addLagged) {
-        // add lagged dose for steady state
-        // note that steady state is already calculated with 09 or 19
-        // add lagged dose to continue ss tau
-        // if this is not a calculated rate/dur:
-        nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
-        id.push_back(cid);
-        evid.push_back(nevidLag);
-        cmtF.push_back(cmt);
-        time.push_back(ctime);
-        if  (rateI == 1 || rateI == 2) {
-          amt.push_back(rate);
-        } else {
-          amt.push_back(camt);
-        }
-        //ii.push_back(cii);
-        ii.push_back(0.0);
-        idxInput.push_back(-1);
-        dv.push_back(NA_REAL);
-        limit.push_back(NA_REAL);
-        cens.push_back(0);
-        idxOutput.push_back(curIdx);curIdx++;
-        ndose++;
-      }
       if (rateI > 2 && rateI != 4 && rateI != 5 && flg != 40){
         if (ISNA(camt) || camt == 0.0) {
           if (nevid != 2){
@@ -1554,6 +1530,26 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           }
         }
         amt.push_back(camt);
+        if (addLagged) {
+          // add lagged dose for steady state
+          // note that steady state is already calculated with 09 or 19
+          // add lagged dose to continue ss tau
+          // if this is not a calculated rate/dur:
+          nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
+          id.push_back(cid);
+          evid.push_back(nevidLag);
+          cmtF.push_back(cmt);
+          amt.push_back(camt);
+          time.push_back(ctime);
+          //ii.push_back(cii);
+          ii.push_back(0.0);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+        }
         // turn off
         id.push_back(cid);
         evid.push_back(nevid);
@@ -1571,6 +1567,26 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         // In this case amt needs to be changed.
         dur = camt/rate;
         amt.push_back(rate); // turn on
+        if (addLagged) {
+          // add lagged dose for steady state
+          // note that steady state is already calculated with 09 or 19
+          // add lagged dose to continue ss tau
+          // if this is not a calculated rate/dur:
+          nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
+          id.push_back(cid);
+          evid.push_back(nevidLag);
+          cmtF.push_back(cmt);
+          amt.push_back(rate);
+          time.push_back(ctime);
+          //ii.push_back(cii);
+          ii.push_back(0.0);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+        }
         // turn off
         if (flg != 40){
           id.push_back(cid);
@@ -1595,6 +1611,22 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           stop(_("'amt' value NA for dose event; (id: %s, amt: %f, evid: %d rxode2 evid: %d, row: %d)"), CHAR(idLvl[cid-1]), camt, inEvid[i], cevid, (int)i+1);
         }
         amt.push_back(camt);
+        if (addLagged) {
+          nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
+          id.push_back(cid);
+          evid.push_back(nevidLag);
+          cmtF.push_back(cmt);
+          amt.push_back(camt);
+          time.push_back(ctime);
+          //ii.push_back(cii);
+          ii.push_back(0.0);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+        }
       }
       if (cii > 0 && caddl > 0) {
         if (!keepIIadl) {
@@ -1617,27 +1649,22 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           cens.push_back(0);
           idxOutput.push_back(curIdx);curIdx++;
           ndose++;
-          if (addLagged) {
-            // add lagged dose for steady state
-            id.push_back(cid);
-            evid.push_back(nevidLag);
-            cmtF.push_back(cmt);
-            time.push_back(ctime);
-            if  (rateI == 1 || rateI == 2) {
-              amt.push_back(rate);
-            } else {
-              amt.push_back(camt);
-            }
-            ii.push_back(0.0);
-            idxInput.push_back(-1);
-            dv.push_back(NA_REAL);
-            limit.push_back(NA_REAL);
-            cens.push_back(0);
-            idxOutput.push_back(curIdx);curIdx++;
-            ndose++;
-          }
           if (rateI > 2 && rateI != 4 && rateI != 5){
             amt.push_back(camt);
+            if (addLagged) {
+              id.push_back(cid);
+              evid.push_back(nevidLag);
+              cmtF.push_back(cmt);
+              time.push_back(ctime);
+              ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              amt.push_back(camt);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+            }
             // turn off
             id.push_back(cid);
             evid.push_back(nevid);
@@ -1653,6 +1680,20 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             ndose++;
           } else if (rateI == 1 || rateI == 2){
             amt.push_back(rate);
+            if (addLagged) {
+              id.push_back(cid);
+              evid.push_back(nevidLag);
+              cmtF.push_back(cmt);
+              time.push_back(ctime);
+              ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              amt.push_back(rate);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+            }
             // turn off
             id.push_back(cid);
             if (flg == 9 || flg == 19) {
@@ -1672,6 +1713,20 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             ndose++;
           } else {
             amt.push_back(camt);
+            if (addLagged) {
+              id.push_back(cid);
+              evid.push_back(nevidLag);
+              cmtF.push_back(cmt);
+              time.push_back(ctime);
+              ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              amt.push_back(camt);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+            }
           }
         }
       }
