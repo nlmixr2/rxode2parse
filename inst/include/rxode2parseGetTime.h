@@ -14,6 +14,9 @@ extern t_calc_mtime calc_mtime;
 #ifndef __DOINIT__
 
 static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time){
+	if (ind->wh0 == EVID0_SS0 || ind->wh0 == EVID0_SS20) {
+		return time;
+	}
   double ret = LAG(id, cmt, time);
   if (ISNA(ret)) {
     rx_solving_options *op = &op_global;
@@ -194,8 +197,8 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
 
 static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
   double amt = ind->dose[idx];
-  if (amt > 0){
-    return getLag(ind, ind->id, ind->cmt, ind->all_times[idx]);
+  if (amt > 0) {
+		return getLag(ind, ind->id, ind->cmt, ind->all_times[idx]);
   } else if (amt < 0){
     int j = getDoseNumberFromIndex(ind, idx);
     if (j == -1){

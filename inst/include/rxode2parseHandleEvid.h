@@ -64,9 +64,9 @@ extern "C" {
 //      9 = Rate is modeled, AMT=dose; Duration = AMT/(Modeled Rate) NONMEM RATE=-1
 // c1 = Compartment numbers below 99
 // xx = 1, regular event (no lag time)
-// xx = 09, steady state event at dose time + lag  (could be SS=1 or SS=2)
+// xx = 09, steady state event SS=1 with lag time
 // xx = 10, steady state event SS=1 (no lag)
-// xx = 11, steady state event at dose time (SS=1) with lag
+// xx = 19, steady state event at dose time (SS=2) with lag
 // xx = 20, steady state event + last observed info (not lagged)
 // xx = 21, steady state event at dose time (with absorption lag) + last observed info
 // xx = 30, Turn off compartment
@@ -74,7 +74,7 @@ extern "C" {
 // xx = 50, Phantom event, used for transit compartments
 // Steady state events need a II data item > 0
 #define EVID0_REGULAR  1
-#define EVID0_SS0 9
+#define EVID0_SS0 9 
 #define EVID0_SS 10
 #define EVID0_SS20 19
 #define EVID0_SS2 20
