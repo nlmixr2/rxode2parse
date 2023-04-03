@@ -1524,6 +1524,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       idxOutput.push_back(curIdx);curIdx++;
       ndose++;
       if (rateI > 2 && rateI != 4 && rateI != 5 && flg != 40){
+        // modeled rate/duration
         if (ISNA(camt) || camt == 0.0) {
           if (nevid != 2){
             stop(_("'amt' value NA or 0 for dose event (id: %s row: %d)"), CHAR(idLvl[cid-1]), i+1);
@@ -1565,6 +1566,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         ndose++;
       } else if (rateI == 1 || rateI == 2){
         // In this case amt needs to be changed.
+        // specified rate/duration
         dur = camt/rate;
         amt.push_back(rate); // turn on
         if (addLagged) {
@@ -1572,6 +1574,19 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           // note that steady state is already calculated with 09 or 19
           // add lagged dose to continue ss tau
           // if this is not a calculated rate/dur:
+          id.push_back(cid);
+          evid.push_back(cevid-flg+8);
+          cmtF.push_back(cmt);
+          amt.push_back(-rate);
+          time.push_back(ctime);
+          ii.push_back(cii);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+
           nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
           id.push_back(cid);
           evid.push_back(nevidLag);
@@ -1681,6 +1696,20 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           } else if (rateI == 1 || rateI == 2){
             amt.push_back(rate);
             if (addLagged) {
+              id.push_back(cid);
+              evid.push_back(cevid-flg+8);
+              cmtF.push_back(cmt);
+              amt.push_back(-rate);
+              time.push_back(ctime);
+              ii.push_back(cii);
+              //ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+
               id.push_back(cid);
               evid.push_back(nevidLag);
               cmtF.push_back(cmt);

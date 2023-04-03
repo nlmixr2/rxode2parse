@@ -139,6 +139,7 @@ typedef struct {
   int *cens;
   int *idose;
   int *on;
+  int *skipDose;
   int idosen;
   int id;
   int idReal;

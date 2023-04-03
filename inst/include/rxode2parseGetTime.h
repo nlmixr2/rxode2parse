@@ -208,16 +208,29 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
       return 0.0;
       /* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
     }
-    int k;
-    for (k = j; k--;){
-      if (ind->evid[ind->idose[j]] == ind->evid[ind->idose[k]]) break;
-      if (k == 0) {
-        if (!(ind->err & 32768)){
-          ind->err += 32768;
-        }
-        return 0.0;
-      }
-    }
+		int k;
+		if (ind->wh0 == EVID0_INFRM) {
+			k = j+1;
+			for (j = k; j < ind->ndoses; ++j) {
+				if (ind->evid[ind->idose[j]] == ind->evid[ind->idose[k]]) break;
+				if (j == ind->ndoses-1) {
+					if (!(ind->err & 32768)){
+						ind->err += 32768;
+					}
+					return 0.0;
+				}
+			}
+		}  else {
+			for (k = j; k--;){
+				if (ind->evid[ind->idose[j]] == ind->evid[ind->idose[k]]) break;
+				if (k == 0) {
+					if (!(ind->err & 32768)){
+						ind->err += 32768;
+					}
+					return 0.0;
+				}
+			}			
+		}
     rx_solve *rx = &rx_global;
     double f = getAmt(ind, ind->id, ind->cmt, 1.0, ind->all_times[ind->idose[j-1]], rx->ypNA);
     if (ISNA(f)){
