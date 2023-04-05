@@ -31,6 +31,7 @@ typedef struct {
   //
   int nlhs;
   int neq;
+  int nCalcInf;
   int stiff;
   int ncov;
   char modNamePtr[1000];
