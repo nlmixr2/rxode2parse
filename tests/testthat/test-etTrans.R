@@ -1101,8 +1101,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ii=c(24, 0),
                   evid=c(1,0),
                   ss=c(1, 0),
-                  rate=c(-1, 0),
-                  addl=c(3, 0))
+                  rate=c(-1, 0))
 
   tmp <- etTransParse(d, mod)
 

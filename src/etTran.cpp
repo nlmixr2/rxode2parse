@@ -463,32 +463,6 @@ bool rxode2parseIsIntegerish(SEXP in) {
   return as<bool>(isIntegerish(in));
 }
 
-static inline void updateCalcRateOrDur(int &maxInfOrRatePerInd,
-                                       int &nInfOrRate,
-                                       int &nInfOrRateSS,
-                                       std::vector<int> &calcDurIdx,
-                                       std::vector<int> &calcDurIdxLag,
-                                       Rcpp::List &lst) {
-  maxInfOrRatePerInd = max2(maxInfOrRatePerInd, nInfOrRate+nInfOrRateSS);
-  NumericVector nvTmp;
-  if (calcDurIdx.size() > 0) {
-    nvTmp = as<NumericVector>(lst[3]);
-    for (unsigned int di=0; di < calcDurIdx.size(); ++di) {
-      nvTmp[calcDurIdx[di]] = (double)(nInfOrRate) - nvTmp[calcDurIdx[di]] - 1;
-    }
-    calcDurIdx.clear();
-  }
-  if (calcDurIdxLag.size() > 0) {
-    nvTmp = as<NumericVector>(lst[3]);
-    for (unsigned int di=0; di < calcDurIdxLag.size(); ++di) {
-      nvTmp[calcDurIdxLag[di]] = (double)(nInfOrRateSS) - nvTmp[calcDurIdx[di]] - 1 + (double)(nInfOrRate);
-    }
-    calcDurIdxLag.clear();
-  }
-  nInfOrRate=0;
-  nInfOrRateSS=0;  
-}
-
 //' Event translation for rxode2
 //'
 //' @param inData Data frame to translate
@@ -2133,10 +2107,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       stop("the columns that are kept must be either a string, a factor, an integer number, or a real number");
     }
   }
-  int nInfOrRate = 0, nInfOrRateSS = 0;
+  int nInfOrRate = 0;
   int maxInfOrRatePerInd = 0;
   std::vector<int> calcDurIdx;
-  std::vector<int> calcDurIdxLag;
   for (i =idxOutput.size(); i--;){
     if (idxOutput[i] != -1) {
       jj--;
@@ -2150,8 +2123,15 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         ivTmp = as<IntegerVector>(lst1[0]);
         ivTmp[idx1] = id[idxOutput[i]];
         lastId=id[idxOutput[i]];
-        updateCalcRateOrDur(maxInfOrRatePerInd, nInfOrRate, nInfOrRateSS,
-                            calcDurIdx, calcDurIdxLag, lst);
+        maxInfOrRatePerInd = max2(maxInfOrRatePerInd, nInfOrRate);
+        if (calcDurIdx.size() > 0) {
+          nvTmp = as<NumericVector>(lst[3]);
+          for (unsigned int di=0; di < calcDurIdx.size(); ++di) {
+            nvTmp[calcDurIdx[di]] = (double)(nInfOrRate) - nvTmp[calcDurIdx[di]] - 1;
+          }
+          calcDurIdx.clear();
+        }
+        nInfOrRate=0;
       }
       // retId[i]=id[idxOutput[i]];
       nvTmp = as<NumericVector>(lst[1]);
@@ -2164,21 +2144,13 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       getWh(ivTmp[jj], &wh, &cmt, &wh100, &whI, &wh0);
       // this goes backwards
       if (whI == 8 || whI == 9) {
-        if (wh0 == 9 || wh0 == 19) {
-          // the lag time can make the 9 or 19 "infusions" out of
-          // order from other infusions, need a different numbering
-          // for these
-          nInfOrRateSS++;
-        } else {
-          nInfOrRate++;
-        }
+        nInfOrRate++;
       } else if (whI == 7 || whI == 6) {
+        calcDurIdx.push_back(jj);
         if (wh0 == 8) {
-          curAmt = (double)(nInfOrRateSS);
-          calcDurIdxLag.push_back(jj);
+          curAmt = (double)(nInfOrRate+1);
         } else {
           curAmt = (double)(nInfOrRate);
-          calcDurIdx.push_back(jj);
         }
       }
       // count number of dur() and rate() infusions
@@ -2289,8 +2261,14 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       }
     }
   }
-  updateCalcRateOrDur(maxInfOrRatePerInd, nInfOrRate, nInfOrRateSS,
-                      calcDurIdx, calcDurIdxLag, lst);
+  if (calcDurIdx.size() > 0) {
+    nvTmp = as<NumericVector>(lst[3]);
+    for (unsigned int di=0; di < calcDurIdx.size(); ++di) {
+      nvTmp[calcDurIdx[di]] = (double)(nInfOrRate) - nvTmp[calcDurIdx[di]] - 1.0;
+    }
+    calcDurIdx.clear();
+  }
+  maxInfOrRatePerInd = max2(maxInfOrRatePerInd, nInfOrRate);
 #ifdef rxSolveT
   REprintf("  Time11: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
