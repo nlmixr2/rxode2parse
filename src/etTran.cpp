@@ -5,19 +5,7 @@
 
 #include <Rcpp.h>
 #include <algorithm>
-#define op_global _rxode2parse_op_global
-#define rx_global _rxode2parse_rx_global
-#define AMT _rxode2parse_AMT
-#define LAG _rxode2parse_LAG
-#define RATE _rxode2parse_RATE
-#define DUR _rxode2parse_DUR
-#define calc_mtime _rxode2parse_calc_mtime
-#define getTime_ _rxode2parse_getTime_
-#define getTime _rxode2parse_getTime
-#define _locateTimeIndex _rxode2parse_locateTimeIndex
 #include "../inst/include/rxode2parse.h"
-extern t_getDur _rxode2parse_getDur;
-#include "../inst/include/rxode2parseHandleEvid.h"
 #include "timsort.h"
 #include "needSortDefines.h"
 #define SORT gfx::timsort
@@ -1548,27 +1536,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           // note that steady state is already calculated with 09 or 19
           // add lagged dose to continue ss tau
           // if this is not a calculated rate/dur:
-          id.push_back(cid);
-          if (rateI == 9) {
-            evid.push_back(cevid-flg+8-rateI*10000+70000);
-          } else if (rateI == 8) {
-            evid.push_back(cevid-flg+8-rateI*10000+60000);
-          }
-          cmtF.push_back(cmt);
-          amt.push_back(camt);
-          time.push_back(ctime);
-          ii.push_back(cii);
-          idxInput.push_back(-1);
-          dv.push_back(NA_REAL);
-          limit.push_back(NA_REAL);
-          cens.push_back(0);
-          idxOutput.push_back(curIdx);curIdx++;
-          ndose++;
-
-          // add lagged dose for steady state
-          // note that steady state is already calculated with 09 or 19
-          // add lagged dose to continue ss tau
-          // if this is not a calculated rate/dur:
           nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
           id.push_back(cid);
           evid.push_back(nevidLag);
@@ -2107,9 +2074,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       stop("the columns that are kept must be either a string, a factor, an integer number, or a real number");
     }
   }
-  int nInfOrRate = 0;
-  int maxInfOrRatePerInd = 0;
-  std::vector<int> calcDurIdx;
+
   for (i =idxOutput.size(); i--;){
     if (idxOutput[i] != -1) {
       jj--;
@@ -2123,15 +2088,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         ivTmp = as<IntegerVector>(lst1[0]);
         ivTmp[idx1] = id[idxOutput[i]];
         lastId=id[idxOutput[i]];
-        maxInfOrRatePerInd = max2(maxInfOrRatePerInd, nInfOrRate);
-        if (calcDurIdx.size() > 0) {
-          nvTmp = as<NumericVector>(lst[3]);
-          for (unsigned int di=0; di < calcDurIdx.size(); ++di) {
-            nvTmp[calcDurIdx[di]] = (double)(nInfOrRate) - nvTmp[calcDurIdx[di]] - 1;
-          }
-          calcDurIdx.clear();
-        }
-        nInfOrRate=0;
       }
       // retId[i]=id[idxOutput[i]];
       nvTmp = as<NumericVector>(lst[1]);
@@ -2139,25 +2095,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       nvTmp[jj] = time[idxOutput[i]];
       ivTmp = as<IntegerVector>(lst[2]);
       ivTmp[jj] = evid[idxOutput[i]];
-      double curAmt = amt[idxOutput[i]];
-      int wh, cmt, wh100, whI, wh0;
-      getWh(ivTmp[jj], &wh, &cmt, &wh100, &whI, &wh0);
-      // this goes backwards
-      if (whI == 8 || whI == 9) {
-        nInfOrRate++;
-      } else if (whI == 7 || whI == 6) {
-        calcDurIdx.push_back(jj);
-        if (wh0 == 8) {
-          curAmt = (double)(nInfOrRate+1);
-        } else {
-          curAmt = (double)(nInfOrRate);
-        }
-      }
-      // count number of dur() and rate() infusions
       // retEvid[i]=evid[idxOutput[i]];
       nvTmp = as<NumericVector>(lst[3]);
       // retAmt[i]=amt[idxOutput[i]];
-      nvTmp[jj] = curAmt;
+      nvTmp[jj] = amt[idxOutput[i]];
       nvTmp = as<NumericVector>(lst[4]);
       nvTmp[jj]=ii[idxOutput[i]];
       nvTmp = as<NumericVector>(lst[5]);
@@ -2261,14 +2202,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       }
     }
   }
-  if (calcDurIdx.size() > 0) {
-    nvTmp = as<NumericVector>(lst[3]);
-    for (unsigned int di=0; di < calcDurIdx.size(); ++di) {
-      nvTmp[calcDurIdx[di]] = (double)(nInfOrRate) - nvTmp[calcDurIdx[di]] - 1.0;
-    }
-    calcDurIdx.clear();
-  }
-  maxInfOrRatePerInd = max2(maxInfOrRatePerInd, nInfOrRate);
 #ifdef rxSolveT
   REprintf("  Time11: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
@@ -2331,6 +2264,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     Rf_setAttrib(tmp, R_LevelsSymbol, R_NilValue);
     lst1F[0] = tmp;
   }
+
 #ifdef rxSolveT
   REprintf("  Time13: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
@@ -2340,7 +2274,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   Rf_setAttrib(lst1F, R_ClassSymbol, wrap("data.frame"));
   Rf_setAttrib(lst1F, R_RowNamesSymbol,
                IntegerVector::create(NA_INTEGER, -nid));
-  List e(30);
+  List e(29);
   RxTransNames;
   e[RxTrans_ndose] = IntegerVector::create(ndose);
   e[RxTrans_nobs]  = IntegerVector::create(nobs);
@@ -2398,7 +2332,6 @@ List etTransParse(List inData, List mv, bool addCmt=false,
                IntegerVector::create(NA_INTEGER,-idxOutput.size()+rmAmt));
   Rf_setAttrib(keepL, Rf_install("keepCov"), wrap(keepLc));
   e[RxTrans_keepL] = List::create(_["keepL"]=keepL, _["keepLtype"]=inDataFKL);
-  e[RxTrans_maxInfDurPerId] = maxInfOrRatePerInd;
   Rf_setAttrib(e, R_ClassSymbol, wrap("rxHidden"));
   cls.attr(".rxode2.lst") = e;
   tmp = lstF[0];

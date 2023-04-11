@@ -306,9 +306,7 @@ static inline int handle_evid(int evid, int neq,
       ind->skipDose[cmt] = 0;
       return 1;
     }
-    if (!ind->doSS && (ind->wh0 == EVID0_SS2 || ind->wh0 == EVID0_SS20 ||
-                       ind->wh0 == EVID0_SS || ind->wh0 == EVID0_SS0) &&
-        cmt < op->neq) {
+    if (!ind->doSS && ind->wh0 == EVID0_SS2 && cmt < op->neq) {
       // Save for adding at the end; Only for ODE systems
       memcpy(ind->solveSave, yp, op->neq*sizeof(double));
     }
