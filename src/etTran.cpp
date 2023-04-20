@@ -2074,13 +2074,16 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       stop("the columns that are kept must be either a string, a factor, an integer number, or a real number");
     }
   }
-
+  int maxItemsPerId = 0;
+  int curItems = 0;
   for (i =idxOutput.size(); i--;){
     if (idxOutput[i] != -1) {
       jj--;
       ivTmp = as<IntegerVector>(lst[0]);
       ivTmp[jj] = id[idxOutput[i]];
       if (lastId != id[idxOutput[i]]){
+        maxItemsPerId = max2(curItems, maxItemsPerId);
+        curItems=0;
         addId=true;
         idx1--;
         if (idx1 < 0) stop(_("number of individuals not calculated correctly"));
@@ -2200,8 +2203,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         addId=false;
         added=false;
       }
+      curItems++;
     }
   }
+  maxItemsPerId = max2(curItems, maxItemsPerId);
 #ifdef rxSolveT
   REprintf("  Time11: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
@@ -2274,7 +2279,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   Rf_setAttrib(lst1F, R_ClassSymbol, wrap("data.frame"));
   Rf_setAttrib(lst1F, R_RowNamesSymbol,
                IntegerVector::create(NA_INTEGER, -nid));
-  List e(29);
+  List e(30);
   RxTransNames;
   e[RxTrans_ndose] = IntegerVector::create(ndose);
   e[RxTrans_nobs]  = IntegerVector::create(nobs);
@@ -2332,6 +2337,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
                IntegerVector::create(NA_INTEGER,-idxOutput.size()+rmAmt));
   Rf_setAttrib(keepL, Rf_install("keepCov"), wrap(keepLc));
   e[RxTrans_keepL] = List::create(_["keepL"]=keepL, _["keepLtype"]=inDataFKL);
+  e[RxTrans_maxItemsPerId] = maxItemsPerId;
   Rf_setAttrib(e, R_ClassSymbol, wrap("rxHidden"));
   cls.attr(".rxode2.lst") = e;
   tmp = lstF[0];
