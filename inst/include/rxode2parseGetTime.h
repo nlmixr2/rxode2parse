@@ -125,7 +125,7 @@ static inline void updateRate(int idx, rx_solving_options_ind *ind, double *yp) 
 
 static inline void handleTurnOffModeledDuration(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
   if (idx > 0){
-    if (!isEvidModeledDurationStart(ind->evid[idx-1])) {
+    if (!isEvidModeledDurationStart(getEvidM1(ind, idx))) {
       if (!(ind->err & 64)){
         ind->err += 64;
       }
@@ -148,7 +148,7 @@ static inline void handleTurnOnModeledDuration(int idx, rx_solve *rx, rx_solving
     }
     return;
   } else {
-    if (!isEvidModeledDurationStop(ind->evid[idx+1])) {
+    if (!isEvidModeledDurationStop(getEvidP1(ind, idx))) {
       if (!(ind->err & 512)){
         ind->err += 512;
       }
@@ -160,7 +160,7 @@ static inline void handleTurnOnModeledDuration(int idx, rx_solve *rx, rx_solving
 
 static inline void handleTurnOffModeledRate(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
   if (idx > 0){
-    if (!isEvidModeledRateStart(ind->evid[idx-1])) {
+    if (!isEvidModeledRateStart(getEvidM1(ind, idx))) {
       if (!(ind->err & 1024)){
         ind->err += 1024;
       }
@@ -184,7 +184,7 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
     /* Rf_errorcall(R_NilValue, "Data Error 9\n"); */
     return;
   } else {
-    if (!isEvidModeledRateStop(ind->evid[idx+1])) {
+    if (!isEvidModeledRateStop(getEvidP1(ind, idx))) {
       if (!(ind->err & 8192)){
         ind->err += 8192;
       }
@@ -212,7 +212,7 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
 		if (ind->wh0 == EVID0_INFRM) {
 			k = j+1;
 			for (j = k; j < ind->ndoses; ++j) {
-				if (ind->evid[ind->idose[j]] == ind->evid[ind->idose[k]]) break;
+				if (getEvid(ind, ind->idose[j]) == getEvid(ind, ind->idose[k])) break;
 				if (j == ind->ndoses-1) {
 					if (!(ind->err & 32768)){
 						ind->err += 32768;
@@ -222,7 +222,7 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
 			}
 		}  else {
 			for (k = j; k--;){
-				if (ind->evid[ind->idose[j]] == ind->evid[ind->idose[k]]) break;
+				if (getEvid(ind, ind->idose[j]) == getEvid(ind, ind->idose[k])) break;
 				if (k == 0) {
 					if (!(ind->err & 32768)){
 						ind->err += 32768;
@@ -276,7 +276,7 @@ static inline double getTimeCalculateInfusionTimes(int idx, rx_solve *rx, rx_sol
 static inline double getTime__(int idx, rx_solving_options_ind *ind, int update) {
   rx_solving_options *op = &op_global;
   rx_solve *rx = &rx_global;
-  int evid = ind->evid[idx];
+  int evid = getEvid(ind, idx);
   if (evid == 9) return 0.0;
   if (evid >= 10 && evid <= 99) return ind->mtime[evid-10];
   if (isObs(evid)) return ind->all_times[idx];

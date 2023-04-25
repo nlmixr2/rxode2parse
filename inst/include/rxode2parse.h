@@ -8,6 +8,9 @@
 #define getSolve(idx) ind->solve + (op->neq + op->nlin)*(idx)
 #define isDose(evid) ((evid) == 3 || (evid) >= 100)
 #define isObs(evid) ((evid) == 0 || (evid) == 2 || ((evid) >= 9 && (evid) <= 99))
+#define getEvid(ind, idx) (idx < 0 ? ind->evidExtra[-idx] : ind->evid[idx])
+#define getEvidP1(ind, idx) (idx < 0 ? ind->evidExtra[-idx-1] : ind->evid[idx+1])
+#define getEvidM1(ind, idx) (idx < 0 ? ind->evidExtra[-idx+1] : ind->evid[idx-1])
 
 #include <R.h>
 #include <stdbool.h>

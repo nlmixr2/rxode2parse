@@ -3,7 +3,7 @@
 #include <rxode2.h>
 #include <float.h>
 
-#define _evid (&_solveData->subjects[_cSub])->evid[(&_solveData->subjects[_cSub])->ix[(&_solveData->subjects[_cSub])->idx]]
+#define _evid getEvid((&_solveData->subjects[_cSub]), (&_solveData->subjects[_cSub])->ix[(&_solveData->subjects[_cSub])->idx])
 #define amt (isDose(_evid) ?  (&_solveData->subjects[_cSub])->dose[(&_solveData->subjects[_cSub])->ixds] : NA_REAL)
 #define JAC_Rprintf Rprintf
 #define _idx (&_solveData->subjects[_cSub])->idx

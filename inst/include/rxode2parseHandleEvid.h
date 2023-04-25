@@ -176,8 +176,8 @@ static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind
 static inline void handleTlastInline(double *time, rx_solving_options_ind *ind) {
   rx_solving_options *op = &op_global;
   double _time = *time + ind->curShift;
-  if (op->neq + op->extraCmt != 0 && ind->tlast != _time && isDose(ind->evid[ind->ix[ind->idx]]) &&
-      ind->cmt < op->neq + op->extraCmt){
+  if (op->neq + op->extraCmt != 0 && ind->tlast != _time && isDose(getEvid(ind, ind->ix[ind->idx])) &&
+      ind->cmt < op->neq + op->extraCmt) {
     double curDose = getDoseIndex(ind, ind->idx), tinf = NA_REAL;
     if (handleTlastInlineUpateDosingInformation(ind, &curDose, &tinf) == 0) return;
     ind->dosenum++;
@@ -434,8 +434,8 @@ static inline int handleEvid1(int *i, rx_solve *rx, int *neq, double *yp, double
   rx_solving_options_ind *ind = &(rx->subjects[neq[1]]);
   rx_solving_options *op = rx->op;
   ind->idx = *i;
-  if (!isObs(ind->evid[ind->ix[ind->idx]])) syncIdx(ind);
-  return handle_evid(ind->evid[ind->ix[ind->idx]], neq[0] + op->extraCmt,
+  if (!isObs(getEvid(ind, ind->ix[ind->idx]))) syncIdx(ind);
+  return handle_evid(getEvid(ind, ind->ix[ind->idx]), neq[0] + op->extraCmt,
 										 ind->BadDose, ind->InfusionRate, ind->dose, yp,
 										 *xout, neq[1], ind);
 }
