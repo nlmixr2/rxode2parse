@@ -23,6 +23,10 @@
     ind->dose[idx+1] = val;\
   }
 
+#define getIi(ind, idx) (idx < 0 ? ind->iiExtra[-idx] : ind->ii[idx])
+#define getIiP1(ind, idx) (idx < 0 ? ind->iiExtra[-idx-1] : ind->ii[idx+1])
+#define getIiM1(ind, idx) (idx < 0 ? ind->iiExtra[-idx+1] : ind->ii[idx-1])
+
 
 #include <R.h>
 #include <stdbool.h>
