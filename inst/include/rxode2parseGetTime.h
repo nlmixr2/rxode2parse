@@ -64,11 +64,11 @@ static inline void updateDur(int idx, rx_solving_options_ind *ind, double *yp){
   // The duration and f cannot depend on state values
   int oldIdx = ind->idx;
   ind->idx = idx;
-  amt  = getAmt(ind, ind->id, ind->cmt, ind->dose[idx], t, yp);
+  amt  = getAmt(ind, ind->id, ind->cmt, getDose(ind, idx), t, yp);
   dur  = getDur(ind, ind->id, ind->cmt, amt, t);
   ind->idx = oldIdx;
   if (dur > 0) {
-    ind->dose[idx+1]      = -amt/dur;
+		setDoseP1(ind, idx, -amt/dur);
     ind->all_times[idx+1] = t + dur;
   } else {
     rx_solve *rx = &rx_global;
@@ -94,11 +94,11 @@ static inline void updateRate(int idx, rx_solving_options_ind *ind, double *yp) 
   int oldIdx = ind->idx;
   ind->idx=idx;
   double dur, rate, amt;
-  amt  = getAmt(ind, ind->id, ind->cmt, ind->dose[idx], t, yp);
+  amt  = getAmt(ind, ind->id, ind->cmt, getDose(ind,idx), t, yp);
   rate  = getRate(ind, ind->id, ind->cmt, amt, t);
   if (rate > 0){
     dur = amt/rate; // mg/hr
-    ind->dose[idx+1]      = - rate;
+		setDoseP1(ind, idx, -rate);
     ind->all_times[idx+1] = t+dur;
     ind->idx=oldIdx;
   } else {
@@ -196,7 +196,7 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
 }
 
 static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
-  double amt = ind->dose[idx];
+  double amt = getDose(ind, idx);
   if (amt > 0) {
 		return getLag(ind, ind->id, ind->cmt, ind->all_times[idx]);
   } else if (amt < 0){

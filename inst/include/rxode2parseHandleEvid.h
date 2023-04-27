@@ -118,16 +118,15 @@ static inline void getWh(int evid, int *wh, int *cmt, int *wh100, int *whI, int 
 }
 
 static inline double getDoseNumber(rx_solving_options_ind *ind, int i) {
-  return ind->dose[ind->idose[i]];
-  //return ind->dose[i];
+  return getDose(ind, ind->idose[i]);
 }
 
 static inline double getDoseIndex(rx_solving_options_ind *ind, int i) {
-  return ind->dose[ind->ix[i]];
+  return getDose(ind, ind->ix[i]);
 }
 
 static inline double getDoseIndexPlus1(rx_solving_options_ind *ind, int i) {
-  return ind->dose[ind->ix[i]+1];
+  return getDoseP1(ind, ind->ix[i]);
 }
 
 static inline double getIiNumber(rx_solving_options_ind *ind, int i) {
@@ -136,8 +135,7 @@ static inline double getIiNumber(rx_solving_options_ind *ind, int i) {
 }
 
 static inline void setDoseNumber(rx_solving_options_ind *ind, int i, int j, double value) {
-  ind->dose[ind->idose[i] + j] = value;
-  //ind->dose[i+j] = value;
+  setDoseP1(ind, ind->idose[i] + j, value)
 }
 
 static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind *ind, double *curDose, double *tinf) {
