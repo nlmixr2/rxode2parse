@@ -27,6 +27,15 @@
 #define getIiP1(ind, idx) (idx < 0 ? ind->iiExtra[-idx-1] : ind->ii[idx+1])
 #define getIiM1(ind, idx) (idx < 0 ? ind->iiExtra[-idx+1] : ind->ii[idx-1])
 
+#define getAllTimes(ind, idx) (idx < 0 ? ind->all_timesExtra[-idx] : ind->all_times[idx])
+#define getAllTimesP1(ind, idx) (idx < 0 ? ind->all_timesExtra[-idx-1] : ind->all_times[idx+1])
+#define getAllTimesM1(ind, idx) (idx < 0 ? ind->all_timesExtra[-idx+1] : ind->all_times[idx-1])
+
+#define setAllTimesP1(ind, idx, val) if (idx < 0) {\
+    ind->all_timesExtra[-idx-1] = val; \
+} else { \
+    ind->all_times[idx+1] = val;\
+  }
 
 #include <R.h>
 #include <stdbool.h>

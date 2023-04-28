@@ -59,7 +59,7 @@ static inline int isEvidType(int evid, int type) {
 #define isEvidModeledRateStop(evid) isEvidType(evid, EVIDF_MODEL_RATE_OFF)
 
 static inline void updateDur(int idx, rx_solving_options_ind *ind, double *yp){
-  double t = ind->all_times[idx];
+  double t = getAllTimes(ind, idx);
   double dur, amt;
   // The duration and f cannot depend on state values
   int oldIdx = ind->idx;
@@ -69,7 +69,7 @@ static inline void updateDur(int idx, rx_solving_options_ind *ind, double *yp){
   ind->idx = oldIdx;
   if (dur > 0) {
 		setDoseP1(ind, idx, -amt/dur);
-    ind->all_times[idx+1] = t + dur;
+		setAllTimesP1(ind, idx, t+dur);
   } else {
     rx_solve *rx = &rx_global;
     rx_solving_options *op = &op_global;
@@ -90,7 +90,7 @@ static inline void updateDur(int idx, rx_solving_options_ind *ind, double *yp){
 }
 
 static inline void updateRate(int idx, rx_solving_options_ind *ind, double *yp) {
-  double t = ind->all_times[idx];
+  double t = getAllTimes(ind, idx);
   int oldIdx = ind->idx;
   ind->idx=idx;
   double dur, rate, amt;
@@ -99,7 +99,7 @@ static inline void updateRate(int idx, rx_solving_options_ind *ind, double *yp) 
   if (rate > 0){
     dur = amt/rate; // mg/hr
 		setDoseP1(ind, idx, -rate);
-    ind->all_times[idx+1] = t+dur;
+		setAllTimesP1(ind, idx, t+dur);
     ind->idx=oldIdx;
   } else {
     rx_solve *rx;
@@ -190,7 +190,7 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
       }
       return;
     }
-    ind->all_times[idx + 1] = ind->all_times[idx];
+		setAllTimesP1(ind, idx, getAllTimes(ind, idx));
     updateRate(idx, ind, rx->ypNA);
   }
 }
@@ -198,7 +198,7 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
 static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
   double amt = getDose(ind, idx);
   if (amt > 0) {
-		return getLag(ind, ind->id, ind->cmt, ind->all_times[idx]);
+		return getLag(ind, ind->id, ind->cmt, getAllTimes(ind, idx));
   } else if (amt < 0){
     int j = getDoseNumberFromIndex(ind, idx);
     if (j == -1){
@@ -232,16 +232,16 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
 			}			
 		}
     rx_solve *rx = &rx_global;
-    double f = getAmt(ind, ind->id, ind->cmt, 1.0, ind->all_times[ind->idose[j-1]], rx->ypNA);
+    double f = getAmt(ind, ind->id, ind->cmt, 1.0, getAllTimes(ind, ind->idose[j-1]), rx->ypNA);
     if (ISNA(f)){
       rx_solving_options *op = &op_global;
       op->badSolve=1;
       op->naTime = 1;
     }
-    double durOld = (ind->all_times[ind->idose[j]] -
-                     ind->all_times[ind->idose[k]]);
+    double durOld = (getAllTimes(ind, ind->idose[j]) -
+                     getAllTimes(ind, ind->idose[k]));
     double dur = f*durOld;
-    double t = ind->all_times[ind->idose[k]]+dur;
+    double t = getAllTimes(ind, ind->idose[k]) + dur;
     return getLag(ind, ind->id, ind->cmt, t);
   } else {
     /* Rf_errorcall(R_NilValue, "Corrupted events."); */
@@ -270,7 +270,7 @@ static inline double getTimeCalculateInfusionTimes(int idx, rx_solve *rx, rx_sol
     return handleInfusionItem(idx, rx, op, ind);
     break;
   }
-  return getLag(ind, ind->id, ind->cmt, ind->all_times[idx]);
+  return getLag(ind, ind->id, ind->cmt, getAllTimes(ind,idx));
 }
 
 static inline double getTime__(int idx, rx_solving_options_ind *ind, int update) {
@@ -279,7 +279,7 @@ static inline double getTime__(int idx, rx_solving_options_ind *ind, int update)
   int evid = getEvid(ind, idx);
   if (evid == 9) return 0.0;
   if (evid >= 10 && evid <= 99) return ind->mtime[evid-10];
-  if (isObs(evid)) return ind->all_times[idx];
+  if (isObs(evid)) return getAllTimes(ind, idx);
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
   if (ind->wh0 == EVID0_SSINF){
   } else {
@@ -296,7 +296,7 @@ static inline double getTime__(int idx, rx_solving_options_ind *ind, int update)
       return getTimeCalculateInfusionTimes(idx, rx, op, ind);
     }
   }
-  return getLag(ind, ind->id, ind->cmt, ind->all_times[idx]);
+  return getLag(ind, ind->id, ind->cmt, getAllTimes(ind, idx));
 }
 
 static inline double getTime_(int idx, rx_solving_options_ind *ind) {
