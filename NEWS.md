@@ -1,5 +1,7 @@
 # rxode2parse (development version)
 
+* Make double assignment an error, ie  `a <- b <-`
+
 # rxode2parse 2.0.16
 
 * Import `data.table` explicitly in the R code (before was imported only in C/C++ code)
