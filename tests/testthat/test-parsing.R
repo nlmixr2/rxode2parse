@@ -607,6 +607,15 @@ goodParse("Dotted initial conditions",
           paste(c("d/dt(C.A) = - 1",
                   "C.A(0) = A"), collapse="\n"))
 
+goodParse("Less than expression",
+          "a <- 3 < -1")
+
+badParse("Double assignment",
+         "a <- 3 <- 1")
+
+badParse("Double assignment#2",
+          "a = 3 = 1")
+
 
 test_that("after isn't shown or garbled", {
   t <-try(rxode2parse("a+b<-fun+fun  +  fun"))
