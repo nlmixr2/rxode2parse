@@ -142,6 +142,7 @@ typedef struct {
   double *limit;
   int *cens;
   int *idose;
+  int *idoseExtra;
   int *on;
   int *skipDose;
   int idosen;
