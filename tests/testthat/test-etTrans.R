@@ -894,3 +894,15 @@ test_that("non time varying covariates with evid=9", {
 
   })
 
+test_that("cmt outside of number of states (but inside dvid extension)", {
+  
+    info <- test_path("test-cmt-outside-nstates.qs")
+    skip_if_not(file.exists(info))
+
+    info <- qs::qread(info)
+    mv <- rxode2parse(info[[2]])
+
+    trans <- etTransParse(info[[1]], mv, addCmt=TRUE, keepDosingOnly=TRUE, allTimeVar=TRUE)
+    
+    expect_true(max(trans$CMT) == 5L)
+})
