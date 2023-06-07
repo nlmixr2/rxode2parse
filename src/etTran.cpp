@@ -111,8 +111,6 @@ static inline bool asBool(SEXP in, const char *what) {
   return as<bool>(in);
 }
 
-
-
 bool _rxode2parse_found = false;
 Environment _rxode2parse;
 
@@ -2015,13 +2013,14 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               double vCur = nvTmp2[idxInput[idxOutput[i]]];
               // Could be NA, look for non NA value OR beginning of subject
               while (ISNA(vCur) && iCur != 0 && lastId == id[idxOutput[iCur]]) {
-                iCur--;
                 vCur = nvTmp2[idxInput[idxOutput[iCur]]];
+                iCur--;
               }
               if (ISNA(vCur)) iCur = i;
-              while (ISNA(vCur) && iCur != (int)(covCol.size()) && lastId == id[idxOutput[iCur]]) {
-                iCur++;
+              while (ISNA(vCur) && iCur+1 != (int)(covCol.size()) &&
+                     lastId == id[idxOutput[iCur+1]]) {
                 vCur = nvTmp2[idxInput[idxOutput[iCur]]];
+                iCur++;
               }
               if (ISNA(vCur)) {
                 Rf_warningcall(R_NilValue,"column '%s' has only 'NA' values for id '%s'" , CHAR(nme1[1+j]),
