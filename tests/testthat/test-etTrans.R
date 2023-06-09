@@ -663,56 +663,55 @@ d/dt(blood)     = a*intestine - b*blood
     expect_equal(attr(class(ret), ".rxode2.lst")$limitAdd, 1L)
   })
 
-test_that("rxode2 constant infusion taken to steady state", {
+  test_that("rxode2 constant infusion taken to steady state", {
 
-  et <- structure(list(time = 0, amt = 0, rate = 10, ii = 0, evid = 1L,
-                       ss = 1L), class = "data.frame", row.names = c(NA, -1L))
+    et <- structure(list(time = 0, amt = 0, rate = 10, ii = 0, evid = 1L,
+                         ss = 1L), class = "data.frame", row.names = c(NA, -1L))
 
-  trn1 <- etTransParse(et, mod, keepDosingOnly = TRUE) %>% as.data.frame()
+    trn1 <- etTransParse(et, mod, keepDosingOnly = TRUE) %>% as.data.frame()
 
-  expect_equal(structure(list(
-    ID = structure(1L, class = "factor", .Label = "1"),
-    TIME = 0, EVID = 10140L, AMT = 10, II = 0, DV = NA_real_
-  ),
-  class = "data.frame", row.names = c(NA, -1L)
-  ), trn1)
+    expect_equal(structure(list(
+      ID = structure(1L, class = "factor", .Label = "1"),
+      TIME = 0, EVID = 10140L, AMT = 10, II = 0, DV = NA_real_
+    ),
+    class = "data.frame", row.names = c(NA, -1L)
+    ), trn1)
 
-  et <- structure(list(time = 0, amt = 0, rate = -1, ii = 0, evid = 1L,
-                       ss = 1L), class = "data.frame", row.names = c(NA, -1L))
+    et <- structure(list(time = 0, amt = 0, rate = -1, ii = 0, evid = 1L,
+                         ss = 1L), class = "data.frame", row.names = c(NA, -1L))
 
-  trn1 <- etTransParse(et, mod, keepDosingOnly = TRUE) %>% as.data.frame()
+    trn1 <- etTransParse(et, mod, keepDosingOnly = TRUE) %>% as.data.frame()
 
-  expect_equal(structure(list(
-    ID = structure(1L, class = "factor", .Label = "1"),
-    TIME = 0, EVID = 90140L, AMT = 0, II = 0, DV = NA_real_
-  ),
-  class = "data.frame", row.names = c(NA, -1L)
-  ), trn1)
+    expect_equal(structure(list(
+      ID = structure(1L, class = "factor", .Label = "1"),
+      TIME = 0, EVID = 90140L, AMT = 0, II = 0, DV = NA_real_
+    ),
+    class = "data.frame", row.names = c(NA, -1L)
+    ), trn1)
+  })
 
-})
+  ## etTrans example from xgxr + nlmixr + ggpmx
+  test_that("etTrans", {
+    lst <- qs::qread(test_path("test-etTrans-1.qs"))
+    events2 <- lst$events
+    events2 <- events2[, names(events2) != "CENS"]
 
-## etTrans example from xgxr + nlmixr + ggpmx
-test_that("etTrans", {
-  lst <- qs::qread(test_path("test-etTrans-1.qs"))
-  events2 <- lst$events
-  events2 <- events2[, names(events2) != "CENS"]
+    # suppressWarnings() is used on the outside because the rxSetIni0(FALSE)
+    # warning only occurs once per session
+    t0 <- suppressWarnings(etTransParse(events2, rxode2parse(lst$object),
+                                        FALSE, FALSE, FALSE, FALSE, NULL, character(0)))
+    expect_s3_class(t0, "rxEtTran")
 
-  # suppressWarnings() is used on the outside because the rxSetIni0(FALSE)
-  # warning only occurs once per session
-  t0 <- suppressWarnings(etTransParse(events2, rxode2parse(lst$object),
-                                      FALSE, FALSE, FALSE, FALSE, NULL, character(0)))
-  expect_s3_class(t0, "rxEtTran")
+    t1 <- etTransParse(events2, rxode2parse(lst$object),
+                       FALSE, FALSE, FALSE, TRUE, NULL, character(0))
+    expect_s3_class(t1, "rxEtTran")
+  })
 
-  t1 <- etTransParse(events2, rxode2parse(lst$object),
-                     FALSE, FALSE, FALSE, TRUE, NULL, character(0))
-  expect_s3_class(t1, "rxEtTran")
-})
+  test_that("etTrans drop levels are correct", {
 
-test_that("etTrans drop levels are correct", {
+    dat <- qs::qread(test_path("etTrans-drop.qs"))
 
-  dat <- qs::qread(test_path("etTrans-drop.qs"))
-
-  mod <- rxode2parse("
+    mod <- rxode2parse("
         lka <- log(0.1) # log Ka
         lv <- log(10) # Log Vc
         lcl <- log(4) # Log Cl
@@ -729,57 +728,57 @@ test_that("etTrans drop levels are correct", {
         cp <- linCmt()
       ", linear = TRUE)
 
-  # suppressWarnings() is used on the outside because the rxSetIni0(FALSE)
-  # warning only occurs once per session
-  suppressWarnings(expect_warning(expect_warning(
-    tmp <- etTransParse(dat, mod),
-    regexp="while censoring is included"), regexp="IDs without observations"
-    ))
-  lvls <- c(
-    "32", "33", "35", "36", "37", "40", "41", "42", "43", "47",
-    "48", "49", "50", "51", "54", "55", "57", "59", "61", "62", "63",
-    "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74",
-    "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85",
-    "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96",
-    "97", "98", "99", "100", "101", "102", "103", "104", "105", "106",
-    "107", "108", "109", "110", "111", "112", "113", "114", "115",
-    "116", "117", "118", "119", "120", "121", "122", "123", "124",
-    "125", "126", "127", "128", "129", "130", "131", "132", "133",
-    "134", "135", "136", "137", "138", "139", "140", "141", "142",
-    "143", "144", "145", "146", "147", "148", "149", "150", "151",
-    "152", "153", "154", "155", "156", "157", "158", "159", "160",
-    "161", "162", "163", "164", "165", "166", "167", "168", "169",
-    "170", "171", "172", "173", "174", "175", "176", "177", "178",
-    "179", "180"
-  )
-  expect_equal(attr(class(tmp), ".rxode2.lst")$idLvl, lvls)
-  expect_equal(levels(tmp$ID), lvls)
-})
+    # suppressWarnings() is used on the outside because the rxSetIni0(FALSE)
+    # warning only occurs once per session
+    suppressWarnings(expect_warning(expect_warning(
+      tmp <- etTransParse(dat, mod),
+      regexp="while censoring is included"), regexp="IDs without observations"
+      ))
+    lvls <- c(
+      "32", "33", "35", "36", "37", "40", "41", "42", "43", "47",
+      "48", "49", "50", "51", "54", "55", "57", "59", "61", "62", "63",
+      "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74",
+      "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85",
+      "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96",
+      "97", "98", "99", "100", "101", "102", "103", "104", "105", "106",
+      "107", "108", "109", "110", "111", "112", "113", "114", "115",
+      "116", "117", "118", "119", "120", "121", "122", "123", "124",
+      "125", "126", "127", "128", "129", "130", "131", "132", "133",
+      "134", "135", "136", "137", "138", "139", "140", "141", "142",
+      "143", "144", "145", "146", "147", "148", "149", "150", "151",
+      "152", "153", "154", "155", "156", "157", "158", "159", "160",
+      "161", "162", "163", "164", "165", "166", "167", "168", "169",
+      "170", "171", "172", "173", "174", "175", "176", "177", "178",
+      "179", "180"
+    )
+    expect_equal(attr(class(tmp), ".rxode2.lst")$idLvl, lvls)
+    expect_equal(levels(tmp$ID), lvls)
+  })
 
-test_that("phantom doses", {
+  test_that("phantom doses", {
 
-  mod <- rxode2parse("
+    mod <- rxode2parse("
 a = 6
 b = 0.6
 d/dt(intestine) = -a*intestine
 d/dt(blood)     = a*intestine - b*blood
 ")
 
-  d <- structure(list(time = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), cmt = c(2L,
-                                                                          NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), amt = c(3, NA, NA, NA,
-                                                                                                                           NA, NA, NA, NA, NA, NA, NA), evid = c(7L, 0L, 0L, 0L, 0L, 0L,
-                                                                                                                                                                 0L, 0L, 0L, 0L, 0L)), class = "data.frame", row.names = c(NA,
-                                                                                                                                                                                                                           -11L))
+    d <- structure(list(time = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+                        cmt = c(2L, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                        amt = c(3, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                        evid = c(7L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L)),
+                   class = "data.frame", row.names = c(NA, -11L))
 
-  tran <- etTransParse(d, mod)
+    tran <- etTransParse(d, mod)
 
-  expect_equal(tran$EVID[1], 250L)
+    expect_equal(tran$EVID[1], 250L)
 
-})
+  })
 
-test_that("non time varying covariates with evid=9", {
+  test_that("non time varying covariates with evid=9", {
 
-  rx <- rxode2parse("
+    rx <- rxode2parse("
         param(lkng, ltau, lec50, kmax, propErr, addErr, cp, tumor0)
         kng <- exp(lkng)
         tau <- exp(ltau)
@@ -806,21 +805,21 @@ test_that("non time varying covariates with evid=9", {
         dvid(5)
       ")
 
-  prepfit <- qs::qdeserialize(qs::base91_decode("un]\"BAAA@QRtHACAAAAAAAuWeBAABdk1kus^^d8Ah9}?=Z:alBMc4Iv(F\":C?hVBAMZRxwFfBB7IB.y6FTL)yFQA@v;KlgSH3Vn~rL/,{CP/ez~`.3>$Wj$rcy==//#}Pu?\"V(RgKtf1J3qQg/yI7*1]/WV=iegVmPs3?a\":kEMu~/*zmX#;E4`i@It`]Ouu[N]T8G3!4A.^j0<Zd;mY7D`P6Z|KTj_p?r7u[IPuyFRoUcL\"6u|(G_on6g9c{ZLJ[_gE^&47rbL(#6W{EA%hQUW!][2;k<}\"(4SB{!~>M%xmxwMU%ET6#~xvX9rH!;S53gbLTWY]Fcri\"]7\"|Z^W{xobiiTc~DLN_;.Itj(INGKCupDYxEA^!GzfHO=aDW&(I)z}0*mZD\"^b.O!QdY2rVRD;~Z*HB(]G_Dpj]*0A`]+7VoGDF@,vk>jx}tFI>MVOnZojuABN9Bt\"O~V[n6U[kn|W74&xR7CL(Skn:CA)NP`||hQ%w/i+&c8$#KxsFdb4,qI\"Fl&lLg,?$eh&s{`QxtwPWi$GX<[*<0{to@[:NAy}a=O`wedEA*Abqhz2bL2sfII3ZRJR#5q~:FeBW%/F<]`(?Q:c(qc,DZ_d.&|J(NW~Q4kz;Us(7e+Z0YGMdvf.%XRgD]FA2D10sl^KxuPXvXSm+p}ndVY!3`o}Iq+M;i~mLmr1In0~ymm]K2x9g9Ij.UkBOTriq+93<po9tNj@%%W#FzA+/MMb]k3YmXS*RdjE{?pjnr%q6}&81.2&#ni.Au{pL>#eKT9uaMmvF7L^aDwL?sj>s|}[XMQdEx(yS|vIDfwqH:YXc(EfrzuplGn3`|X=ObNnD%;3(ST3tWr^D+vDG=cjKk!^:5ZfpXK5/dqF@dW6+*lb~@\"*H_t@3rRG9w|kG1!SRghm{sUOcDQ?.gYd?c;:IC~RF6lEfd4X;I3+4Y&8.x0P[h8]Ffo)$Y=7)|08Vid5@2btxd4I[0>E7~+CCX~|{Ve0qf^aQ1M4vsQN<B6]~R{LE*vH*8[Q|b[`QO%/.,mr9d<+O/PqesyX).kR)a[.s^OsSJLRZgrwt?NA#EQf)p,+wjGm!8aRz9^SKrW5`PTsjH_EVK.eZ)T]k0Md!mRLU%+}K!{BB>[uCto@(_b&&NA0eV*R}~Tp<Ey:7|>#Kz+AL~%_Wu@J&>C__{[#o3Lmxh$%R;264SAA)O;,:*:p.s:z+=pot[NkrFE@[}VoBF=P<AI)v_tBGUZy4^}6MUL|glMtnz]K/D|qUE``3x])hpz{k$OXX}C4B%m,AwVR)[N\"d$i}eLLJ;bFzpavPm|k^Ef;$C|S+GBP;CdOQSE<>v:;Cj#YR]M@a{68?;s&4Y4Zd[D`znL|kp1n)}0+Q`(/LcQM42JIA}ZFH+9>#dQLs>JX?#GT<W+#YOo[zpESq=N.@3/bpfI)5wKpkIRY>_M&#wui|N/HWs/WyJ/CSn*BaX!:]**?VL`zPu?xA|.+kn)M[xCjLHQ@8A6HX^T4hXT7F~JQw])fR/^Y>YBD([_QsK;[iYPcbW2Z\"BA9q~@t^rOgPg95OnA01xfA00E8k)eQtyH#MzpQ$4|et<eI&o|Uhx|t19ZFY$DAw5Z<,6p7MQM*N07@b$w):77pmoP{iZ4KvtvMyKYw|?{al}MZNtX<:RTKFB?PAdg=76:~4(HH*s62mDm2K:Qw^(9,*ICI.`?HiTsl8KIYV0C!0%0S:JM6(#2A)w(y(<9\"?n`k{0V!yrmQChNo8WWL=/*eAA_+&bKol/+*eiJi*e2dIW!hi.)+RHLR9O}Z69<<eE;aD%#B0ql|30pbBs3Z^0(q$nWfGs|LD$erJR2r@>6W(eGPRmx0B?bGrM@DA31ha^UZWMe52Egm6nn3=lcs3[gq!vBvrKiTSf],3$wjk7^`BPE#{kPh.CcbM*h:9+XPRfGx1P^)X!utw{#;**|LZtNdAwx\"IC?m[]Wil9!m3Tx}{Xx@9;`=+ODLPp)w]zc\"D.rl7/d:ismtgiesu]/CF[9v7ICZ:U?wky`@wQn])q@|Dd#IfQbwAQF`7]{f;hJCK=Vv)N6M4x4>G.u%o7I5fCay=\"^,?M!600bO\"MBTL9~4}eDkY:YkGc6G9oMzo3<9[Ye`GFvPyXiw5$Z]*PByzRza9ik5LJ;}@p;JH}+.,1om5gxAkHdn%`#kbKMJuiDOa#*M!h.2dUje501>,MIW$207SwS$M~FCMaG:`&l?j<c+ZMyFt+u:CpBWOZL)$@WywmY|LCGPdVv=>K]e\"!>HG]Tw0Xbm7SOIjt.B%cH5Ewy_YgfI6(#$I]1Q4Jte1:^W%XdqR4C#OV#._I`G$k|#>NfxcZp!Y]YnX~yZ0nx),%jfE\"u7yS,:y&oJV`;4nMg0g[a]Tidjt|y[*~_8H;*X61T/1kv9x$f/3N?~>xL$mO^0Nk6W|U[wD"))
+    prepfit <- qs::qdeserialize(qs::base91_decode("un]\"BAAA@QRtHACAAAAAAAuWeBAABdk1kus^^d8Ah9}?=Z:alBMc4Iv(F\":C?hVBAMZRxwFfBB7IB.y6FTL)yFQA@v;KlgSH3Vn~rL/,{CP/ez~`.3>$Wj$rcy==//#}Pu?\"V(RgKtf1J3qQg/yI7*1]/WV=iegVmPs3?a\":kEMu~/*zmX#;E4`i@It`]Ouu[N]T8G3!4A.^j0<Zd;mY7D`P6Z|KTj_p?r7u[IPuyFRoUcL\"6u|(G_on6g9c{ZLJ[_gE^&47rbL(#6W{EA%hQUW!][2;k<}\"(4SB{!~>M%xmxwMU%ET6#~xvX9rH!;S53gbLTWY]Fcri\"]7\"|Z^W{xobiiTc~DLN_;.Itj(INGKCupDYxEA^!GzfHO=aDW&(I)z}0*mZD\"^b.O!QdY2rVRD;~Z*HB(]G_Dpj]*0A`]+7VoGDF@,vk>jx}tFI>MVOnZojuABN9Bt\"O~V[n6U[kn|W74&xR7CL(Skn:CA)NP`||hQ%w/i+&c8$#KxsFdb4,qI\"Fl&lLg,?$eh&s{`QxtwPWi$GX<[*<0{to@[:NAy}a=O`wedEA*Abqhz2bL2sfII3ZRJR#5q~:FeBW%/F<]`(?Q:c(qc,DZ_d.&|J(NW~Q4kz;Us(7e+Z0YGMdvf.%XRgD]FA2D10sl^KxuPXvXSm+p}ndVY!3`o}Iq+M;i~mLmr1In0~ymm]K2x9g9Ij.UkBOTriq+93<po9tNj@%%W#FzA+/MMb]k3YmXS*RdjE{?pjnr%q6}&81.2&#ni.Au{pL>#eKT9uaMmvF7L^aDwL?sj>s|}[XMQdEx(yS|vIDfwqH:YXc(EfrzuplGn3`|X=ObNnD%;3(ST3tWr^D+vDG=cjKk!^:5ZfpXK5/dqF@dW6+*lb~@\"*H_t@3rRG9w|kG1!SRghm{sUOcDQ?.gYd?c;:IC~RF6lEfd4X;I3+4Y&8.x0P[h8]Ffo)$Y=7)|08Vid5@2btxd4I[0>E7~+CCX~|{Ve0qf^aQ1M4vsQN<B6]~R{LE*vH*8[Q|b[`QO%/.,mr9d<+O/PqesyX).kR)a[.s^OsSJLRZgrwt?NA#EQf)p,+wjGm!8aRz9^SKrW5`PTsjH_EVK.eZ)T]k0Md!mRLU%+}K!{BB>[uCto@(_b&&NA0eV*R}~Tp<Ey:7|>#Kz+AL~%_Wu@J&>C__{[#o3Lmxh$%R;264SAA)O;,:*:p.s:z+=pot[NkrFE@[}VoBF=P<AI)v_tBGUZy4^}6MUL|glMtnz]K/D|qUE``3x])hpz{k$OXX}C4B%m,AwVR)[N\"d$i}eLLJ;bFzpavPm|k^Ef;$C|S+GBP;CdOQSE<>v:;Cj#YR]M@a{68?;s&4Y4Zd[D`znL|kp1n)}0+Q`(/LcQM42JIA}ZFH+9>#dQLs>JX?#GT<W+#YOo[zpESq=N.@3/bpfI)5wKpkIRY>_M&#wui|N/HWs/WyJ/CSn*BaX!:]**?VL`zPu?xA|.+kn)M[xCjLHQ@8A6HX^T4hXT7F~JQw])fR/^Y>YBD([_QsK;[iYPcbW2Z\"BA9q~@t^rOgPg95OnA01xfA00E8k)eQtyH#MzpQ$4|et<eI&o|Uhx|t19ZFY$DAw5Z<,6p7MQM*N07@b$w):77pmoP{iZ4KvtvMyKYw|?{al}MZNtX<:RTKFB?PAdg=76:~4(HH*s62mDm2K:Qw^(9,*ICI.`?HiTsl8KIYV0C!0%0S:JM6(#2A)w(y(<9\"?n`k{0V!yrmQChNo8WWL=/*eAA_+&bKol/+*eiJi*e2dIW!hi.)+RHLR9O}Z69<<eE;aD%#B0ql|30pbBs3Z^0(q$nWfGs|LD$erJR2r@>6W(eGPRmx0B?bGrM@DA31ha^UZWMe52Egm6nn3=lcs3[gq!vBvrKiTSf],3$wjk7^`BPE#{kPh.CcbM*h:9+XPRfGx1P^)X!utw{#;**|LZtNdAwx\"IC?m[]Wil9!m3Tx}{Xx@9;`=+ODLPp)w]zc\"D.rl7/d:ismtgiesu]/CF[9v7ICZ:U?wky`@wQn])q@|Dd#IfQbwAQF`7]{f;hJCK=Vv)N6M4x4>G.u%o7I5fCay=\"^,?M!600bO\"MBTL9~4}eDkY:YkGc6G9oMzo3<9[Ye`GFvPyXiw5$Z]*PByzRza9ik5LJ;}@p;JH}+.,1om5gxAkHdn%`#kbKMJuiDOa#*M!h.2dUje501>,MIW$207SwS$M~FCMaG:`&l?j<c+ZMyFt+u:CpBWOZL)$@WywmY|LCGPdVv=>K]e\"!>HG]Tw0Xbm7SOIjt.B%cH5Ewy_YgfI6(#$I]1Q4Jte1:^W%XdqR4C#OV#._I`G$k|#>NfxcZp!Y]YnX~yZ0nx),%jfE\"u7yS,:y&oJV`;4nMg0g[a]Tidjt|y[*~_8H;*X61T/1kv9x$f/3N?~>xL$mO^0Nk6W|U[wD"))
 
-  trans <- etTransParse(prepfit,rx)
+    trans <- etTransParse(prepfit,rx)
 
-  expect_true(all(names(trans) != "tumor0"))
-  expect_true(any(names(attr(class(trans), ".rxode2.lst")$cov1) =="tumor0"))
+    expect_true(all(names(trans) != "tumor0"))
+    expect_true(any(names(attr(class(trans), ".rxode2.lst")$cov1) =="tumor0"))
 
-})
-  }
+  })
+}
 
-  .Call(`_rxode2parse_etTransEvidIsObs`, TRUE)
+.Call(`_rxode2parse_etTransEvidIsObs`, TRUE)
 
-  test_that("test etTran on addl ss items", {
+test_that("test etTran on addl ss items", {
 
-    rx <- rxode2parse("
+  rx <- rxode2parse("
       cp <- linCmt(ka, cl, v)
     ", linear=TRUE)
 
@@ -877,24 +876,52 @@ test_that("non time varying covariates with evid=9", {
                    class = "data.frame",
                    row.names = c(NA, -82L))
 
-    # should not drop the off infusion record
-    t <- etTransParse(e, rx)
+   # should not drop the off infusion record
+  t <- etTransParse(e, rx)
 
-    expect_equal(t$TIME[length(t$TIME)], 82)
-    expect_equal(t$AMT[length(t$AMT)], -10)
-    expect_equal(t$EVID[length(t$EVID)], 10210L)
-    expect_equal(t$II[length(t$II)], 0)
+  expect_equal(t$TIME[length(t$TIME)], 82)
+  expect_equal(t$AMT[length(t$AMT)], -10)
+  expect_equal(t$EVID[length(t$EVID)], 10210L)
+  expect_equal(t$II[length(t$II)], 0)
 
-    t2 <- t %>% dplyr::filter(AMT>0)
+  t2 <- t %>% dplyr::filter(AMT>0)
 
-    expect_equal(t2$TIME, c(0, 24, 48, 72))
-    expect_true(all(t2$AMT == 10))
-    expect_true(all(t2$EVID == 10210L))
+  expect_equal(t2$TIME, c(0, 24, 48, 72))
+  expect_true(all(t2$AMT == 10))
+  expect_true(all(t2$EVID == 10210L))
+})
 
-  })
+
+test_that("warning for all na", {
+  
+  d3na <- data.frame(
+    ID = c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L),
+    TIME = c(0, 0, 2.99270072992701, 192, 336, 456, 0, 0, 3.07272727272727, 432),
+    AMT = c(137L, 0L, -137L, 0L, 0L, 0L, 110L, 0L, -110L, 0L),
+    V2I = c(909L, NA_integer_, 909L, 909L, 909L, 909L, 942L, 942L, 942L, 942L),
+    V1I = c(545L, 545L, 545L, 545L, 545L, 545L, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
+    CLI = c(471L, 471L, 471L, 471L, NA_integer_, 471L, 405L, 405L, 405L, 405L),
+    EVID = c(10101L, 0L, 10101L, 0L, 0L, 0L, 10101L, 0L, 10101L, 0L)
+  )
+
+  mod1 <- rxode2parse("
+      d/dt(A_centr) <- -A_centr * (CLI / V1I + 204 / V1I) + 204 * A_periph / V2I
+      d/dt(A_periph) <- 204 * A_centr / V1I - 204 * A_periph / V2I
+      d/dt(A_circ) <- -4 * A_circ * exp(-ETA[2] - THETA[2]) + 4 * A_tr3 * exp(-ETA[2] - THETA[2])
+      A_circ(0) <- exp(ETA[1] + THETA[1])
+      d/dt(A_prol) <- 4 * A_prol * Rx_pow(exp(ETA[1] + THETA[1]) / A_circ, exp(THETA[4])) * (-A_centr * exp(ETA[3] + THETA[3]) / V1I + 1) * exp(-ETA[2] - THETA[2]) - 4 * A_prol * exp(-ETA[2] - THETA[2])
+      A_prol(0) <- exp(ETA[1] + THETA[1])
+      d/dt(A_tr1) <- 4 * A_prol * exp(-ETA[2] - THETA[2]) - 4 * A_tr1 * exp(-ETA[2] - THETA[2])
+      A_tr1(0) <- exp(ETA[1] + THETA[1])
+      d/dt(A_tr2) <- 4 * A_tr1 * exp(-ETA[2] - THETA[2]) - 4 * A_tr2 * exp(-ETA[2] - THETA[2])
+      A_tr2(0) <- exp(ETA[1] + THETA[1])
+      d/dt(A_tr3) <- 4 * A_tr2 * exp(-ETA[2] - THETA[2]) - 4 * A_tr3 * exp(-ETA[2] - THETA[2])
+      A_tr3(0) <- exp(ETA[1] + THETA[1])
+    ")
+  expect_warning(etTransParse(d3na, mod1), "column 'V1I' has only 'NA' values for id '2'")
+})
 
 test_that("etTrans lag ss", {
-
   mod <- rxode2parse("
 a = 6
 b = 0.6
@@ -1109,5 +1136,4 @@ d/dt(blood)     = a*intestine - b*blood
   expect_equal(tmp$EVID, c(90109L, 90101L, 70101L, 0L))
   expect_equal(tmp$AMT, c(100, 100, 100, NA))
   expect_equal(tmp$II, c(24, 0, 0, 0))
-
 })

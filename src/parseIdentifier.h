@@ -34,6 +34,10 @@ static inline void handleOperatorsOrPrintingIdentifiers(int depth, print_node_fn
 
   // Operator synonyms
   if (!strcmp("<-",name)){
+    if (tb.didEq) {
+      updateSyntaxCol();
+      trans_syntax_error_report_fn0(_("repeat assignment not allowed"));
+    }
     aAppendN(" =", 2);
     sAppendN(&sbt, "=", 1);
     tb.didEq=1;

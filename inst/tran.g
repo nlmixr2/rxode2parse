@@ -32,6 +32,7 @@ compound_statement : '{' statement_list? '}' ;
 ifelse_statement
    : 'ifelse' '(' logical_or_expression ','  statement ',' statement ')' end_statement;
 
+
 selection_statement
   :   "(if|while)" '(' logical_or_expression ')' statement ('else' statement)?;
 
@@ -110,7 +111,7 @@ equality_expression : relational_expression
     (('!=' | '==' ) relational_expression)* ;
 
 relational_expression : additive_expression
-    (('<' | '>' | '<=' | '>=') additive_expression)* ;
+    (('<-' | '<' | '>' | '<=' | '>=') additive_expression)* ;
 
 additive_expression : multiplicative_expression
     (('+' | '-') multiplicative_expression)* ;
