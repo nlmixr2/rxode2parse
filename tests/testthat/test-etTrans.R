@@ -17,12 +17,16 @@ d/dt(intestine) = -a*intestine
 d/dt(blood)     = a*intestine - b*blood
 ")
 
-  et <- structure(list(time = c(0, 0.05, 0.1, 0.2, 0.3, 0.5), cmt = c("(default)",
-                                                                      "(obs)", "intestine", "-intestine", "intestine", "out"), amt = c(0.0833333333333333,
-                                                                                                                                       NA, 3, NA, 3, 3), rate = c(2, 0, 0, 0, 0, 0), ii = c(1, 0, 3,
-                                                                                                                                                                                            0, 3, 0), addl = c(9L, 0L, 0L, 0L, 0L, 0L), evid = c(1L, 2L,
-                                                                                                                                                                                                                                                 1L, 2L, 1L, 1L), ss = c(0L, 0L, 1L, 0L, 2L, 0L)), class = "data.frame", row.names = c(NA,
-                                                                                                                                                                                                                                                                                                                                       -6L))
+  et <- structure(list(time = c(0, 0.05, 0.1, 0.2, 0.3, 0.5),
+                       cmt = c("(default)", "(obs)", "intestine", "-intestine", "intestine", "out"),
+                       amt = c(0.0833333333333333, NA, 3, NA, 3, 3),
+                       rate = c(2, 0, 0, 0, 0, 0),
+                       ii = c(1, 0, 3, 0, 3, 0),
+                       addl = c(9L, 0L, 0L, 0L, 0L, 0L),
+                       evid = c(1L, 2L, 1L, 2L, 1L, 1L),
+                       ss = c(0L, 0L, 1L, 0L, 2L, 0L)),
+                  class = "data.frame",
+                  row.names = c(NA, -6L))
 
   ## et <- eventTable()
   ## et$add.dosing(
@@ -88,42 +92,30 @@ d/dt(blood)     = a*intestine - b*blood
     expect_equal(ett2$EVID[1:2], ett1$EVID[1:2])
   })
 
-  et <- structure(list(time = c(0, 0.05, 0.5), cmt = c("(default)", "(obs)",
-                                                       "-out"), amt = c(0.0833333333333333, NA, NA), rate = c(2, 0,
-                                                                                                              0), ii = c(1, 0, 0), addl = c(9L, 0L, 0L), evid = c(1L, 2L, 2L
-                                                                                                                                                                  )), class = "data.frame", row.names = c(NA, -3L))
-  ## et <- eventTable()
-  ## et$add.dosing(
-  ##   dose = 2 / 24, rate = 2, start.time = 0,
-  ##   nbr.doses = 10, dosing.interval = 1
-  ## )
-  ## et <- et %>%
-  ##   et(0.05, evid = 2) %>%
-  ##   et(amt = 3, time = 0.5, cmt = "-out") %>%
-  ##   as.data.frame()
-
+  et <- structure(list(time = c(0, 0.05, 0.5),
+                       cmt = c("(default)", "(obs)", "-out"),
+                       amt = c(0.0833333333333333, NA, NA),
+                       rate = c(2, 0, 0),
+                       ii = c(1, 0, 0),
+                       addl = c(9L, 0L, 0L),
+                       evid = c(1L, 2L, 2L)),
+                  class = "data.frame",
+                  row.names = c(NA, -3L))
+  
   test_that("error for negative non ODE compartments", {
     expect_error(etTransParse(et, mod, keepDosingOnly = TRUE))
     et$cmt <- factor(et$cmt)
     expect_error(etTransParse(et, mod, keepDosingOnly = TRUE))
   })
 
-  et <- structure(list(time = c(0, 0.05, 0.25, 0.5), cmt = c("(default)",
-                                                             "(obs)", "out", "-out"), amt = c(0.0833333333333333, NA, 3, NA
-                                                                                              ), rate = c(2, 0, 0, 0), ii = c(1, 0, 0, 0), addl = c(9L, 0L,
-                                                                                                                                                    0L, 0L), evid = c(1L, 2L, 1L, 2L)), class = "data.frame", row.names = c(NA,
-                                                                                                                                                                                                                            -4L))
-
-  ## et <- eventTable()
-  ## et$add.dosing(
-  ##   dose = 2 / 24, rate = 2, start.time = 0,
-  ##   nbr.doses = 10, dosing.interval = 1
-  ## )
-  ## et <- et %>%
-  ##   et(0.05, evid = 2) %>%
-  ##   et(amt = 3, time = 0.25, cmt = "out") %>%
-  ##   et(amt = 3, time = 0.5, cmt = "-out") %>%
-  ##   as.data.frame()
+  et <- structure(list(time = c(0, 0.05, 0.25, 0.5),
+                       cmt = c("(default)", "(obs)", "out", "-out"),
+                       amt = c(0.0833333333333333, NA, 3, NA),
+                       rate = c(2, 0, 0, 0),
+                       ii = c(1, 0, 0, 0),
+                       addl = c(9L, 0L, 0L, 0L),
+                       evid = c(1L, 2L, 1L, 2L)),
+                  class = "data.frame", row.names = c(NA, -4L))
 
   test_that("error for negative non ODE compartments after defined compartment", {
     expect_error(etTransParse(et, mod, keepDosingOnly = TRUE))
@@ -132,9 +124,6 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   et <- structure(list(time = 0.24, amt = 3, evid = 4L), class = "data.frame", row.names = c(NA, -1L))
-
-  ## et <- et() %>% et(amt = 3, time = 0.24, evid = 4) %>%
-  ##   as.data.frame()
 
   test_that("EVID=4 makes sense", {
     expect_warning(
@@ -276,9 +265,13 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   ## Dat1= day month year
-  d1 <- data.frame(DV = 0, DAT1 = c("1-10-86", "1-10-86", "2-10-86"), TIME = c("9:15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DV = 0,
+                   DAT1 = c("1-10-86", "1-10-86", "2-10-86"),
+                   TIME = c("9:15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
 
-  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F), data.frame(ID = 2, d1, stringsAsFactors = F))
+  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F),
+              data.frame(ID = 2, d1, stringsAsFactors = F))
   d2[d2$ID == 2, "DAT1"] <- gsub("-10-", "-11-", d2[d2$ID == 2, "DAT1"])
 
   d3 <- d1
@@ -299,10 +292,13 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   ## Dat2 = year month day
-  d1 <- data.frame(DAT2 = c("86-10-1", "86-10-1", "86-10-2"), TIME = c("9:15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DAT2 = c("86-10-1", "86-10-1", "86-10-2"),
+                   TIME = c("9:15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
   d1$DV <- 0
 
-  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F), data.frame(ID = 2, d1, stringsAsFactors = F))
+  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F),
+              data.frame(ID = 2, d1, stringsAsFactors = F))
   d2[d2$ID == 2, "DAT2"] <- gsub("-10-", "-11-", d2[d2$ID == 2, "DAT2"])
 
   d3 <- d1
@@ -346,7 +342,10 @@ d/dt(blood)     = a*intestine - b*blood
     expect_equal(c(0, 5.41666666666667, 23.25), tmp$TIME)
   })
 
-  d1 <- data.frame(DV = 0, DATE = c("10-1-86", "10-1-86", "10-2-86"), TIME = c("9:15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DV = 0,
+                   DATE = c("10-1-86", "10-1-86", "10-2-86"),
+                   TIME = c("9:15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
 
   d2 <- d1
   d2$DAT1 <- d2$DATE
@@ -364,7 +363,10 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
 
-  d1 <- data.frame(DV = 0, DATE = c("10-1-86", "10-1-86", "10-2-86"), TIME = c("9.15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DV = 0,
+                   DATE = c("10-1-86", "10-1-86", "10-2-86"),
+                   TIME = c("9.15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
 
   test_that("Bad Date/Time combination", {
     expect_error(etTrans(d1, mod))
@@ -383,28 +385,37 @@ d/dt(blood)     = a*intestine - b*blood
 
 
     d <- structure(list(
-      ID = c(1L, 1L, 1L), TIME = c(0, 0, 0.25),
+      ID = c(1L, 1L, 1L),
+      TIME = c(0, 0, 0.25),
       DV = c(0, 0.74, 2.84),
-      AMT = c(319.992, 0, 0), EVID = c(101L, 0L, 0L),
-      WT = c(79.6, 79.6, 79.6), RATE = c(-2, 0, 0)),
+      AMT = c(319.992, 0, 0),
+      EVID = c(101L, 0L, 0L),
+      WT = c(79.6, 79.6, 79.6),
+      RATE = c(-2, 0, 0)),
       row.names = c(NA, 3L), class = "data.frame")
 
     expect_warning(etTransParse(d, mod), "'rate'")
 
     d <- structure(list(
-      ID = c(1L, 1L, 1L), TIME = c(0, 0, 0.25),
+      ID = c(1L, 1L, 1L),
+      TIME = c(0, 0, 0.25),
       DV = c(0, 0.74, 2.84),
-      AMT = c(319.992, 0, 0), EVID = c(101L, 0L, 0L),
-      WT = c(79.6, 79.6, 79.6), DUR = c(-2, 0, 0)),
+      AMT = c(319.992, 0, 0),
+      EVID = c(101L, 0L, 0L),
+      WT = c(79.6, 79.6, 79.6),
+      DUR = c(-2, 0, 0)),
       row.names = c(NA, 3L), class = "data.frame")
 
     expect_warning(etTransParse(d, mod), "'dur'")
 
     d <- structure(list(
-      ID = c(1L, 1L, 1L), TIME = c(0, 0, 0.25),
+      ID = c(1L, 1L, 1L),
+      TIME = c(0, 0, 0.25),
       DV = c(0, 0.74, 2.84),
-      AMT = c(319.992, 0, 0), EVID = c(101L, 0L, 0L),
-      WT = c(79.6, 79.6, 79.6), SS = c(1, 0, 0),
+      AMT = c(319.992, 0, 0),
+      EVID = c(101L, 0L, 0L),
+      WT = c(79.6, 79.6, 79.6),
+      SS = c(1, 0, 0),
       II = c(24, 0, 0)),
       row.names = c(NA, 3L), class = "data.frame")
 
