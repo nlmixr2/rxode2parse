@@ -2018,7 +2018,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
                      id.size() > (idxOut = idxOutput[iCur]) &&
                      idxOut >= 0 &&
                      lastId == id[idxOut] &&
-                     idxInput.size() < idxOut &&
+                     idxInput.size() > idxOut &&
                      nvTmp2.size() > (idxIn = idxInput[idxOut]) &&
                      idxIn >= 0) {
                 vCur = nvTmp2[idxIn];
@@ -2030,7 +2030,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
                      id.size() > (idxOut = idxOutput[iCur+1]) &&
                      idxOut >= 0 &&
                      lastId == id[idxOut] &&
-                     idxInput.size() < idxOut &&
+                     idxInput.size() > idxOut &&
                      nvTmp2.size() > (idxIn = idxInput[idxOut]) &&
                      idxIn >= 0) {
                 vCur = nvTmp2[idxIn];
