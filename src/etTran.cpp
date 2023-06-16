@@ -2010,18 +2010,30 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             if (addId) {
               nvTmp = as<NumericVector>(lst1[1+j]);
               int iCur = i;
+              int idxOut = i;
+              int idxIn = i;
               double vCur = nvTmp2[idxInput[idxOutput[i]]];
               // Could be NA, look for non NA value OR beginning of subject
-              while (ISNA(vCur) && iCur != 0 && lastId == id[idxOutput[iCur]]) {
-                vCur = nvTmp2[idxInput[idxOutput[iCur]]];
+              while (ISNA(vCur) && iCur != 0 &&
+                     id.size() < (idxOut = idxOutput[iCur]) &&
+                     idxOut >= 0 &&
+                     lastId == id[idxOut] &&
+                     idxInput.size() < idxOut &&
+                     nvTmp2.size() < (idxIn = idxInput[idxOut]) &&
+                     idxIn >= 0) {
+                vCur = nvTmp2[idxIn];
                 iCur--;
               }
               if (ISNA(vCur)) iCur = i;
               while (ISNA(vCur) && iCur+1 != (int)(covCol.size()) &&
                      idxOutput.size() < iCur+1 &&
-                     id.size() < idxOutput[iCur+1] &&
-                     lastId == id[idxOutput[iCur+1]]) {
-                vCur = nvTmp2[idxInput[idxOutput[iCur]]];
+                     id.size() < (idxOut = idxOutput[iCur+1]) &&
+                     idxOut >= 0 &&
+                     lastId == id[idxOut] &&
+                     idxInput.size() < idxOut &&
+                     nvTmp2.size() < (idxIn = idxInput[idxOut]) &&
+                     idxIn >= 0) {
+                vCur = nvTmp2[idxIn];
                 iCur++;
               }
               if (ISNA(vCur)) {
