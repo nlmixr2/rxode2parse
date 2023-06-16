@@ -30,6 +30,8 @@ using namespace Rcpp;
 
 #define getRxFn getRxParseFn
 
+extern int fastFactorDataHasNa;
+
 static inline bool rxIsNumInt(RObject obj) {
   int type = obj.sexp_type();
   if (type == REALSXP || type == 13) {
@@ -802,6 +804,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       idInt = 1;
     }
     inId = convertId_(inData[idCol]);//as<IntegerVector>();
+    if (fastFactorDataHasNa == 1) stop(_("'id' cannot have NA values"));
     idLvl = Rf_getAttrib(inId, R_LevelsSymbol);
   } else {
     idLvl = CharacterVector::create("1");
@@ -1018,6 +1021,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     else cii = inIi[i];
     if (ISNA(cii)) cii=0.0;
 
+    if (cid == NA_INTEGER) stop(_("'id' cannot be 'NA'"));
     if (std::find(allId.begin(), allId.end(), cid) == allId.end()){
       allId.push_back(cid);
       // New ID
