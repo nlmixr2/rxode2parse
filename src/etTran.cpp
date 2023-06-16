@@ -2018,12 +2018,15 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               }
               if (ISNA(vCur)) iCur = i;
               while (ISNA(vCur) && iCur+1 != (int)(covCol.size()) &&
+                     idxOutput.size() < iCur+1 &&
+                     id.size() < idxOutput[iCur+1] &&
                      lastId == id[idxOutput[iCur+1]]) {
                 vCur = nvTmp2[idxInput[idxOutput[iCur]]];
                 iCur++;
               }
               if (ISNA(vCur)) {
-                Rf_warningcall(R_NilValue,"column '%s' has only 'NA' values for id '%s'" , CHAR(nme1[1+j]),
+                Rf_warningcall(R_NilValue,
+                               "column '%s' has only 'NA' values for id '%s'" , CHAR(nme1[1+j]),
                                CHAR(idLvl[((inId.size() == 0) ? 1 : lastId)-1]));
               }
               nvTmp[idx1] = vCur;
