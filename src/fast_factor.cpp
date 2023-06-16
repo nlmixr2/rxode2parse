@@ -4,6 +4,10 @@
 #define STRICT_R_HEADER
 #include <Rcpp.h>
 using namespace Rcpp;
+
+int fastFactorDataHasNa = 0;
+
+
 //
 // The unique ordered by occurrence comes from David Cooley:
 // It is found https://stackoverflow.com/questions/44697544/rcpp-unique-order-output
@@ -11,12 +15,12 @@ template < typename T, int RTYPE >
 inline SEXP sexp_unique( Rcpp::Vector< RTYPE > x ) {
   std::set< T > seen;
   auto newEnd = std::remove_if( x.begin(), x.end(), [&seen]( const T value ) {
-						      if ( seen.find( value ) != std::end( seen ) ) {
-							return true;
-						      }
-						      seen.insert( value );
-						      return false;
-						    });
+    if ( seen.find( value ) != std::end( seen ) ) {
+      return true;
+    }
+    seen.insert( value );
+    return false;
+  });
   x.erase( newEnd, x.end() );
   return x;
 }
@@ -58,12 +62,12 @@ template < typename T, int RTYPE >
 inline int sexp_uniqueL( Rcpp::Vector< RTYPE > x ) {
   std::set< T > seen;
   auto newEnd = std::remove_if( x.begin(), x.end(), [&seen]( const T value ) {
-						      if ( seen.find( value ) != std::end( seen ) ) {
-							return true;
-						      }
-						      seen.insert( value );
-						      return false;
-						    });
+    if ( seen.find( value ) != std::end( seen ) ) {
+      return true;
+    }
+    seen.insert( value );
+    return false;
+  });
   x.erase( newEnd, x.end() );
   return x.size();
 }
@@ -102,7 +106,23 @@ extern "C" int get_sexp_uniqueL( SEXP s ) {
 // This was modified to use symbols for levels and class.
 template <int RTYPE>
 SEXP fast_factor_unsorted( const Vector<RTYPE>& x, SEXP oldLvl) {
-  Vector<RTYPE> levs = get_sexp_unique(x); 
+  Vector<RTYPE> levs = get_sexp_unique(x);
+  if (RTYPE == INTSXP) {
+    int *cur = INTEGER(levs);
+    for (int i = 0; i < Rf_length(levs); i++) {
+      if (cur[i] == NA_INTEGER) {
+        fastFactorDataHasNa = 1;
+        break;
+      }
+    }
+  } else if (RTYPE == STRSXP) {
+    for (int i = 0; i < Rf_length(levs); i++) {
+      if (STRING_ELT(levs, i) == NA_STRING) {
+        fastFactorDataHasNa = 1;
+        break;
+      }
+    }
+  }
   IntegerVector out = match(x, levs);
   int pro = 0;
   SEXP outS = PROTECT(wrap(out)); pro++;
@@ -117,8 +137,8 @@ SEXP fast_factor_unsorted( const Vector<RTYPE>& x, SEXP oldLvl) {
     int hasNa = 0;
     for (int i = lvlI.size(); i--;) {
       if (lvlI[i] == NA_INTEGER) {
-	hasNa = 1;
-	break;
+        hasNa = 1;
+        break;
       }
     }
     CharacterVector lvlC(lvlI.size()-hasNa);
@@ -128,7 +148,7 @@ SEXP fast_factor_unsorted( const Vector<RTYPE>& x, SEXP oldLvl) {
     for (int i = 0; i < lvlI.size(); ++i) {
       cur = lvlI[i];
       if (cur != NA_INTEGER) {
-	SET_STRING_ELT(lvl, j++, STRING_ELT(oldLvl, lvlI[i]-1));
+        SET_STRING_ELT(lvl, j++, STRING_ELT(oldLvl, lvlI[i]-1));
       }
     }
   }
@@ -140,6 +160,7 @@ SEXP fast_factor_unsorted( const Vector<RTYPE>& x, SEXP oldLvl) {
 }
 //[[Rcpp::export]]
 SEXP convertId_(SEXP x) {
+  fastFactorDataHasNa = 0;
   SEXP oldLvl = R_NilValue;
   switch( TYPEOF(x) ) {
   case INTSXP: {

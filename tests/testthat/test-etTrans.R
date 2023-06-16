@@ -936,3 +936,61 @@ test_that("warning for all na", {
   expect_warning(etTransParse(d3na, mod1), NA)
 
 })
+
+test_that("na ids give error", {
+
+  mod1 <- rxode2parse("
+    mw_anon <- 50000
+    mw_convert_anon <- 1 / mw_anon * 1e3
+    kel_anon <- log(2)/(hl_anon/60/24)
+    kel_target <- log(2)/hl_target
+    kform_target <- conc_target_ss*kel_target
+    kd_anon_target_umolL <- kd_anon_target/1000
+    d/dt(depot_anon) <- -ka_anon*depot_anon
+    d/dt(central_anon) <- ka_anon*depot_anon - kel_anon*central_anon
+    # Calculate bound concentration
+    central_anon_umolL <- central_anon/vc_anon*mw_convert_anon # Unit conversion from mg/L to umol/L
+    totalconc <- central_anon_umolL + central_target + kd_anon_target_umolL
+    bound_umolL <- (totalconc - sqrt(totalconc^2 - 4*central_anon_umolL*central_target))/2
+    free_central_target <- central_target - bound_umolL
+    d/dt(central_target) <- kform_target - kel_target*free_central_target - kel_anon*bound_umolL # Units are umol/L
+    f(depot_anon) <- f_anon
+    central_target(0) <- conc_target_ss
+    ")
+
+  mydata <-
+  structure(list(conc_target_ss = c(NA, 0.12, NA, NA, NA, NA,
+   NA, NA, NA, NA, NA, NA, NA, 0.12, NA, NA, NA, NA, NA, NA, NA,
+   NA, NA, NA), hl_target = c(NA, 5, NA, NA, NA, NA, NA, NA, NA,
+NA, NA, NA, NA, 5, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), kd_anon_target = c(NA,
+1, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 1, NA, NA, NA,
+NA, NA, NA, NA, NA, NA, NA), ID = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
+    1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L), CMT = c(NA,
+           "central_anon", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+           "central_anon", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), EVID = c(0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), TIME = c(-0.01,
+       0, 0, 0.001, 0.00215443469003188, 0.00464158883361278, 0.01,
+       0.0215443469003188, 0.0464158883361278, 0.1, 0.215443469003188,
+       0.464158883361278, -0.01, 0, 0, 0.001, 0.00215443469003188, 0.00464158883361278,
+       0.01, 0.0215443469003188, 0.0464158883361278, 0.1, 0.215443469003188,
+       0.464158883361278), AMT = c(NA, 100, NA, NA, NA, NA, NA, NA,
+NA, NA, NA, NA, NA, 100, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+NA), II = c(NA, 7, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+14, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), ADDL = c(NA, 11,
+NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 5, NA, NA, NA, NA,
+NA, NA, NA, NA, NA, NA)), row.names = c(NA, -24L), class = c("tbl_df",
+    "tbl", "data.frame"))
+
+mydata$ID[mydata$EVID == 0] <- NA
+
+expect_error(etTransParse(mydata, mod1))
+
+mydata$ID <- as.double(mydata$ID)
+
+expect_error(etTransParse(mydata, mod1))
+
+mydata$ID <- as.character(mydata$ID)
+
+expect_error(etTransParse(mydata, mod1))
+
+})
