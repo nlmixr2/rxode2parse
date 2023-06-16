@@ -2015,11 +2015,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               double vCur = nvTmp2[idxInput[idxOutput[i]]];
               // Could be NA, look for non NA value OR beginning of subject
               while (ISNA(vCur) && iCur != 0 &&
-                     id.size() < (idxOut = idxOutput[iCur]) &&
+                     id.size() > (idxOut = idxOutput[iCur]) &&
                      idxOut >= 0 &&
                      lastId == id[idxOut] &&
                      idxInput.size() < idxOut &&
-                     nvTmp2.size() < (idxIn = idxInput[idxOut]) &&
+                     nvTmp2.size() > (idxIn = idxInput[idxOut]) &&
                      idxIn >= 0) {
                 vCur = nvTmp2[idxIn];
                 iCur--;
@@ -2027,11 +2027,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               if (ISNA(vCur)) iCur = i;
               while (ISNA(vCur) && iCur+1 != (int)(covCol.size()) &&
                      idxOutput.size() < iCur+1 &&
-                     id.size() < (idxOut = idxOutput[iCur+1]) &&
+                     id.size() > (idxOut = idxOutput[iCur+1]) &&
                      idxOut >= 0 &&
                      lastId == id[idxOut] &&
                      idxInput.size() < idxOut &&
-                     nvTmp2.size() < (idxIn = idxInput[idxOut]) &&
+                     nvTmp2.size() > (idxIn = idxInput[idxOut]) &&
                      idxIn >= 0) {
                 vCur = nvTmp2[idxIn];
                 iCur++;
