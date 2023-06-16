@@ -115,6 +115,13 @@ SEXP fast_factor_unsorted( const Vector<RTYPE>& x, SEXP oldLvl) {
         break;
       }
     }
+  } else if (RTYPE == STRSXP) {
+    for (int i = 0; i < Rf_length(levs); i++) {
+      if (STRING_ELT(levs, i) == NA_STRING) {
+        fastFactorDataHasNa = 1;
+        break;
+      }
+    }
   }
   IntegerVector out = match(x, levs);
   int pro = 0;
