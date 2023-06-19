@@ -92,6 +92,20 @@ d/dt(blood)     = a*intestine - b*blood
     expect_equal(ett2$EVID[1:2], ett1$EVID[1:2])
   })
 
+  et <- structure(list(time = c(0, 0.05, 0.5), cmt = c("(default)", "(obs)",
+                                                       "-out"), amt = c(0.0833333333333333, NA, NA), rate = c(2, 0,
+                                                                                                              0), ii = c(1, 0, 0), addl = c(9L, 0L, 0L), evid = c(1L, 2L, 2L
+                                                                                                                                                                  )), class = "data.frame", row.names = c(NA, -3L))
+  ## et <- eventTable()
+  ## et$add.dosing(
+  ##   dose = 2 / 24, rate = 2, start.time = 0,
+  ##   nbr.doses = 10, dosing.interval = 1
+  ## )
+  ## et <- et %>%
+  ##   et(0.05, evid = 2) %>%
+  ##   et(amt = 3, time = 0.5, cmt = "-out") %>%
+  ##   as.data.frame()
+
   et <- structure(list(time = c(0, 0.05, 0.5),
                        cmt = c("(default)", "(obs)", "-out"),
                        amt = c(0.0833333333333333, NA, NA),
@@ -834,58 +848,58 @@ test_that("test etTran on addl ss items", {
       cp <- linCmt(ka, cl, v)
     ", linear=TRUE)
 
-    e <- structure(list(time = c(0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                                 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-                                 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
-                                 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
-                                 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
-                                 75, 76, 77, 78, 79, 80),
-                        cmt = c(NA, 2L, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
-                        amt = c(NA, 100,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
-                                ),
-                        rate = c(NA, 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA),
-                        ii = c(NA, 24, NA, NA, NA, NA, NA, NA, NA,
+  e <- structure(list(time = c(0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                               11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+                               27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+                               43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
+                               59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
+                               75, 76, 77, 78, 79, 80),
+                      cmt = c(NA, 2L, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                      amt = c(NA, 100,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                              NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
+                              ),
+                      rate = c(NA, 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                               NA, NA, NA, NA, NA, NA, NA, NA, NA),
-                        addl = c(NA, 3L, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                                 NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
-                        evid = c(0L,
-                                 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
-                                 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
-                                 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
-                                 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
-                                 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
-                                 0L),
-                        ss = c(NA, 1L, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                               NA, NA, NA, NA, NA),
+                      ii = c(NA, 24, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                      addl = c(NA, 3L, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
                                NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-                               NA, NA, NA, NA, NA)),
-                   class = "data.frame",
-                   row.names = c(NA, -82L))
+                               NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                      evid = c(0L,
+                               1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                               0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                               0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                               0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                               0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+                               0L),
+                      ss = c(NA, 1L, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+                             NA, NA, NA, NA, NA)),
+                 class = "data.frame",
+                 row.names = c(NA, -82L))
 
    # should not drop the off infusion record
   t <- etTransParse(e, rx)
@@ -904,16 +918,6 @@ test_that("test etTran on addl ss items", {
 
 
 test_that("warning for all na", {
-  
-  d3na <- data.frame(
-    ID = c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L),
-    TIME = c(0, 0, 2.99270072992701, 192, 336, 456, 0, 0, 3.07272727272727, 432),
-    AMT = c(137L, 0L, -137L, 0L, 0L, 0L, 110L, 0L, -110L, 0L),
-    V2I = c(909L, NA_integer_, 909L, 909L, 909L, 909L, 942L, 942L, 942L, 942L),
-    V1I = c(545L, 545L, 545L, 545L, 545L, 545L, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
-    CLI = c(471L, 471L, 471L, 471L, NA_integer_, 471L, 405L, 405L, 405L, 405L),
-    EVID = c(10101L, 0L, 10101L, 0L, 0L, 0L, 10101L, 0L, 10101L, 0L)
-  )
 
   mod1 <- rxode2parse("
       d/dt(A_centr) <- -A_centr * (CLI / V1I + 204 / V1I) + 204 * A_periph / V2I
@@ -929,7 +933,145 @@ test_that("warning for all na", {
       d/dt(A_tr3) <- 4 * A_tr2 * exp(-ETA[2] - THETA[2]) - 4 * A_tr3 * exp(-ETA[2] - THETA[2])
       A_tr3(0) <- exp(ETA[1] + THETA[1])
     ")
+
+  d3na <- data.frame(
+    ID = c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L),
+    TIME = c(0, 0, 2.99270072992701, 192, 336, 456, 0, 0, 3.07272727272727, 432),
+    AMT = c(137L, 0L, -137L, 0L, 0L, 0L, 110L, 0L, -110L, 0L),
+    V2I = c(909L, NA_integer_, 909L, 909L, 909L, 909L, 942L, 942L, 942L, 942L),
+    V1I = c(545L, 545L, 545L, 545L, 545L, 545L, NA_integer_, NA_integer_, NA_integer_, NA_integer_),
+    CLI = c(471L, 471L, 471L, 471L, NA_integer_, 471L, 405L, 405L, 405L, 405L),
+    EVID = c(10101L, 0L, 10101L, 0L, 0L, 0L, 10101L, 0L, 10101L, 0L)
+  )
+
   expect_warning(etTransParse(d3na, mod1), "column 'V1I' has only 'NA' values for id '2'")
+
+  d3na <-
+    data.frame(
+      ID = c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L),
+      TIME = c(0, 0, 2.99270072992701, 192, 336, 456, 0, 0, 3.07272727272727, 432),
+      AMT = c(137L, 0L, -137L, 0L, 0L, 0L, 110L, 0L, -110L, 0L),
+      V2I = c(909L, NA_integer_, 909L, 909L, 909L, 909L, 942L, 942L, 942L, 942L),
+      V1I = c(545L, 545L, 545L, 545L, 545L, 545L, 306L, 306L, 306L, NA_integer_),
+      CLI = c(471L, 471L, 471L, 471L, NA_integer_, 471L, 405L, 405L, 405L, 405L),
+      EVID = c(10101L, 0L, 10101L, 0L, 0L, 0L, 10101L, 0L, 10101L, 0L)
+    )
+
+  expect_warning(etTransParse(d3na, mod1), NA)
+
+})
+
+test_that("na ids give error", {
+
+  mod1 <- rxode2parse("
+    mw_anon <- 50000
+    mw_convert_anon <- 1 / mw_anon * 1e3
+    kel_anon <- log(2)/(hl_anon/60/24)
+    kel_target <- log(2)/hl_target
+    kform_target <- conc_target_ss*kel_target
+    kd_anon_target_umolL <- kd_anon_target/1000
+    d/dt(depot_anon) <- -ka_anon*depot_anon
+    d/dt(central_anon) <- ka_anon*depot_anon - kel_anon*central_anon
+    # Calculate bound concentration
+    central_anon_umolL <- central_anon/vc_anon*mw_convert_anon # Unit conversion from mg/L to umol/L
+    totalconc <- central_anon_umolL + central_target + kd_anon_target_umolL
+    bound_umolL <- (totalconc - sqrt(totalconc^2 - 4*central_anon_umolL*central_target))/2
+    free_central_target <- central_target - bound_umolL
+    d/dt(central_target) <- kform_target - kel_target*free_central_target - kel_anon*bound_umolL # Units are umol/L
+    f(depot_anon) <- f_anon
+    central_target(0) <- conc_target_ss
+    ")
+
+  mydata <-
+  structure(list(conc_target_ss = c(NA, 0.12, NA, NA, NA, NA,
+   NA, NA, NA, NA, NA, NA, NA, 0.12, NA, NA, NA, NA, NA, NA, NA,
+   NA, NA, NA), hl_target = c(NA, 5, NA, NA, NA, NA, NA, NA, NA,
+NA, NA, NA, NA, 5, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), kd_anon_target = c(NA,
+1, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 1, NA, NA, NA,
+NA, NA, NA, NA, NA, NA, NA), ID = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
+    1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L), CMT = c(NA,
+           "central_anon", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+           "central_anon", NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), EVID = c(0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), TIME = c(-0.01,
+       0, 0, 0.001, 0.00215443469003188, 0.00464158883361278, 0.01,
+       0.0215443469003188, 0.0464158883361278, 0.1, 0.215443469003188,
+       0.464158883361278, -0.01, 0, 0, 0.001, 0.00215443469003188, 0.00464158883361278,
+       0.01, 0.0215443469003188, 0.0464158883361278, 0.1, 0.215443469003188,
+       0.464158883361278), AMT = c(NA, 100, NA, NA, NA, NA, NA, NA,
+NA, NA, NA, NA, NA, 100, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+NA), II = c(NA, 7, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
+14, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), ADDL = c(NA, 11,
+NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 5, NA, NA, NA, NA,
+NA, NA, NA, NA, NA, NA)), row.names = c(NA, -24L), class = c("tbl_df",
+    "tbl", "data.frame"))
+
+mydata$ID[mydata$EVID == 0] <- NA
+
+expect_error(etTransParse(mydata, mod1))
+
+mydata$ID <- as.double(mydata$ID)
+
+expect_error(etTransParse(mydata, mod1))
+
+mydata$ID <- as.character(mydata$ID)
+
+expect_error(etTransParse(mydata, mod1))
+
+})
+
+
+test_that("error with missing 'amt' but dosing evid", {
+
+  mod <- rxode2parse("
+a = 6
+b = 0.6
+d/dt(intestine) = -a*intestine
+d/dt(blood)     = a*intestine - b*blood
+")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(1, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=1")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(1, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, AMT=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 1")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=7")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 7")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(4, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=4")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(4, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 4")
+
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(5, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=5")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(5, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 5")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(6, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=6")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 7")
+
+
+
 })
 
 test_that("etTrans lag ss", {
