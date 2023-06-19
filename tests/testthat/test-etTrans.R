@@ -994,3 +994,58 @@ mydata$ID <- as.character(mydata$ID)
 expect_error(etTransParse(mydata, mod1))
 
 })
+
+
+test_that("error with missing 'amt' but dosing evid", {
+
+  mod <- rxode2parse("
+a = 6
+b = 0.6
+d/dt(intestine) = -a*intestine
+d/dt(blood)     = a*intestine - b*blood
+")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(1, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=1")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(1, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, AMT=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 1")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=7")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 7")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(4, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=4")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(4, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 4")
+
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(5, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=5")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(5, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 5")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(6, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
+  expect_error(etTransParse(dSimple, mod), "EVID=6")
+
+  dSimple <-
+    data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
+  expect_error(etTransParse(dSimple, mod), "evid: 7")
+
+
+
+})
