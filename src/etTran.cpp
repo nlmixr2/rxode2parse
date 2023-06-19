@@ -1333,6 +1333,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       if (mdvCol != -1 && (inMdv[i] == 0 || IntegerVector::is_na(inMdv[i]))){
         stop(_("'mdv' cannot be 0 when 'evid'=%d id: %s row: %d"), cevid, CHAR(idLvl[cid-1]), i+1);
       }
+      if (amtCol == -1) {
+        stop(_("'amt' column missing with dosing event (EVID=%d, id: %s row: %d)"), cevid, CHAR(idLvl[cid-1]), i+1);
+      }
       if (cevid == 7) {
         flg = 50;
         cevid=1;
@@ -1429,6 +1432,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       if (mdvCol != -1 && (inMdv[i] == 0 || IntegerVector::is_na(inMdv[i]))){
         stop(_("'mdv' cannot be 0 when 'evid'=4 id: %s row: %d"), CHAR(idLvl[cid-1]), i+1);
       }
+      if (amtCol == -1) {
+        stop(_("'amt' column missing with dosing event (EVID=%d, id: %s row: %d)"), cevid, CHAR(idLvl[cid-1]), i+1);
+      }
+
       id.push_back(cid);
       evid.push_back(3);
       cmtF.push_back(cmt);
@@ -1454,6 +1461,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       break;
     case 5: // replace
       if (rateI != 0) stop(_("cannot have an infusion event with a replacement event (id: %s row: %d)"), CHAR(idLvl[cid-1]), i+1);
+      if (amtCol == -1) {
+        stop(_("'amt' column missing with dosing event (EVID=%d, id: %s row: %d)"), cevid, CHAR(idLvl[cid-1]), i+1);
+      }
       rateI=4;
       cevid = cmt100*100000+rateI*10000+cmt99*100+flg;
       allInf=false;
@@ -1461,6 +1471,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       break;
     case 6: // multiply
       if (rateI != 0) stop(_("cannot have an infusion event with a multiplication event (id: %s row: %d)"), CHAR(idLvl[cid-1]), i+1);
+      if (amtCol == -1) {
+        stop(_("'amt' column missing with dosing event (EVID=%d, id: %s row: %d)"), cevid, CHAR(idLvl[cid-1]), i+1);
+      }
       rateI=5;
       cevid = cmt100*100000+rateI*10000+cmt99*100+flg;
       allInf=false;
