@@ -16,11 +16,15 @@ typedef struct vLines {
   int *os;
 } vLines;
 
+#define rxode2naTimeInputIgnore 1
+#define rxode2naTimeInputWarn   2
+#define rxode2naTimeInputError  3
 
 typedef struct {
   // These options should not change based on an individual solve
   int badSolve;
   int naTime;
+  int naTimeInput;
   double ATOL; //absolute error
   double RTOL; //relative error
   double H0;

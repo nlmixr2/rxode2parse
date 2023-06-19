@@ -14,10 +14,10 @@ extern t_calc_mtime calc_mtime;
 #ifndef __DOINIT__
 
 static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time){
+	rx_solving_options *op = &op_global;
 	if (ISNA(time)) return time;
   double ret = LAG(id, cmt, time);
   if (ISNA(ret)) {
-    rx_solving_options *op = &op_global;
     op->badSolve=1;
     op->naTime = 1;
   }
@@ -25,10 +25,10 @@ static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double
 }
 
 static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
+	rx_solving_options *op = &op_global;
 	if (ISNA(t)) return t;
   double ret = RATE(id, cmt, dose, t);
   if (ISNA(ret)){
-    rx_solving_options *op = &op_global;
     op->badSolve=1;
     op->naTime = 1;
   }
@@ -36,10 +36,10 @@ static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, doubl
 }
 
 static inline double getDur(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
+	rx_solving_options *op = &op_global;
 	if (ISNA(t)) return t;
   double ret = DUR(id, cmt, dose, t);
   if (ISNA(ret)){
-    rx_solving_options *op = &op_global;
     op->badSolve=1;
     op->naTime = 1;
   }
