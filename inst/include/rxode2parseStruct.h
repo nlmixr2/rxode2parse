@@ -25,6 +25,7 @@ typedef struct {
   int badSolve;
   int naTime;
   int naTimeInput;
+  int naTimeInputWarn;
   double ATOL; //absolute error
   double RTOL; //relative error
   double H0;

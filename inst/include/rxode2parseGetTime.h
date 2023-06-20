@@ -13,9 +13,24 @@ extern t_calc_mtime calc_mtime;
 
 #ifndef __DOINIT__
 
+#define returnBadTime(time)											\
+	if (ISNA(time)) {															\
+	switch (op->naTimeInput) {										\
+	case rxode2naTimeInputWarn:										\
+	    op->naTimeInputWarn=1;										\
+	case rxode2naTimeInputIgnore:                 \
+      return time;								  					 	\
+      break;																		\
+  case rxode2naTimeInputError:                  \
+      Rf_errorcall(R_NilValue, "supplied NA time"); \
+			break;                                    \
+		}                                           \
+	}
+
+
 static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time){
 	rx_solving_options *op = &op_global;
-	if (ISNA(time)) return time;
+	returnBadTime(time);
   double ret = LAG(id, cmt, time);
   if (ISNA(ret)) {
     op->badSolve=1;
@@ -26,7 +41,7 @@ static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double
 
 static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
 	rx_solving_options *op = &op_global;
-	if (ISNA(t)) return t;
+	returnBadTime(t);
   double ret = RATE(id, cmt, dose, t);
   if (ISNA(ret)){
     op->badSolve=1;
@@ -37,6 +52,7 @@ static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, doubl
 
 static inline double getDur(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
 	rx_solving_options *op = &op_global;
+	returnBadTime(t);
 	if (ISNA(t)) return t;
   double ret = DUR(id, cmt, dose, t);
   if (ISNA(ret)){
@@ -290,6 +306,8 @@ static inline double getTime_(int idx, rx_solving_options_ind *ind) {
   return getTime__(idx, ind, 0);
 }
 
+#undef returnBadTime
+
 
 #endif
 
@@ -299,7 +317,7 @@ extern "C" {
 #ifndef _isrxode2parse_
   double getTime(int idx, rx_solving_options_ind *ind);
 #endif
-	
+
 #if defined(__cplusplus)
 }
 #endif
