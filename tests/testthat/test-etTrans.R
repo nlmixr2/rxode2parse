@@ -1,3 +1,14 @@
+test_that("etTrans na time evid=2", {
+
+  et1 <- test_path("test-etTrans-qsp-evid2-na.qs")
+  skip_if_not(file.exists(et1))
+  skip_on_cran()
+  lst <- qs::qread(et1)
+  mod <- rxode2parse(lst[[1]])
+
+  expect_false(any(is.na(etTransParse(lst[[2]], mod)$TIME)))
+})
+
 .Call(`_rxode2parse_etTransEvidIsObs`, FALSE)
 
 for (radi in 1:2) {
