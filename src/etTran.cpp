@@ -976,7 +976,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   double lastTime = NA_REAL;
   bool hasReset = false;
   double maxShift = 0;
-
+  bool warnNaTime=false;
   for (int i = 0; i < inTime.size(); i++) {
     if (idCol == -1) cid = 1;
     else cid = inId[i];
@@ -994,6 +994,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       }
     }
     ctime=inTime[i];
+    if (ISNA(ctime)) {
+      warnNaTime=true;
+      continue;
+    }
     // REprintf("lastId: %d; cid: %d, lastTime: %f, ctime %f\n", lastId, cid, lastTime, ctime);
     if (IntegerVector::is_na(lastId)) {
       lastId = cid;
@@ -1702,6 +1706,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     if (!_ini0) Rf_warningcall(R_NilValue, idWarn.c_str());
   }
   if (warnCensNA) Rf_warningcall(R_NilValue, _("censoring missing 'DV' values do not make sense"));
+  if (warnNaTime) Rf_warningcall(R_NilValue, _("missing 'TIME' values do not make sense (ignored)"));
 #ifdef rxSolveT
   REprintf("  Time7: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
