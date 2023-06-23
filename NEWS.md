@@ -2,6 +2,8 @@
 
 * Make double assignment an error, ie  `a <- b <-`
 
+* `NA` times are ignored (with warning)
+
 # rxode2parse 2.0.16
 
 * Import `data.table` explicitly in the R code (before was imported only in C/C++ code)
