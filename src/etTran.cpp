@@ -1218,35 +1218,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       if (flg != 1){
         flg=1;
       }
-      if (ISNA(ctime)){
-        id.push_back(cid);
-        evid.push_back(2);
-        cmtF.push_back(cmt);
-        time.push_back(ctime);
-        amt.push_back(NA_REAL);
-        ii.push_back(0.0);
-        idxInput.push_back(i);
-        cens.push_back(ccens);
-        if (ccens!=0) censNone=false;
-        if (ccens == 1 && !std::isinf(climit)){
-          // limit should be lower than dv
-          if (cdv < climit){
-            dv.push_back(climit);
-            limit.push_back(cdv);
-            swapDvLimit=true;
-          } else if (cdv == climit){
-            stop(_("'limit' (%f) cannot equal 'dv' (%f) id: %s row: %d"), climit, cdv, CHAR(idLvl[cid-1]), i+1);
-          } else {
-            dv.push_back(cdv);
-            limit.push_back(climit);
-          }
-        } else {
-          dv.push_back(cdv);
-          limit.push_back(climit);
-        }
-        idxOutput.push_back(curIdx);curIdx++;
-        cevid = -1;
-      } else {
+      {
         bool goodCmt = false;
         int cmpCmt;
         if ((curDvid.size()) > 1){
