@@ -978,7 +978,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   double lastTime = NA_REAL;
   bool hasReset = false;
   double maxShift = 0;
-
+  bool warnNaTime=false;
   for (int i = 0; i < inTime.size(); i++) {
     if (idCol == -1) cid = 1;
     else cid = inId[i];
@@ -996,6 +996,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       }
     }
     ctime=inTime[i];
+    if (ISNA(ctime)) {
+      warnNaTime=true;
+      continue;
+    }
     // REprintf("lastId: %d; cid: %d, lastTime: %f, ctime %f\n", lastId, cid, lastTime, ctime);
     if (IntegerVector::is_na(lastId)) {
       lastId = cid;
@@ -1229,35 +1233,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       if (flg != 1){
         flg=1;
       }
-      if (ISNA(ctime)){
-        id.push_back(cid);
-        evid.push_back(2);
-        cmtF.push_back(cmt);
-        time.push_back(ctime);
-        amt.push_back(NA_REAL);
-        ii.push_back(0.0);
-        idxInput.push_back(i);
-        cens.push_back(ccens);
-        if (ccens!=0) censNone=false;
-        if (ccens == 1 && !std::isinf(climit)){
-          // limit should be lower than dv
-          if (cdv < climit){
-            dv.push_back(climit);
-            limit.push_back(cdv);
-            swapDvLimit=true;
-          } else if (cdv == climit){
-            stop(_("'limit' (%f) cannot equal 'dv' (%f) id: %s row: %d"), climit, cdv, CHAR(idLvl[cid-1]), i+1);
-          } else {
-            dv.push_back(cdv);
-            limit.push_back(climit);
-          }
-        } else {
-          dv.push_back(cdv);
-          limit.push_back(climit);
-        }
-        idxOutput.push_back(curIdx);curIdx++;
-        cevid = -1;
-      } else {
+      {
         bool goodCmt = false;
         int cmpCmt;
         if ((curDvid.size()) > 1){
@@ -1856,6 +1832,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     if (!_ini0) Rf_warningcall(R_NilValue, idWarn.c_str());
   }
   if (warnCensNA) Rf_warningcall(R_NilValue, _("censoring missing 'DV' values do not make sense"));
+  if (warnNaTime) Rf_warningcall(R_NilValue, _("missing 'TIME' values do not make sense (ignored)"));
 #ifdef rxSolveT
   REprintf("  Time7: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
