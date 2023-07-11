@@ -142,6 +142,8 @@ typedef struct {
   int ndoses;
   double *all_times;
   double *all_timesExtra;
+  int n_all_timesExtra;
+  int n_all_timesAlloc;
   int *ix;
   double *dv;
   double *limit;

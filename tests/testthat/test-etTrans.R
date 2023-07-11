@@ -1093,9 +1093,6 @@ d/dt(blood)     = a*intestine - b*blood
   dSimple <-
     data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
   expect_error(etTransParse(dSimple, mod), "evid: 7")
-
-
-
 })
 
 test_that("etTrans lag ss", {
