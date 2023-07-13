@@ -118,9 +118,7 @@ typedef struct {
   double *podoS;
   double *par_ptr; // both time changing and time invariant
   double *dose;
-  double *doseExtra;
   double *ii;
-  double *iiExtra;
   double *solve;
   double *mtime;
   double *solveSave;
@@ -128,7 +126,6 @@ typedef struct {
   double *solveLast2;
   double *lhs;
   int  *evid;
-  int  *evidExtra;
   int *rc;
   double *cov_ptr;
   int *cov_sample;
@@ -139,18 +136,13 @@ typedef struct {
   int n_all_times;
   int nevid2;
   int ixds;
-  int lastIxdsEndInf;
   int ndoses;
   double *all_times;
-  double *all_timesExtra;
-  int n_all_timesExtra;
-  int n_all_timesAlloc;
   int *ix;
   double *dv;
   double *limit;
   int *cens;
   int *idose;
-  int *idoseExtra;
   int *on;
   int *skipDose;
   int idosen;

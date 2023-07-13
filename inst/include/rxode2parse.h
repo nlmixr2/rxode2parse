@@ -9,34 +9,25 @@
 #define isDose(evid) ((evid) == 3 || (evid) >= 100)
 #define isObs(evid) ((evid) == 0 || (evid) == 2 || ((evid) >= 9 && (evid) <= 99))
 
-#define getEvid(ind, idx) (idx < 0 ? ind->evidExtra[-idx] : ind->evid[idx])
-#define getEvidP1(ind, idx) (idx < 0 ? ind->evidExtra[-idx-1] : ind->evid[idx+1])
-#define getEvidM1(ind, idx) (idx < 0 ? ind->evidExtra[-idx+1] : ind->evid[idx-1])
+#define getEvid(ind, idx) ind->evid[idx]
+#define getEvidP1(ind, idx) ind->evid[idx+1]
+#define getEvidM1(ind, idx) ind->evid[idx-1]
 
-#define getDose(ind, idx) (idx < 0 ? ind->doseExtra[-idx] : ind->dose[idx])
-#define getDoseP1(ind, idx) (idx < 0 ? ind->doseExtra[-idx-1] : ind->dose[idx+1])
-#define getDoseM1(ind, idx) (idx < 0 ? ind->doseExtra[-idx+1] : ind->dose[idx-1])
+#define getDose(ind, idx) ind->dose[idx]
+#define getDoseP1(ind, idx) ind->dose[idx+1]
+#define getDoseM1(ind, idx) ind->dose[idx-1]
 
-#define setDoseP1(ind, idx, val) if (idx < 0) {\
-    ind->doseExtra[-idx-1] = val; \
-} else { \
-    ind->dose[idx+1] = val;\
-  }
+#define setDoseP1(ind, idx, val) ind->dose[idx+1] = val;
 
-#define getIi(ind, idx) (idx < 0 ? ind->iiExtra[-idx] : ind->ii[idx])
-#define getIiP1(ind, idx) (idx < 0 ? ind->iiExtra[-idx-1] : ind->ii[idx+1])
-#define getIiM1(ind, idx) (idx < 0 ? ind->iiExtra[-idx+1] : ind->ii[idx-1])
+#define getIi(ind, idx) ind->ii[idx]
+#define getIiP1(ind, idx) ind->ii[idx+1]
+#define getIiM1(ind, idx) ind->ii[idx-1]
 
-#define getAllTimes(ind, idx) (idx < 0 ? ind->all_timesExtra[-idx] : ind->all_times[idx])
-#define getAllTimesP1(ind, idx) (idx < 0 ? ind->all_timesExtra[-idx-1] : ind->all_times[idx+1])
-#define getAllTimesM1(ind, idx) (idx < 0 ? ind->all_timesExtra[-idx+1] : ind->all_times[idx-1])
+#define getAllTimes(ind, idx) ind->all_times[idx]
+#define getAllTimesP1(ind, idx) ind->all_times[idx+1]
+#define getAllTimesM1(ind, idx) ind->all_times[idx-1]
 
-#define setAllTimesP1(ind, idx, val) if (idx < 0) {\
-    ind->all_timesExtra[-idx-1] = val; \
-} else { \
-    ind->all_times[idx+1] = val;\
-  }
-
+#define setAllTimesP1(ind, idx, val) ind->all_times[idx+1] = val;
 #include <R.h>
 #include <stdbool.h>
 

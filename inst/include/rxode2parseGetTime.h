@@ -241,7 +241,7 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
 					return 0.0;
 				}
 			}
-		}  else {
+		} else {
 			int curEvid = getEvid(ind, ind->idose[j]);
 			jj = 0;
 			for (k = 0; k < ind->ndoses; k++) {
