@@ -139,6 +139,7 @@ typedef struct {
   int n_all_times;
   int nevid2;
   int ixds;
+  int lastIxdsEndInf;
   int ndoses;
   double *all_times;
   double *all_timesExtra;

@@ -227,12 +227,14 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
       return 0.0;
       /* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
     }
-		int k;
+		int k, jj;
 		if (ind->wh0 == EVID0_INFRM) {
+			int curEvid = getEvid(ind, ind->idose[j]);
 			k = j+1;
 			for (j = k; j < ind->ndoses; ++j) {
 				if (getEvid(ind, ind->idose[j]) == getEvid(ind, ind->idose[k])) break;
 				if (j == ind->ndoses-1) {
+					//REprintf("curEvid@infrm: %d\n", curEvid);
 					if (!(ind->err & 32768)){
 						ind->err += 32768;
 					}
@@ -240,15 +242,32 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
 				}
 			}
 		}  else {
-			for (k = j; k--;){
-				if (getEvid(ind, ind->idose[j]) == getEvid(ind, ind->idose[k])) break;
-				if (k == 0) {
-					if (!(ind->err & 32768)){
-						ind->err += 32768;
+			int curEvid = getEvid(ind, ind->idose[j]);
+			jj = 0;
+			for (k = 0; k < ind->ndoses; k++) {
+				if (getEvid(ind, ind->idose[k]) == curEvid &&
+						getDose(ind, ind->idose[k]) == -amt) {
+					if (jj == 0) {
+						jj = k;
+					} else {
+						jj++;
 					}
-					return 0.0;
+					for (; jj < ind->ndoses; jj++) {
+						if (getEvid(ind, ind->idose[jj]) == curEvid &&
+								getDose(ind, ind->idose[jj]) == amt) {
+							break;
+						}
+					}
+					if (jj == j) break;
 				}
-			}			
+			}
+			if (k == ind->ndoses) {
+				//REprintf("cant match: %d\n", curEvid);
+				if (!(ind->err & 32768)){
+					ind->err += 32768;
+				}
+				return 0.0;
+			}
 		}
     rx_solve *rx = &rx_global;
     double f = getAmt(ind, ind->id, ind->cmt, 1.0, getAllTimes(ind, ind->idose[j-1]), rx->ypNA);
