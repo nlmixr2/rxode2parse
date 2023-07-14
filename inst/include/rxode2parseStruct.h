@@ -195,6 +195,13 @@ typedef struct {
   double *atol2;
   double *ssRtol;
   double *ssAtol;
+  // ignored and pending doses
+  int *ignoredDoses;
+  int *ignoredDosesN;
+  int *ignoredDosesAllocN;
+  int *pendingDoses;
+  int *pendingDosesN;
+  int *pendingDosesAllocN;
 } rx_solving_options_ind;
 
 typedef struct {
