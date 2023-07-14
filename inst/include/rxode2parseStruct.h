@@ -202,6 +202,14 @@ typedef struct {
   int *pendingDoses;
   int *pendingDosesN;
   int *pendingDosesAllocN;
+  // extra doses
+  int *extraDoseTimeIdx;
+  int *extraDoseN;
+  int *extraDoseAllocN;
+  double *extraDoseTime;
+  int *extraDoseEvid;
+  double *extraDoseDose;
+  //double *extraDoseIi; // ii doses unsupported
 } rx_solving_options_ind;
 
 typedef struct {
