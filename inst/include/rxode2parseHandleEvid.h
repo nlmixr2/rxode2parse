@@ -255,6 +255,39 @@ static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double
   return ret;
 }
 
+static inline int isIgnoredDose(rx_solving_options_ind *ind) {
+  for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
+    if (ind->ignoredDoses[i] == ind->ixds) return 1;
+  }
+  return 0;
+}
+
+static inline void pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
+  if (ind->ignoredDosesN[0]+1 >= ind->ignoredDosesAllocN[0]) {
+    ind->ignoredDoses = (int*)realloc(ind->ignoredDoses, (ind->ignoredDosesAllocN[0]+100)*sizeof(int));
+    ind->ignoredDosesAllocN[0] = ind->ignoredDosesAllocN[0]+100;
+  }
+  ind->ignoredDoses[ind->ignoredDosesN[0]] = doseIdx;
+  ind->ignoredDosesN[0] = ind->ignoredDosesN[0]+1;
+}
+
+
+static inline void pushPendingDose(int doseIdx, rx_solving_options_ind *ind) {
+  if (ind->pendingDosesN[0]+1 >= ind->pendingDosesAllocN[0]) {
+    ind->pendingDoses = (int*)realloc(ind->pendingDoses, (ind->pendingDosesAllocN[0]+100)*sizeof(int));
+    ind->pendingDosesAllocN[0] = ind->pendingDosesAllocN[0]+100;
+  }
+  ind->pendingDoses[ind->pendingDosesN[0]] = doseIdx;
+  ind->pendingDosesN[0] = ind->pendingDosesN[0]+1;
+}
+
+static inline void cancelPendingDoses(rx_solving_options_ind *ind) {
+  for (int i = 0; i < ind->pendingDosesN[0]; ++i) {
+    int ds = ind->pendingDoses[i];
+    if (ds > ind->ixds) pushIgnoredDose(ds, ind);
+  }
+  ind->pendingDosesN[0] = 0;
+}
 
 static inline int handle_evid(int evid, int neq,
                               int *BadDose,
@@ -264,6 +297,7 @@ static inline int handle_evid(int evid, int neq,
                               double xout, int id,
                               rx_solving_options_ind *ind) {
   if (isObs(evid)) return 0;
+  if (isIgnoredDose(ind)) return 0;
   int cmt, foundBad, j;
   double tmp;
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
