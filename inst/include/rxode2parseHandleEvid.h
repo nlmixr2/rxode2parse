@@ -64,6 +64,7 @@ extern "C" {
 //      9 = Rate is modeled, AMT=dose; Duration = AMT/(Modeled Rate) NONMEM RATE=-1
 // c1 = Compartment numbers below 99
 // xx =  1, regular event (no lag time)
+// xx =  2, An infusion/rate event that doesn't look for start/end of infusion
 // xx =  8, possibly turn off steady state infusion with lag time (needed in case spans dur)
 // xx =  9, steady state event SS=1 with lag time
 // xx = 10, steady state event SS=1 (no lag)
@@ -75,6 +76,7 @@ extern "C" {
 // xx = 50, Phantom event, used for transit compartments
 // Steady state events need a II data item > 0
 #define EVID0_REGULAR  1
+#define EVID0_RATEADJ 2
 #define EVID0_INFRM 8
 #define EVID0_SS0 9
 #define EVID0_SS 10
@@ -122,7 +124,7 @@ static inline double getDoseNumber(rx_solving_options_ind *ind, int i) {
 }
 
 static inline double getDoseIndex(rx_solving_options_ind *ind, int i) {
-  return getDose(ind, ind->ix[i]);
+  return (i < 0 ? getDose(ind, i) : getDose(ind, ind->ix[i]));
 }
 
 static inline double getDoseIndexPlus1(rx_solving_options_ind *ind, int i) {
@@ -174,7 +176,14 @@ static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind
 static inline void handleTlastInline(double *time, rx_solving_options_ind *ind) {
   rx_solving_options *op = &op_global;
   double _time = *time + ind->curShift;
-  if (op->neq + op->extraCmt != 0 && ind->tlast != _time && isDose(getEvid(ind, ind->ix[ind->idx])) &&
+  int evid = 0;
+  if (ind->idx < 0) {
+    evid = getEvid(ind, ind->idx);
+  } else {
+    evid = getEvid(ind, ind->ix[ind->idx]);
+  }
+  if (op->neq + op->extraCmt != 0 && ind->tlast != _time &&
+      isDose(evid) &&
       ind->cmt < op->neq + op->extraCmt) {
     double curDose = getDoseIndex(ind, ind->idx), tinf = NA_REAL;
     if (handleTlastInlineUpateDosingInformation(ind, &curDose, &tinf) == 0) return;
@@ -257,7 +266,14 @@ static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double
 
 static inline int isIgnoredDose(rx_solving_options_ind *ind) {
   for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
-    if (ind->ignoredDoses[i] == ind->ixds) return 1;
+    if (ind->ixds >= 0 && ind->ignoredDoses[i] == ind->ixds) {
+      REprintf("Ignored %d\n", ind->ixds);
+      return 1;
+    }
+    if (ind->ignoredDoses[i] == -1-ind->extraDoseTimeIdx[-1-ind->ixds]){
+      REprintf("Ignored %d\n", ind->ixds);
+      return 1;
+    }
   }
   return 0;
 }
@@ -284,9 +300,30 @@ static inline void pushPendingDose(int doseIdx, rx_solving_options_ind *ind) {
 static inline void cancelPendingDoses(rx_solving_options_ind *ind) {
   for (int i = 0; i < ind->pendingDosesN[0]; ++i) {
     int ds = ind->pendingDoses[i];
-    if (ds > ind->ixds) pushIgnoredDose(ds, ind);
+    if (ds >= 0 && ds > ind->ixds) pushIgnoredDose(ds, ind);
+    if (ds < 0) pushIgnoredDose(ds, ind);
   }
   ind->pendingDosesN[0] = 0;
+}
+
+static inline void pushDosingEvent(double time, double amt, int evid,
+                                   rx_solving_options_ind *ind) {
+  if (ind->extraDoseN[0]+1 >= ind->extraDoseAllocN[0]) {
+    ind->extraDoseTimeIdx = (int*)realloc(ind->extraDoseTimeIdx, (ind->extraDoseAllocN[0]+100)*sizeof(int));
+    ind->extraDoseTime = (double*)realloc(ind->extraDoseTime, (ind->extraDoseAllocN[0]+100)*sizeof(double));
+    ind->extraDoseEvid = (int*)realloc(ind->extraDoseEvid, (ind->extraDoseAllocN[0]+100)*sizeof(int));
+    ind->extraDoseDose = (double*)realloc(ind->extraDoseDose,  (ind->extraDoseAllocN[0]+100)*sizeof(double));
+    ind->pendingDosesAllocN[0] = ind->pendingDosesAllocN[0]+100;
+  }
+  ind->extraDoseTimeIdx[ind->extraDoseN[0]] = ind->extraDoseN[0];
+  ind->extraDoseTime[ind->extraDoseN[0]] = time;
+  ind->extraDoseDose[ind->extraDoseN[0]] = amt;
+  ind->extraDoseEvid[ind->extraDoseN[0]] = evid;
+  // -1-idx = extraDosingIndex
+  // idx = -1-extraDosingIndex
+  pushPendingDose(-1-ind->extraDoseTimeIdx[ind->extraDoseN[0]], ind);
+  ind->extraDoseN[0] = ind->extraDoseN[0]+1;
+  ind->extraSorted = 0;
 }
 
 static inline int handle_evid(int evid, int neq,

@@ -209,6 +209,9 @@ typedef struct {
   double *extraDoseTime;
   int *extraDoseEvid;
   double *extraDoseDose;
+  double extraDoseNewXout;
+  int idxExtra; // extra idx
+  int extraSorted; // extra sorted?
   //double *extraDoseIi; // ii doses unsupported
 } rx_solving_options_ind;
 

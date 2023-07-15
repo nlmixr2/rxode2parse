@@ -218,7 +218,10 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
   double amt = getDose(ind, idx);
   if (amt > 0) {
 		return getLag(ind, ind->id, ind->cmt, getAllTimes(ind, idx));
-  } else if (amt < 0){
+  } else if (amt < 0) {
+		if (ind->wh0 == EVID0_RATEADJ) {
+			return getAllTimes(ind, idx);
+		}
     int j = getDoseNumberFromIndex(ind, idx);
     if (j == -1){
       if (!(ind->err & 16384)){
