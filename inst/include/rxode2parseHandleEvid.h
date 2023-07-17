@@ -266,12 +266,9 @@ static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double
 
 static inline int isIgnoredDose(rx_solving_options_ind *ind) {
   for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
-    if (ind->ixds >= 0 && ind->ignoredDoses[i] == ind->ixds) {
-      REprintf("Ignored %d\n", ind->ixds);
-      return 1;
-    }
-    if (ind->ignoredDoses[i] == -1-ind->extraDoseTimeIdx[-1-ind->ixds]){
-      REprintf("Ignored %d\n", ind->ixds);
+    if (ind->idx < 0 ) {
+      return 0;
+    } else if (ind->idx >= 0 && ind->ignoredDoses[i] == ind->ixds) {
       return 1;
     }
   }
@@ -319,8 +316,6 @@ static inline void pushDosingEvent(double time, double amt, int evid,
   ind->extraDoseTime[ind->extraDoseN[0]] = time;
   ind->extraDoseDose[ind->extraDoseN[0]] = amt;
   ind->extraDoseEvid[ind->extraDoseN[0]] = evid;
-  // -1-idx = extraDosingIndex
-  // idx = -1-extraDosingIndex
   pushPendingDose(-1-ind->extraDoseTimeIdx[ind->extraDoseN[0]], ind);
   ind->extraDoseN[0] = ind->extraDoseN[0]+1;
   ind->extraSorted = 0;
@@ -334,9 +329,11 @@ static inline int handle_evid(int evid, int neq,
                               double xout, int id,
                               rx_solving_options_ind *ind) {
   if (isObs(evid)) return 0;
+  // REprintf("evidI %d for %d\n", evid, ind->idx);
   if (isIgnoredDose(ind)) return 0;
   int cmt, foundBad, j;
   double tmp;
+  // REprintf("evid %d for %d\n", evid, ind->idx);ef
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
   handleTlastInline(&xout, ind);
   if (ind->wh0 == EVID0_SSINF) {
@@ -454,6 +451,8 @@ static inline int handle_evid(int evid, int neq,
           ind->curDose = tmp;
           ind->curDoseS[cmt] = ind->curDose;
         }
+        // REprintf("ind->idx %d for rate: %f\n",
+        //          ind->idx, tmp);
         InfusionRate[cmt] += tmp;
         ind->cacheME=0;
         if (ind->wh0 == EVID0_SS2 && getDoseIndex(ind, ind->idx) > 0 &&
