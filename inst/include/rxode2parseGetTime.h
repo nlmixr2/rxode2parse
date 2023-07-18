@@ -214,18 +214,16 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
   }
 }
 
-static inline void handleInfusionGetEndOfInfusionIndex(int *startIdx, int *endIdx,
-																											 double *amt, int idx,
+static inline void handleInfusionGetEndOfInfusionIndex(int idx, int *infEixds,
 																											 rx_solve *rx, rx_solving_options *op,
 																											 rx_solving_options_ind *ind) {
-	if (*amt > 0) return;
-	*startIdx = idx;
 	int curEvid = getEvid(ind, ind->idose[idx]);
+	double curAmt = getDoseNumber(ind, idx);
 	int lastKnownOff = 0;
-	*endIdx = -1;
+	*infEixds = -1;
 	for (int j = 0; j < ind->ndoses; j++) {
 		if (curEvid == getEvid(ind, ind->idose[j]) &&
-				*amt == getDoseNumber(ind, j)) {
+				curAmt == getDoseNumber(ind, j)) {
 			// get the first dose combination
 			if (lastKnownOff == 0) {
 				lastKnownOff=j+1;
@@ -234,16 +232,19 @@ static inline void handleInfusionGetEndOfInfusionIndex(int *startIdx, int *endId
 			}
 			for (int k = lastKnownOff; k < ind->ndoses; k++) {
 				if (curEvid == getEvid(ind, ind->idose[k]) &&
-						*amt == -getDoseNumber(ind, k)) {
+						curAmt == -getDoseNumber(ind, k)) {
 					lastKnownOff = k;
 					if (j == idx) {
-						*endIdx = k;
+						*infEixds = k;
+						// dur = getTime_(ind->idose[infEixds], ind);// -
+						// dur -= getTime_(ind->idose[ind->ixds+2], ind);
+						// dur2 = getIiNumber(ind, ind->ixds) - dur;
 					}
 					k = ind->ndoses;
 				}
 			}
 		}
-		if (*endIdx != -1) break;
+		if (*infEixds != -1) break;
 	}
 }
 
@@ -267,13 +268,10 @@ static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *end
 	int jj;
 	if (ind->wh0 == EVID0_INFRM) {
 		// This is a possible removal event.  Look at the next duration
-		double curAmt = -*amt;
-		handleInfusionGetEndOfInfusionIndex(startIdx, endIdx,
-																				&curAmt, *endIdx+1, rx, op, ind);
-		int curEvid = getEvid(ind, ind->idose[*endIdx]);
-		*startIdx = *endIdx + 1;
+		int curEvid = getEvid(ind, ind->idose[*endIdx+1]);
+		*startIdx = *endIdx+1;
 		for (*endIdx = *startIdx; *endIdx < ind->ndoses; ++(*endIdx)) {
-			if (getEvid(ind, ind->idose[*endIdx]) == getEvid(ind, ind->idose[*startIdx])) break;
+			if (getEvid(ind, ind->idose[*startIdx]) == getEvid(ind, ind->idose[*endIdx])) break;
 			if (*endIdx == ind->ndoses-1) {
 				//REprintf("curEvid@infrm: %d\n", curEvid);
 				if (!(ind->err & 32768)){
