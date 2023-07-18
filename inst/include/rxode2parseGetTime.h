@@ -214,6 +214,105 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
   }
 }
 
+static inline void handleInfusionGetEndOfInfusionIndex(int *startIdx, int *endIdx,
+																											 double *amt, int idx,
+																											 rx_solve *rx, rx_solving_options *op,
+																											 rx_solving_options_ind *ind) {
+	if (*amt > 0) return;
+	*startIdx = idx;
+	int curEvid = getEvid(ind, ind->idose[idx]);
+	int lastKnownOff = 0;
+	*endIdx = -1;
+	for (int j = 0; j < ind->ndoses; j++) {
+		if (curEvid == getEvid(ind, ind->idose[j]) &&
+				*amt == getDoseNumber(ind, j)) {
+			// get the first dose combination
+			if (lastKnownOff == 0) {
+				lastKnownOff=j+1;
+			} else {
+				lastKnownOff++;
+			}
+			for (int k = lastKnownOff; k < ind->ndoses; k++) {
+				if (curEvid == getEvid(ind, ind->idose[k]) &&
+						*amt == -getDoseNumber(ind, k)) {
+					lastKnownOff = k;
+					if (j == idx) {
+						*endIdx = k;
+					}
+					k = ind->ndoses;
+				}
+			}
+		}
+		if (*endIdx != -1) break;
+	}
+}
+
+static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *endIdx,
+																												 double *amt, int *idx,
+																												 rx_solve *rx, rx_solving_options *op,
+																												 rx_solving_options_ind *ind) {
+	if (*amt > 0) {
+		*startIdx = -1;
+		*endIdx = -1;
+		return;
+	}
+	*endIdx = getDoseNumberFromIndex(ind, *idx);
+	if (*endIdx == -1){
+		if (!(ind->err & 16384)){
+			ind->err += 16384;
+		}
+		return;
+		/* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
+	}
+	int jj;
+	if (ind->wh0 == EVID0_INFRM) {
+		// This is a possible removal event.  Look at the next duration
+		double curAmt = -*amt;
+		handleInfusionGetEndOfInfusionIndex(startIdx, endIdx,
+																				&curAmt, *endIdx+1, rx, op, ind);
+		int curEvid = getEvid(ind, ind->idose[*endIdx]);
+		*startIdx = *endIdx + 1;
+		for (*endIdx = *startIdx; *endIdx < ind->ndoses; ++(*endIdx)) {
+			if (getEvid(ind, ind->idose[*endIdx]) == getEvid(ind, ind->idose[*startIdx])) break;
+			if (*endIdx == ind->ndoses-1) {
+				//REprintf("curEvid@infrm: %d\n", curEvid);
+				if (!(ind->err & 32768)){
+					ind->err += 32768;
+				}
+				return;
+			}
+		}
+	} else {
+		// This finds the duration based on the end of infusion
+		int curEvid = getEvid(ind, ind->idose[*endIdx]);
+		jj = 0;
+		for (*startIdx = 0; *startIdx < ind->ndoses; (*startIdx)++) {
+			if (getEvid(ind, ind->idose[*startIdx]) == curEvid &&
+					getDose(ind, ind->idose[*startIdx]) == -(*amt)) {
+				if (jj == 0) {
+					jj = *startIdx;
+				} else {
+					jj++;
+				}
+				for (; jj < ind->ndoses; jj++) {
+					if (getEvid(ind, ind->idose[jj]) == curEvid &&
+							getDose(ind, ind->idose[jj]) == *amt) {
+						break;
+					}
+				}
+				if (jj == *endIdx) break;
+			}
+		}
+		if (*startIdx == ind->ndoses) {
+			//REprintf("cant match: %d\n", curEvid);
+			if (!(ind->err & 32768)){
+				ind->err += 32768;
+			}
+			return;
+		}
+	}
+}
+
 static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
   double amt = getDose(ind, idx);
   if (amt > 0) {
@@ -230,48 +329,9 @@ static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_option
       return 0.0;
       /* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
     }
-		int k, jj;
-		if (ind->wh0 == EVID0_INFRM) {
-			int curEvid = getEvid(ind, ind->idose[j]);
-			k = j+1;
-			for (j = k; j < ind->ndoses; ++j) {
-				if (getEvid(ind, ind->idose[j]) == getEvid(ind, ind->idose[k])) break;
-				if (j == ind->ndoses-1) {
-					//REprintf("curEvid@infrm: %d\n", curEvid);
-					if (!(ind->err & 32768)){
-						ind->err += 32768;
-					}
-					return 0.0;
-				}
-			}
-		} else {
-			int curEvid = getEvid(ind, ind->idose[j]);
-			jj = 0;
-			for (k = 0; k < ind->ndoses; k++) {
-				if (getEvid(ind, ind->idose[k]) == curEvid &&
-						getDose(ind, ind->idose[k]) == -amt) {
-					if (jj == 0) {
-						jj = k;
-					} else {
-						jj++;
-					}
-					for (; jj < ind->ndoses; jj++) {
-						if (getEvid(ind, ind->idose[jj]) == curEvid &&
-								getDose(ind, ind->idose[jj]) == amt) {
-							break;
-						}
-					}
-					if (jj == j) break;
-				}
-			}
-			if (k == ind->ndoses) {
-				//REprintf("cant match: %d\n", curEvid);
-				if (!(ind->err & 32768)){
-					ind->err += 32768;
-				}
-				return 0.0;
-			}
-		}
+		int k;
+		handleInfusionGetStartOfInfusionIndex(&k, &j, &amt, &idx, rx, op, ind);
+		if (k == -1) return 0.0;
     rx_solve *rx = &rx_global;
     double f = getAmt(ind, ind->id, ind->cmt, 1.0, getAllTimes(ind, ind->idose[j-1]), rx->ypNA);
     if (ISNA(f)){
