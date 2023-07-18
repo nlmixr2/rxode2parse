@@ -214,40 +214,6 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
   }
 }
 
-static inline void handleInfusionGetEndOfInfusionIndex(int idx, int *infEixds,
-																											 rx_solve *rx, rx_solving_options *op,
-																											 rx_solving_options_ind *ind) {
-	int curEvid = getEvid(ind, ind->idose[idx]);
-	double curAmt = getDoseNumber(ind, idx);
-	int lastKnownOff = 0;
-	*infEixds = -1;
-	for (int j = 0; j < ind->ndoses; j++) {
-		if (curEvid == getEvid(ind, ind->idose[j]) &&
-				curAmt == getDoseNumber(ind, j)) {
-			// get the first dose combination
-			if (lastKnownOff == 0) {
-				lastKnownOff=j+1;
-			} else {
-				lastKnownOff++;
-			}
-			for (int k = lastKnownOff; k < ind->ndoses; k++) {
-				if (curEvid == getEvid(ind, ind->idose[k]) &&
-						curAmt == -getDoseNumber(ind, k)) {
-					lastKnownOff = k;
-					if (j == idx) {
-						*infEixds = k;
-						// dur = getTime_(ind->idose[infEixds], ind);// -
-						// dur -= getTime_(ind->idose[ind->ixds+2], ind);
-						// dur2 = getIiNumber(ind, ind->ixds) - dur;
-					}
-					k = ind->ndoses;
-				}
-			}
-		}
-		if (*infEixds != -1) break;
-	}
-}
-
 static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *endIdx,
 																												 double *amt, int *idx,
 																												 rx_solve *rx, rx_solving_options *op,
@@ -287,6 +253,7 @@ static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *end
 		for (*startIdx = 0; *startIdx < ind->ndoses; (*startIdx)++) {
 			if (getEvid(ind, ind->idose[*startIdx]) == curEvid &&
 					getDose(ind, ind->idose[*startIdx]) == -(*amt)) {
+				// This will look after the last known infusion stopping point
 				if (jj == 0) {
 					jj = *startIdx;
 				} else {

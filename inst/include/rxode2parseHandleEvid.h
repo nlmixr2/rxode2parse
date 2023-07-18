@@ -140,6 +140,40 @@ static inline void setDoseNumber(rx_solving_options_ind *ind, int i, int j, doub
   setDoseP1(ind, ind->idose[i] + j, value)
 }
 
+static inline void handleInfusionGetEndOfInfusionIndex(int idx, int *infEixds,
+																											 rx_solve *rx, rx_solving_options *op,
+																											 rx_solving_options_ind *ind) {
+	int curEvid = getEvid(ind, ind->idose[idx]);
+	double curAmt = getDoseNumber(ind, idx);
+	int lastKnownOff = 0;
+	*infEixds = -1;
+	for (int j = 0; j < ind->ndoses; j++) {
+		if (curEvid == getEvid(ind, ind->idose[j]) &&
+				curAmt == getDoseNumber(ind, j)) {
+			// get the first dose combination
+			if (lastKnownOff == 0) {
+				lastKnownOff=j+1;
+			} else {
+				lastKnownOff++;
+			}
+			for (int k = lastKnownOff; k < ind->ndoses; k++) {
+				if (curEvid == getEvid(ind, ind->idose[k]) &&
+						curAmt == -getDoseNumber(ind, k)) {
+					lastKnownOff = k;
+					if (j == idx) {
+						*infEixds = k;
+						// dur = getTime_(ind->idose[infEixds], ind);// -
+						// dur -= getTime_(ind->idose[ind->ixds+2], ind);
+						// dur2 = getIiNumber(ind, ind->ixds) - dur;
+					}
+					k = ind->ndoses;
+				}
+			}
+		}
+		if (*infEixds != -1) break;
+	}
+}
+
 static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind *ind, double *curDose, double *tinf) {
   unsigned int p;
   switch (ind->whI) {
@@ -301,6 +335,25 @@ static inline void cancelPendingDoses(rx_solving_options_ind *ind) {
     if (ds < 0) pushIgnoredDose(ds, ind);
   }
   ind->pendingDosesN[0] = 0;
+  // now cancel pending doses based on current dose time
+  double curTime = getAllTimes(ind, ind->idose[ind->ixds]);
+  for (int j = 0; j < ind->ndoses; j++) {
+    int wh, cmt, wh100, whI, wh0, curEvid=getEvid(ind, ind->idose[j]);
+    getWh(curEvid, &wh, &cmt, &wh100, &whI, &wh0);
+    if (whI == EVIDF_INF_RATE || whI == EVIDF_INF_DUR) {
+      double startTime = getAllTimes(ind, ind->idose[j]);
+      if (startTime < curTime) {
+        int infEixds=-1;
+        handleInfusionGetEndOfInfusionIndex(j, &infEixds, &rx_global, &op_global, ind);
+        if (infEixds != -1) {
+          double endTime = getAllTimes(ind, ind->idose[infEixds]);
+          if (curTime < endTime) {
+            pushIgnoredDose(infEixds, ind);
+          }
+        }
+      }
+    }
+  }
 }
 
 static inline void pushDosingEvent(double time, double amt, int evid,
@@ -329,8 +382,9 @@ static inline int handle_evid(int evid, int neq,
                               double xout, int id,
                               rx_solving_options_ind *ind) {
   if (isObs(evid)) return 0;
-  // REprintf("evidI %d for %d\n", evid, ind->idx);
-  if (isIgnoredDose(ind)) return 0;
+  if (isIgnoredDose(ind)) {
+    return 0;
+  }
   int cmt, foundBad, j;
   double tmp;
   // REprintf("evid %d for %d\n", evid, ind->idx);ef
@@ -382,15 +436,15 @@ static inline int handle_evid(int evid, int neq,
       // Rate already calculated and saved in the next dose record
       if (ind->skipDose[cmt] == 0) {
         ind->on[cmt] = 1;
-        ind->cacheME=0;
+        ind->cacheME = 0;
         InfusionRate[cmt] -= getDoseIndexPlus1(ind, ind->idx);
-        if (ind->wh0 == EVID0_SS2 && getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
+        if (ind->wh0 == EVID0_SS2 &&
+            getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
             getDoseIndex(ind, ind->idx)) {
           if (!(ind->err & 1048576)){
             ind->err += 1048576;
           }
           return 0;
-          /* Rf_errorcall(R_NilValue, "SS=2 & Modeled F does not work"); */
         }
       } else {
         ind->skipDose[cmt] = ind->skipDose[cmt] - 1;
@@ -426,8 +480,10 @@ static inline int handle_evid(int evid, int neq,
         if (tmp > 0) {
           ind->curDose = tmp;
           ind->curDoseS[cmt] = ind->curDose;
+          // int infEixds;
+          // handleInfusionGetEndOfInfusionIndex(ind->ixds, &infEixds, &rx_global, op, ind);
+          // pushPendingDose(infEixds, ind);
         }
-
         tmp = getAmt(ind, id, cmt, tmp, xout, yp);
         InfusionRate[cmt] += tmp;
         ind->cacheME=0;
@@ -450,13 +506,15 @@ static inline int handle_evid(int evid, int neq,
         if (tmp > 0) {
           ind->curDose = tmp;
           ind->curDoseS[cmt] = ind->curDose;
+          // int infEixds;
+          // handleInfusionGetEndOfInfusionIndex(ind->ixds, &infEixds, &rx_global, op, ind);
+          // pushPendingDose(infEixds, ind);
         }
-        // REprintf("ind->idx %d for rate: %f\n",
-        //          ind->idx, tmp);
         InfusionRate[cmt] += tmp;
         ind->cacheME=0;
         if (ind->wh0 == EVID0_SS2 && getDoseIndex(ind, ind->idx) > 0 &&
-            getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) != getDoseIndex(ind, ind->idx)) {
+            getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
+            getDoseIndex(ind, ind->idx)) {
           if (!(ind->err & 4194304)){
             ind->err += 4194304;
           }
