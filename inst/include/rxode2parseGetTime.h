@@ -347,7 +347,9 @@ static inline double getTime__(int idx, rx_solving_options_ind *ind, int update)
   if (evid >= 10 && evid <= 99) return ind->mtime[evid-10];
   if (isObs(evid)) return getAllTimes(ind, idx);
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
-  if (ind->wh0 == EVID0_SSINF){
+  if (ind->wh0 == EVID0_SSINF ||
+			ind->wh0 == EVID0_SS0 ||
+			ind->wh0 == EVID0_SS20){
   } else {
     // yp should be the current solve values
     //
