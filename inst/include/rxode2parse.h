@@ -42,7 +42,7 @@
 
 #ifdef _isrxode2parse_
 #define max2( a , b )  ( (a) > (b) ? (a) : (b) )
-#define isSameTime(xout, xp) ((xout)-(xp) <= DBL_EPSILON*max2(fabs(xout),fabs(xp)))
+#define isSameTime(xout, xp) (fabs((xout)-(xp))  <= DBL_EPSILON*max2(fabs(xout),fabs(xp)))
 #define _linCmtParse _rxode2parse_linCmtParse
 #define _rxode2_linCmtGen _rxode2parse_linCmtGen
 #define rc_buf_read _rxode2parse_rc_buf_read

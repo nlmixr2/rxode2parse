@@ -435,16 +435,19 @@ static inline int handle_evid(int evid, int neq,
     case EVIDF_MODEL_DUR_ON: // modeled duration.
       // Rate already calculated and saved in the next dose record
       if (ind->skipDose[cmt] == 0) {
-        ind->on[cmt] = 1;
-        ind->cacheME = 0;
-        InfusionRate[cmt] -= getDoseIndexPlus1(ind, ind->idx);
-        if (ind->wh0 == EVID0_SS2 &&
-            getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
-            getDoseIndex(ind, ind->idx)) {
-          if (!(ind->err & 1048576)){
-            ind->err += 1048576;
+        if (ind->wh0 != EVID0_SS0 &&
+            ind->wh0 != EVID0_SS20) {
+          ind->on[cmt] = 1;
+          ind->cacheME = 0;
+          InfusionRate[cmt] -= getDoseIndexPlus1(ind, ind->idx);
+          if (ind->wh0 == EVID0_SS2 &&
+              getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
+              getDoseIndex(ind, ind->idx)) {
+            if (!(ind->err & 1048576)){
+              ind->err += 1048576;
+            }
+            return 0;
           }
-          return 0;
         }
       } else {
         ind->skipDose[cmt] = ind->skipDose[cmt] - 1;
