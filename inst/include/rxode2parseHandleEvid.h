@@ -312,8 +312,8 @@ static inline int isIgnoredDose(rx_solving_options_ind *ind) {
 
 static inline void pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
   if (ind->ignoredDosesN[0]+1 >= ind->ignoredDosesAllocN[0]) {
-    ind->ignoredDoses = (int*)realloc(ind->ignoredDoses, (ind->ignoredDosesAllocN[0]+EVID_EXTRA_SIZE)*sizeof(int));
-    ind->ignoredDosesAllocN[0] = ind->ignoredDosesAllocN[0]+EVID_EXTRA_SIZE;
+    ind->ignoredDoses = (int*)realloc(ind->ignoredDoses, (ind->ignoredDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    ind->ignoredDosesAllocN[0] = (ind->ignoredDosesN[0]+1+EVID_EXTRA_SIZE);
   }
   ind->ignoredDoses[ind->ignoredDosesN[0]] = doseIdx;
   ind->ignoredDosesN[0] = ind->ignoredDosesN[0]+1;
@@ -322,8 +322,8 @@ static inline void pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
 
 static inline void pushPendingDose(int doseIdx, rx_solving_options_ind *ind) {
   if (ind->pendingDosesN[0]+1 >= ind->pendingDosesAllocN[0]) {
-    ind->pendingDoses = (int*)realloc(ind->pendingDoses, (ind->pendingDosesAllocN[0]+EVID_EXTRA_SIZE)*sizeof(int));
-    ind->pendingDosesAllocN[0] = ind->pendingDosesAllocN[0]+EVID_EXTRA_SIZE;
+    ind->pendingDoses = (int*)realloc(ind->pendingDoses, (ind->pendingDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    ind->pendingDosesAllocN[0] = (ind->pendingDosesN[0]+1+EVID_EXTRA_SIZE);
   }
   ind->pendingDoses[ind->pendingDosesN[0]] = doseIdx;
   ind->pendingDosesN[0] = ind->pendingDosesN[0]+1;
@@ -360,11 +360,11 @@ static inline void cancelPendingDoses(rx_solving_options_ind *ind) {
 static inline void pushDosingEvent(double time, double amt, int evid,
                                    rx_solving_options_ind *ind) {
   if (ind->extraDoseN[0]+1 >= ind->extraDoseAllocN[0]) {
-    ind->extraDoseTimeIdx = (int*)realloc(ind->extraDoseTimeIdx, (ind->extraDoseAllocN[0]+EVID_EXTRA_SIZE)*sizeof(int));
-    ind->extraDoseTime = (double*)realloc(ind->extraDoseTime, (ind->extraDoseAllocN[0]+EVID_EXTRA_SIZE)*sizeof(double));
-    ind->extraDoseEvid = (int*)realloc(ind->extraDoseEvid, (ind->extraDoseAllocN[0]+EVID_EXTRA_SIZE)*sizeof(int));
-    ind->extraDoseDose = (double*)realloc(ind->extraDoseDose,  (ind->extraDoseAllocN[0]+EVID_EXTRA_SIZE)*sizeof(double));
-    ind->extraDoseAllocN[0] = ind->extraDoseAllocN[0]+EVID_EXTRA_SIZE;
+    ind->extraDoseTimeIdx = (int*)realloc(ind->extraDoseTimeIdx, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    ind->extraDoseTime = (double*)realloc(ind->extraDoseTime, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
+    ind->extraDoseEvid = (int*)realloc(ind->extraDoseEvid, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    ind->extraDoseDose = (double*)realloc(ind->extraDoseDose,  (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
+    ind->extraDoseAllocN[0] = (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE);
   }
   ind->extraDoseTimeIdx[ind->extraDoseN[0]] = ind->extraDoseN[0];
   ind->extraDoseTime[ind->extraDoseN[0]] = time;
