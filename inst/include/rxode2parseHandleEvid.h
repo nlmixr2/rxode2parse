@@ -315,6 +315,7 @@ static inline int pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
   if (ind->ignoredDosesN[0]+1 >= ind->ignoredDosesAllocN[0]) {
     int *tmpI = (int*)realloc(ind->ignoredDoses, (ind->ignoredDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
     if (tmpI == NULL) {
+      rx_solving_options *op = &op_global;
       op->badSolve = 1;
       return 0;
     }
@@ -333,6 +334,7 @@ static inline int pushPendingDose(int doseIdx, rx_solving_options_ind *ind) {
   if (ind->pendingDosesN[0]+1 >= ind->pendingDosesAllocN[0]) {
     int *tmpI = (int*)realloc(ind->pendingDoses, (ind->pendingDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
     if (tmpI == NULL) {
+      rx_solving_options *op = &op_global;
       op->badSolve = 1;
       return 0;
     }
@@ -379,10 +381,38 @@ static inline int pushDosingEvent(double time, double amt, int evid,
                                    rx_solving_options_ind *ind) {
   int re = 0;
   if (ind->extraDoseN[0]+1 >= ind->extraDoseAllocN[0]) {
-    ind->extraDoseTimeIdx = (int*)realloc(ind->extraDoseTimeIdx, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
-    ind->extraDoseTime = (double*)realloc(ind->extraDoseTime, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
-    ind->extraDoseEvid = (int*)realloc(ind->extraDoseEvid, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
-    ind->extraDoseDose = (double*)realloc(ind->extraDoseDose,  (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
+    int *tmpI = (int*)realloc(ind->extraDoseTimeIdx, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    if (tmpI == NULL) {
+      rx_solving_options *op = &op_global;
+      op->badSolve = 1;
+      return 0;
+    }
+    ind->extraDoseTimeIdx = tmpI;
+
+    tmpI = (int*)realloc(ind->extraDoseEvid, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    if (tmpI == NULL) {
+      rx_solving_options *op = &op_global;
+      op->badSolve = 1;
+      return 1;
+    }
+    ind->extraDoseEvid = tmpI;
+
+    double * tmpD = (double*)realloc(ind->extraDoseTime, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
+    if (tmpD == NULL) {
+      rx_solving_options *op = &op_global;
+      op->badSolve = 1;
+      return 1;
+    }
+    ind->extraDoseTime = tmpD;
+
+    tmpD = (double*)realloc(ind->extraDoseDose,  (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
+    if (tmpD == NULL) {
+      rx_solving_options *op = &op_global;
+      op->badSolve = 1;
+      return 1;
+    }
+    ind->extraDoseDose = tmpD;
+
     ind->extraDoseAllocN[0] = (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE);
     re = 1;
   }
