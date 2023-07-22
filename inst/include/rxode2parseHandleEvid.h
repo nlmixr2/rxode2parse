@@ -310,30 +310,47 @@ static inline int isIgnoredDose(rx_solving_options_ind *ind) {
   return 0;
 }
 
-static inline void pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
+static inline int pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
+  int re = 0;
   if (ind->ignoredDosesN[0]+1 >= ind->ignoredDosesAllocN[0]) {
-    ind->ignoredDoses = (int*)realloc(ind->ignoredDoses, (ind->ignoredDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    int *tmpI = (int*)realloc(ind->ignoredDoses, (ind->ignoredDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    if (tmpI == NULL) {
+      op->badSolve = 1;
+      return 0;
+    }
+    ind->ignoredDoses = tmpI;
     ind->ignoredDosesAllocN[0] = (ind->ignoredDosesN[0]+1+EVID_EXTRA_SIZE);
+    re = 1;
   }
   ind->ignoredDoses[ind->ignoredDosesN[0]] = doseIdx;
   ind->ignoredDosesN[0] = ind->ignoredDosesN[0]+1;
+  return re;
 }
 
 
-static inline void pushPendingDose(int doseIdx, rx_solving_options_ind *ind) {
+static inline int pushPendingDose(int doseIdx, rx_solving_options_ind *ind) {
+  int re = 0;
   if (ind->pendingDosesN[0]+1 >= ind->pendingDosesAllocN[0]) {
-    ind->pendingDoses = (int*)realloc(ind->pendingDoses, (ind->pendingDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    int *tmpI = (int*)realloc(ind->pendingDoses, (ind->pendingDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
+    if (tmpI == NULL) {
+      op->badSolve = 1;
+      return 0;
+    }
+    ind->pendingDoses = tmpI;
     ind->pendingDosesAllocN[0] = (ind->pendingDosesN[0]+1+EVID_EXTRA_SIZE);
+    re = 1;
   }
   ind->pendingDoses[ind->pendingDosesN[0]] = doseIdx;
   ind->pendingDosesN[0] = ind->pendingDosesN[0]+1;
+  return re;
 }
 
-static inline void cancelPendingDoses(rx_solving_options_ind *ind) {
+static inline int cancelPendingDoses(rx_solving_options_ind *ind) {
+  int re = 0;
   for (int i = 0; i < ind->pendingDosesN[0]; ++i) {
     int ds = ind->pendingDoses[i];
-    if (ds >= 0 && ds > ind->ixds) pushIgnoredDose(ds, ind);
-    if (ds < 0) pushIgnoredDose(ds, ind);
+    if (ds >= 0 && ds > ind->ixds) re = pushIgnoredDose(ds, ind) || re;
+    if (ds < 0) re = pushIgnoredDose(ds, ind) || re;
   }
   ind->pendingDosesN[0] = 0;
   // now cancel pending doses based on current dose time
@@ -349,22 +366,25 @@ static inline void cancelPendingDoses(rx_solving_options_ind *ind) {
         if (infEixds != -1) {
           double endTime = getAllTimes(ind, ind->idose[infEixds]);
           if (curTime < endTime) {
-            pushIgnoredDose(infEixds, ind);
+            re = pushIgnoredDose(infEixds, ind) || re;
           }
         }
       }
     }
   }
+  return re;
 }
 
-static inline void pushDosingEvent(double time, double amt, int evid,
+static inline int pushDosingEvent(double time, double amt, int evid,
                                    rx_solving_options_ind *ind) {
+  int re = 0;
   if (ind->extraDoseN[0]+1 >= ind->extraDoseAllocN[0]) {
     ind->extraDoseTimeIdx = (int*)realloc(ind->extraDoseTimeIdx, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
     ind->extraDoseTime = (double*)realloc(ind->extraDoseTime, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
     ind->extraDoseEvid = (int*)realloc(ind->extraDoseEvid, (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
     ind->extraDoseDose = (double*)realloc(ind->extraDoseDose,  (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE)*sizeof(double));
     ind->extraDoseAllocN[0] = (ind->extraDoseN[0]+1+EVID_EXTRA_SIZE);
+    re = 1;
   }
   ind->extraDoseTimeIdx[ind->extraDoseN[0]] = ind->extraDoseN[0];
   ind->extraDoseTime[ind->extraDoseN[0]] = time;
@@ -373,6 +393,7 @@ static inline void pushDosingEvent(double time, double amt, int evid,
   pushPendingDose(-1-ind->extraDoseTimeIdx[ind->extraDoseN[0]], ind);
   ind->extraDoseN[0] = ind->extraDoseN[0]+1;
   ind->extraSorted = 0;
+  return re;
 }
 
 static inline int handle_evid(int evid, int neq,
