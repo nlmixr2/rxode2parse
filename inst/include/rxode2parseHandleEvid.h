@@ -312,6 +312,9 @@ static inline int isIgnoredDose(rx_solving_options_ind *ind) {
 
 static inline int pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
   int re = 0;
+  for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
+    if (ind->ignoredDoses[i] == doseIdx) return 0;
+  }
   if (ind->ignoredDosesN[0]+1 >= ind->ignoredDosesAllocN[0]) {
     int *tmpI = (int*)realloc(ind->ignoredDoses, (ind->ignoredDosesN[0]+1+EVID_EXTRA_SIZE)*sizeof(int));
     if (tmpI == NULL) {
@@ -478,7 +481,7 @@ static inline int handle_evid(int evid, int neq,
       ind->skipDose[cmt] = 0;
       return 1;
     }
-    if (!ind->doSS && ind->wh0 == EVID0_SS2 && cmt < op->neq) {
+    if (!ind->doSS && (ind->wh0 == EVID0_SS2 || ind->wh0 == EVID0_SS20) && cmt < op->neq) {
       // Save for adding at the end; Only for ODE systems
       memcpy(ind->solveSave, yp, op->neq*sizeof(double));
     }
