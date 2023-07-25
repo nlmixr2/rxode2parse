@@ -375,6 +375,15 @@ static inline int cancelPendingDoses(rx_solving_options_ind *ind) {
           }
         }
       }
+    } else if (whI == EVIDF_MODEL_DUR_ON || whI == EVIDF_MODEL_RATE_ON) {
+      double startTime = getAllTimes(ind, ind->idose[j]);
+      if (startTime < curTime) {
+        int infEixds = j+1;
+        double endTime = getAllTimes(ind, ind->idose[infEixds]);
+        if (curTime < endTime) {
+          re = pushIgnoredDose(infEixds, ind) || re;
+        }
+      }
     }
   }
   return re;
