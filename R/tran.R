@@ -64,7 +64,8 @@ rxode2parse <- function(model, linear=FALSE, linCmtSens = c("linCmtA", "linCmtB"
     .ret$ini,
     .ret$state,
     .ret$params,
-    .ret$lhs
+    .ret$lhs,
+    .ret$alag
   )))
   .ret$timeId <- -1L
   .ret$md5 <- md5

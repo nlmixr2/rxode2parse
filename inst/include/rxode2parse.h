@@ -9,6 +9,27 @@
 #define isDose(evid) ((evid) == 3 || (evid) >= 100)
 #define isObs(evid) ((evid) == 0 || (evid) == 2 || ((evid) >= 9 && (evid) <= 99))
 
+#define getEvid(ind, idx) (idx >= 0 ? ind->evid[idx] : ind->extraDoseEvid[-1-idx])
+#define getEvidP1(ind, idx) (idx >= 0 ? ind->evid[idx+1] : ind->extraDoseEvid[-idx])
+#define getEvidM1(ind, idx) (idx >= 0 ? ind->evid[idx-1] : ind->extraDoseEvid[-2-idx])
+
+#define getDose(ind, idx) (idx >= 0 ? ind->dose[idx] : ind->extraDoseDose[-1-idx])
+#define getDoseP1(ind, idx) (idx >= 0 ? ind->dose[idx+1] : ind->extraDoseDose[-idx])
+#define getDoseM1(ind, idx) (idx >= 0 ? ind->dose[idx-1] : ind->extraDoseDose[-2-idx])
+
+#define setDoseP1(ind, idx, val) if (idx >= 0){ind->dose[idx+1] = val;} else {ind->extraDoseDose[-idx] = val;}
+
+#define getIi(ind, idx) (idx >= 0 ? ind->ii[idx] : 0.0)
+#define getIiP1(ind, idx) (idx >= 0 ? ind->ii[idx+1] : 0.0)
+#define getIiM1(ind, idx) (ind >= 0 ? ind->ii[idx-1] : 0.0)
+
+#define getDoseM1(ind, idx) (idx >= 0 ? ind->dose[idx-1] : ind->extraDoseDose[-2-idx])
+
+#define getAllTimes(ind, idx) (idx >= 0 ? ind->all_times[idx] : ind->extraDoseTime[-1-idx])
+#define getAllTimesP1(ind, idx) (idx >= 0 ? ind->all_times[idx+1] : ind->extraDoseTime[-idx])
+#define getAllTimesM1(ind, idx) (idx >= 0 ? ind->all_times[idx-1] : ind->extraDoseTime[-2-idx])
+
+#define setAllTimesP1(ind, idx, val) if (idx>= 0) {ind->all_times[idx+1] = val;} else {ind->extraDoseTime[-idx] = val;}
 #include <R.h>
 #include <stdbool.h>
 
@@ -21,7 +42,7 @@
 
 #ifdef _isrxode2parse_
 #define max2( a , b )  ( (a) > (b) ? (a) : (b) )
-#define isSameTime(xout, xp) ((xout)-(xp) <= DBL_EPSILON*max2(fabs(xout),fabs(xp)))
+#define isSameTime(xout, xp) (fabs((xout)-(xp))  <= DBL_EPSILON*max2(fabs(xout),fabs(xp)))
 #define _linCmtParse _rxode2parse_linCmtParse
 #define _rxode2_linCmtGen _rxode2parse_linCmtGen
 #define rc_buf_read _rxode2parse_rc_buf_read

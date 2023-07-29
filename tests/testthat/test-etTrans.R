@@ -23,7 +23,6 @@ d/dt(blood)     = a*intestine - b*blood
 })
 
 .Call(`_rxode2parse_etTransEvidIsObs`, FALSE)
-
 for (radi in 1:2) {
 
   forderForceBase(switch(radi,TRUE, FALSE))
@@ -42,12 +41,16 @@ d/dt(intestine) = -a*intestine
 d/dt(blood)     = a*intestine - b*blood
 ")
 
-  et <- structure(list(time = c(0, 0.05, 0.1, 0.2, 0.3, 0.5), cmt = c("(default)",
-                                                                      "(obs)", "intestine", "-intestine", "intestine", "out"), amt = c(0.0833333333333333,
-                                                                                                                                       NA, 3, NA, 3, 3), rate = c(2, 0, 0, 0, 0, 0), ii = c(1, 0, 3,
-                                                                                                                                                                                            0, 3, 0), addl = c(9L, 0L, 0L, 0L, 0L, 0L), evid = c(1L, 2L,
-                                                                                                                                                                                                                                                 1L, 2L, 1L, 1L), ss = c(0L, 0L, 1L, 0L, 2L, 0L)), class = "data.frame", row.names = c(NA,
-                                                                                                                                                                                                                                                                                                                                       -6L))
+  et <- structure(list(time = c(0, 0.05, 0.1, 0.2, 0.3, 0.5),
+                       cmt = c("(default)", "(obs)", "intestine", "-intestine", "intestine", "out"),
+                       amt = c(0.0833333333333333, NA, 3, NA, 3, 3),
+                       rate = c(2, 0, 0, 0, 0, 0),
+                       ii = c(1, 0, 3, 0, 3, 0),
+                       addl = c(9L, 0L, 0L, 0L, 0L, 0L),
+                       evid = c(1L, 2L, 1L, 2L, 1L, 1L),
+                       ss = c(0L, 0L, 1L, 0L, 2L, 0L)),
+                  class = "data.frame",
+                  row.names = c(NA, -6L))
 
   ## et <- eventTable()
   ## et$add.dosing(
@@ -127,28 +130,30 @@ d/dt(blood)     = a*intestine - b*blood
   ##   et(amt = 3, time = 0.5, cmt = "-out") %>%
   ##   as.data.frame()
 
+  et <- structure(list(time = c(0, 0.05, 0.5),
+                       cmt = c("(default)", "(obs)", "-out"),
+                       amt = c(0.0833333333333333, NA, NA),
+                       rate = c(2, 0, 0),
+                       ii = c(1, 0, 0),
+                       addl = c(9L, 0L, 0L),
+                       evid = c(1L, 2L, 2L)),
+                  class = "data.frame",
+                  row.names = c(NA, -3L))
+  
   test_that("error for negative non ODE compartments", {
     expect_error(etTransParse(et, mod, keepDosingOnly = TRUE))
     et$cmt <- factor(et$cmt)
     expect_error(etTransParse(et, mod, keepDosingOnly = TRUE))
   })
 
-  et <- structure(list(time = c(0, 0.05, 0.25, 0.5), cmt = c("(default)",
-                                                             "(obs)", "out", "-out"), amt = c(0.0833333333333333, NA, 3, NA
-                                                                                              ), rate = c(2, 0, 0, 0), ii = c(1, 0, 0, 0), addl = c(9L, 0L,
-                                                                                                                                                    0L, 0L), evid = c(1L, 2L, 1L, 2L)), class = "data.frame", row.names = c(NA,
-                                                                                                                                                                                                                            -4L))
-
-  ## et <- eventTable()
-  ## et$add.dosing(
-  ##   dose = 2 / 24, rate = 2, start.time = 0,
-  ##   nbr.doses = 10, dosing.interval = 1
-  ## )
-  ## et <- et %>%
-  ##   et(0.05, evid = 2) %>%
-  ##   et(amt = 3, time = 0.25, cmt = "out") %>%
-  ##   et(amt = 3, time = 0.5, cmt = "-out") %>%
-  ##   as.data.frame()
+  et <- structure(list(time = c(0, 0.05, 0.25, 0.5),
+                       cmt = c("(default)", "(obs)", "out", "-out"),
+                       amt = c(0.0833333333333333, NA, 3, NA),
+                       rate = c(2, 0, 0, 0),
+                       ii = c(1, 0, 0, 0),
+                       addl = c(9L, 0L, 0L, 0L),
+                       evid = c(1L, 2L, 1L, 2L)),
+                  class = "data.frame", row.names = c(NA, -4L))
 
   test_that("error for negative non ODE compartments after defined compartment", {
     expect_error(etTransParse(et, mod, keepDosingOnly = TRUE))
@@ -157,9 +162,6 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   et <- structure(list(time = 0.24, amt = 3, evid = 4L), class = "data.frame", row.names = c(NA, -1L))
-
-  ## et <- et() %>% et(amt = 3, time = 0.24, evid = 4) %>%
-  ##   as.data.frame()
 
   test_that("EVID=4 makes sense", {
     expect_warning(
@@ -301,9 +303,13 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   ## Dat1= day month year
-  d1 <- data.frame(DV = 0, DAT1 = c("1-10-86", "1-10-86", "2-10-86"), TIME = c("9:15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DV = 0,
+                   DAT1 = c("1-10-86", "1-10-86", "2-10-86"),
+                   TIME = c("9:15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
 
-  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F), data.frame(ID = 2, d1, stringsAsFactors = F))
+  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F),
+              data.frame(ID = 2, d1, stringsAsFactors = F))
   d2[d2$ID == 2, "DAT1"] <- gsub("-10-", "-11-", d2[d2$ID == 2, "DAT1"])
 
   d3 <- d1
@@ -324,10 +330,13 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   ## Dat2 = year month day
-  d1 <- data.frame(DAT2 = c("86-10-1", "86-10-1", "86-10-2"), TIME = c("9:15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DAT2 = c("86-10-1", "86-10-1", "86-10-2"),
+                   TIME = c("9:15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
   d1$DV <- 0
 
-  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F), data.frame(ID = 2, d1, stringsAsFactors = F))
+  d2 <- rbind(data.frame(ID = 1, d1, stringsAsFactors = F),
+              data.frame(ID = 2, d1, stringsAsFactors = F))
   d2[d2$ID == 2, "DAT2"] <- gsub("-10-", "-11-", d2[d2$ID == 2, "DAT2"])
 
   d3 <- d1
@@ -371,7 +380,10 @@ d/dt(blood)     = a*intestine - b*blood
     expect_equal(c(0, 5.41666666666667, 23.25), tmp$TIME)
   })
 
-  d1 <- data.frame(DV = 0, DATE = c("10-1-86", "10-1-86", "10-2-86"), TIME = c("9:15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DV = 0,
+                   DATE = c("10-1-86", "10-1-86", "10-2-86"),
+                   TIME = c("9:15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
 
   d2 <- d1
   d2$DAT1 <- d2$DATE
@@ -389,7 +401,10 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
 
-  d1 <- data.frame(DV = 0, DATE = c("10-1-86", "10-1-86", "10-2-86"), TIME = c("9.15", "14:40", "8:30"), stringsAsFactors = F)
+  d1 <- data.frame(DV = 0,
+                   DATE = c("10-1-86", "10-1-86", "10-2-86"),
+                   TIME = c("9.15", "14:40", "8:30"),
+                   stringsAsFactors = FALSE)
 
   test_that("Bad Date/Time combination", {
     expect_error(etTrans(d1, mod))
@@ -408,28 +423,37 @@ d/dt(blood)     = a*intestine - b*blood
 
 
     d <- structure(list(
-      ID = c(1L, 1L, 1L), TIME = c(0, 0, 0.25),
+      ID = c(1L, 1L, 1L),
+      TIME = c(0, 0, 0.25),
       DV = c(0, 0.74, 2.84),
-      AMT = c(319.992, 0, 0), EVID = c(101L, 0L, 0L),
-      WT = c(79.6, 79.6, 79.6), RATE = c(-2, 0, 0)),
+      AMT = c(319.992, 0, 0),
+      EVID = c(101L, 0L, 0L),
+      WT = c(79.6, 79.6, 79.6),
+      RATE = c(-2, 0, 0)),
       row.names = c(NA, 3L), class = "data.frame")
 
     expect_warning(etTransParse(d, mod), "'rate'")
 
     d <- structure(list(
-      ID = c(1L, 1L, 1L), TIME = c(0, 0, 0.25),
+      ID = c(1L, 1L, 1L),
+      TIME = c(0, 0, 0.25),
       DV = c(0, 0.74, 2.84),
-      AMT = c(319.992, 0, 0), EVID = c(101L, 0L, 0L),
-      WT = c(79.6, 79.6, 79.6), DUR = c(-2, 0, 0)),
+      AMT = c(319.992, 0, 0),
+      EVID = c(101L, 0L, 0L),
+      WT = c(79.6, 79.6, 79.6),
+      DUR = c(-2, 0, 0)),
       row.names = c(NA, 3L), class = "data.frame")
 
     expect_warning(etTransParse(d, mod), "'dur'")
 
     d <- structure(list(
-      ID = c(1L, 1L, 1L), TIME = c(0, 0, 0.25),
+      ID = c(1L, 1L, 1L),
+      TIME = c(0, 0, 0.25),
       DV = c(0, 0.74, 2.84),
-      AMT = c(319.992, 0, 0), EVID = c(101L, 0L, 0L),
-      WT = c(79.6, 79.6, 79.6), SS = c(1, 0, 0),
+      AMT = c(319.992, 0, 0),
+      EVID = c(101L, 0L, 0L),
+      WT = c(79.6, 79.6, 79.6),
+      SS = c(1, 0, 0),
       II = c(24, 0, 0)),
       row.names = c(NA, 3L), class = "data.frame")
 
@@ -713,7 +737,6 @@ d/dt(blood)     = a*intestine - b*blood
     ),
     class = "data.frame", row.names = c(NA, -1L)
     ), trn1)
-
   })
 
   ## etTrans example from xgxr + nlmixr + ggpmx
@@ -790,11 +813,11 @@ d/dt(intestine) = -a*intestine
 d/dt(blood)     = a*intestine - b*blood
 ")
 
-    d <- structure(list(time = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), cmt = c(2L,
-                                                                            NA, NA, NA, NA, NA, NA, NA, NA, NA, NA), amt = c(3, NA, NA, NA,
-                                                                                                                             NA, NA, NA, NA, NA, NA, NA), evid = c(7L, 0L, 0L, 0L, 0L, 0L,
-                                                                                                                                                                   0L, 0L, 0L, 0L, 0L)), class = "data.frame", row.names = c(NA,
-                                                                                                                                                                                                                             -11L))
+    d <- structure(list(time = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+                        cmt = c(2L, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                        amt = c(3, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                        evid = c(7L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L)),
+                   class = "data.frame", row.names = c(NA, -11L))
 
     tran <- etTransParse(d, mod)
 
@@ -902,7 +925,7 @@ test_that("test etTran on addl ss items", {
                  class = "data.frame",
                  row.names = c(NA, -82L))
 
-  # should not drop the off infusion record
+   # should not drop the off infusion record
   t <- etTransParse(e, rx)
 
   expect_equal(t$TIME[length(t$TIME)], 82)
@@ -916,6 +939,7 @@ test_that("test etTran on addl ss items", {
   expect_true(all(t2$AMT == 10))
   expect_true(all(t2$EVID == 10210L))
 })
+
 
 test_that("warning for all na", {
 
@@ -1069,7 +1093,219 @@ d/dt(blood)     = a*intestine - b*blood
   dSimple <-
     data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
   expect_error(etTransParse(dSimple, mod), "evid: 7")
+})
+
+test_that("etTrans lag ss", {
+  mod <- rxode2parse("
+a = 6
+b = 0.6
+d/dt(intestine) = -a*intestine
+alag(intestine) = lag
+d/dt(blood)     = a*intestine - b*blood
+")
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(1, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 1))
+  expect_equal(tmp$EVID, c(109L, 101L, 0L))
+  expect_equal(tmp$II, c(24, 0, 0))
+  expect_equal(tmp$AMT, c(100, 100, NA))
 
 
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0))
 
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 1))
+  expect_equal(tmp$EVID, c(119L, 101L, 0L))
+  expect_equal(tmp$II, c(24, 0, 0))
+  expect_equal(tmp$AMT, c(100, 100, NA))
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(1, 0),
+                  rate=c(5, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
+  expect_equal(tmp$EVID, c(10109L, 10108L, 10101L, 0L, 10101L))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 0))
+  expect_equal(tmp$AMT, c(5, -5, 5, NA, -5))
+
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(1, 0),
+                  dur=c(20, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
+  expect_equal(tmp$EVID, c(20109L, 20108L, 20101L, 0L, 20101L))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 0))
+  expect_equal(tmp$AMT, c(5, -5, 5, NA, -5))
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0),
+                  rate=c(5, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
+  expect_equal(tmp$EVID, c(10119L, 10108L, 10101L, 0L, 10101L))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 0))
+  expect_equal(tmp$AMT, c(5, -5, 5, NA, -5))
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0),
+                  dur=c(20, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
+  expect_equal(tmp$EVID, c(20119L, 20108L, 20101L, 0L, 20101L))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 0))
+  expect_equal(tmp$AMT, c(5, -5, 5, NA, -5))
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(1, 0),
+                  rate=c(5, 0),
+                  addl=c(3, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
+  expect_equal(tmp$EVID, c(10109L, 10108L, 10101L, 10101L, 10109L, 10108L, 10101L, 10101L,
+                           10109L, 10108L, 10101L, 10101L, 10109L, 10108L, 10101L, 10101L, 0L))
+  expect_equal(tmp$AMT, c(5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, NA))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 0))
+
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(1, 0),
+                  dur=c(20, 0),
+                  addl=c(3, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
+  expect_equal(tmp$EVID, c(20109L, 20108L, 20101L, 20101L, 20109L, 20108L, 20101L, 20101L,
+                           20109L, 20108L, 20101L, 20101L, 20109L, 20108L, 20101L, 20101L, 0L))
+  expect_equal(tmp$AMT, c(5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, NA))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 0))
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0),
+                  rate=c(5, 0),
+                  addl=c(3, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
+  expect_equal(tmp$EVID, c(10119L, 10108L, 10101L, 10101L, 10119L, 10108L, 10101L, 10101L,
+                           10119L, 10108L, 10101L, 10101L, 10119L, 10108L, 10101L, 10101L, 0L))
+  expect_equal(tmp$AMT, c(5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, NA))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 0))
+
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0),
+                  dur=c(20, 0),
+                  addl=c(3, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
+  expect_equal(tmp$EVID, c(20119L, 20108L, 20101L, 20101L, 20119L, 20108L, 20101L, 20101L,
+                           20119L, 20108L, 20101L, 20101L, 20119L, 20108L, 20101L, 20101L, 0L))
+  expect_equal(tmp$AMT, c(5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, 5, -5, NA))
+  expect_equal(tmp$II, c(24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 24, 24, 0, 0, 0))
+
+  # addl on bolus
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(1, 0),
+                  addl=c(3,0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 24, 24, 48, 48, 72, 72, 200))
+  expect_equal(tmp$EVID, c(109L, 101L, 109L, 101L, 109L, 101L, 109L, 101L, 0L))
+  expect_equal(tmp$AMT, c(100, 100, 100, 100, 100, 100, 100, 100, NA))
+  expect_equal(tmp$II, c(24, 0, 24, 0, 24, 0, 24, 0, 0))
+
+  d <- data.frame(time=c(0, 200),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(2, 0),
+                  addl=c(3,0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 24, 24, 48, 48, 72, 72, 200))
+  expect_equal(tmp$EVID, c(119L, 101L, 119L, 101L, 119L, 101L, 119L, 101L, 0L))
+  expect_equal(tmp$AMT, c(100, 100, 100, 100, 100, 100, 100, 100, NA))
+  expect_equal(tmp$II, c(24, 0, 24, 0, 24, 0, 24, 0, 0))
+
+
+  mod <- rxode2parse("
+a = 6
+b = 0.6
+d/dt(intestine) = -a*intestine
+alag(intestine) = lag
+dur(intestine) = di
+rate(intestine) = ri
+d/dt(blood)     = a*intestine - b*blood
+")
+
+  d <- data.frame(time=c(0, 1),
+                  amt=c(100, 0),
+                  ii=c(24, 0),
+                  evid=c(1,0),
+                  ss=c(1, 0),
+                  rate=c(-1, 0))
+
+  tmp <- etTransParse(d, mod)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 1))
+  expect_equal(tmp$EVID, c(90109L, 90101L, 70101L, 0L))
+  expect_equal(tmp$AMT, c(100, 100, 100, NA))
+  expect_equal(tmp$II, c(24, 0, 0, 0))
 })

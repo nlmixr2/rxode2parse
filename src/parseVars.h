@@ -133,6 +133,7 @@ static inline int new_or_ith(const char *s) {
     tb.allocS += MXSYM;
     tb.lh = R_Realloc(tb.lh, tb.allocS, int);
     tb.lag = R_Realloc(tb.lag, tb.allocS, int);
+    tb.alag = R_Realloc(tb.alag, tb.allocS, int);
     tb.ini= R_Realloc(tb.ini, tb.allocS, int);
     tb.mtime=R_Realloc(tb.mtime, tb.allocS, int);
     tb.iniv=R_Realloc(tb.iniv, tb.allocS, double);

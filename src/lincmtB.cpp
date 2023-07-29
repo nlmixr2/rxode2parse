@@ -2167,7 +2167,7 @@ namespace stan {
       }
       int extraAdvan = 1, doRate=0, doMultiply = 0, doReplace=0,
 	doInf=0;
-	evid = ind->evid[ind->ix[idx]];
+    evid = getEvid(ind, ind->ix[idx]);
 	if (isObs(evid)){
 	} else if (evid == 3){
 	  // Reset event

@@ -23,6 +23,18 @@ static inline int handleCmtPropertyAlag(nodeInfo ni, char *name, char *v) {
     if (foundLag == 0) needSort+=2; // & 2 when alag
     foundLag=1;
     aType(ALAG);
+    int lagP = tb.id+1;
+    int found = 0;
+    for (int i = 0; i < tb.alagn; ++i) {
+      if (tb.alag[i] == lagP) {
+        found = 1;
+        break;
+      }
+    }
+    if (found == 0) {
+      tb.alag[tb.alagn] = lagP;
+      tb.alagn++;
+    }
     return 1;
   }
   return 0;

@@ -128,12 +128,12 @@ extern SEXP getRxode2ParseDf(void);
 void codegen(char *model, int show_ode, const char *prefix, const char *libname, const char *pMd5, const char *timeId, const char *libname2) {
   _rxode2parse_assignTranslation(getRxode2ParseDf());
   _rxode2parse_packages = getRxode2ParseGetPointerAssignment();
-  if (show_ode == 4) {
+  if (show_ode == ode_printaux) {
     print_aux_info(model, prefix, libname, pMd5, timeId, libname2);
   } else {
     int i, j;
     char *buf;
-    if (show_ode == 1){
+    if (show_ode == ode_dydt){
       const char *extra = "";
       if (strncmp("rx_", libname, 3) != 0) extra = libname;
       writeHeader(md5, extra);
@@ -189,14 +189,14 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
       sAppendN(&sbOut,"\n", 1);
       sAppendN(&sbOut, "\n// prj-specific differential eqns\nvoid ", 40);
       sAppend(&sbOut, "%sdydt(int *_neq, double __t, double *__zzStateVar__, double *__DDtStateVar__)\n{\n  int _itwhile = 0;\n  (void)_itwhile;\n  int _cSub = _neq[1];\n  double t = __t + _solveData->subjects[_neq[1]].curShift;\n  (void)t;\n  (&_solveData->subjects[_cSub])->_rxFlag=1;\n  ", prefix);
-    } else if (show_ode == 2){
+    } else if (show_ode == ode_jac){
       sAppend(&sbOut, "// Jacobian derived vars\nvoid %scalc_jac(int *_neq, double __t, double *__zzStateVar__, double *__PDStateVar__, unsigned int __NROWPD__) {\n  int _itwhile = 0;\n  (void)_itwhile;\n    int _cSub=_neq[1];\n  double t = __t + _solveData->subjects[_neq[1]].curShift;\n  (void)t;\n  (&_solveData->subjects[_cSub])->_rxFlag=2;\n  ", prefix);
-    } else if (show_ode == 3){
+    } else if (show_ode == ode_ini){
       sAppend(&sbOut,  "// Functional based initial conditions.\nvoid %sinis(int _cSub, double *__zzStateVar__){\n  int _itwhile = 0;\n  (void)_itwhile;\n  \n  (&_solveData->subjects[_cSub])->_rxFlag=3;\n  ", prefix);
       if (foundF0){
         sAppendN(&sbOut, "  double t=0;\n", 14);
       }
-    } else if (show_ode == 5){
+    } else if (show_ode == ode_fbio){
       if (foundF){
         int nnn = tb.de.n;
         if (tb.linCmt){
@@ -215,7 +215,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,  "// Functional based bioavailability\ndouble %sF(int _cSub,  int _cmt, double _amt, double __t, double *__zzStateVar__){\n return _amt;\n  ",
                 prefix);
       }
-    } else if (show_ode == 6){
+    } else if (show_ode == ode_lag){
       if (foundLag){
         int nnn = tb.de.n;
         if (tb.linCmt){
@@ -234,7 +234,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,  "// Functional based absorption lag\ndouble %sLag(int _cSub,  int _cmt, double __t, double *__zzStateVar__){\n return __t;\n",
                 prefix);
       }
-    } else if (show_ode == 7){
+    } else if (show_ode == ode_rate){
       if (foundRate){
         int nnn = tb.de.n;
         if (tb.linCmt){
@@ -253,7 +253,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,  "// Modeled zero-order rate\ndouble %sRate(int _cSub,  int _cmt, double _amt, double __t, double *__zzStateVar__){\n return 0.0;\n",
                 prefix);
       }
-    } else if (show_ode == 8){
+    } else if (show_ode == ode_dur){
       if (foundDur){
         int nnn = tb.de.n;
         if (tb.linCmt){
@@ -272,7 +272,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,  "// Modeled zero-order duration\ndouble %sDur(int _cSub,  int _cmt, double _amt, double __t){\n return 0.0;\n",
                 prefix);
       }
-    } else if (show_ode == 9){
+    } else if (show_ode == ode_mtime){
       if (nmtime){
         sAppend(&sbOut,  "// Model Times\nvoid %smtime(int _cSub, double *_mtime){\n  int _itwhile = 0;\n  (void)_itwhile;\n  double t = 0;\n  (&_solveData->subjects[_cSub])->_rxFlag=8;\n  ",
                 prefix);
@@ -280,27 +280,28 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,  "// Model Times\nvoid %smtime(int _cSub, double *_mtime){\n",
                 prefix);
       }
-    } else if (show_ode == 10){
+    } else if (show_ode == ode_mexp){
       sAppend(&sbOut, "// Matrix Exponential (%d)\nvoid %sME(int _cSub, double _t, double __t, double *_mat, const double *__zzStateVar__){\n  int _itwhile = 0;\n  (void)_itwhile;\n  double t = __t + _solveData->subjects[_cSub].curShift;\n  (void)t;\n  (&_solveData->subjects[_cSub])->_rxFlag=9;\n  ",
               tb.matn, prefix);
-    } else if (show_ode == 11){
+    } else if (show_ode == ode_indLinVec) {
       sAppend(&sbOut, "// Inductive linearization Matf\nvoid %sIndF(int _cSub, double _t, double __t, double *_matf){\n int _itwhile = 0;\n  (void)_itwhile;\n  double t = __t + _solveData->subjects[_cSub].curShift;\n  (void)t;\n  (&_solveData->subjects[_cSub])->_rxFlag=10;\n  ", prefix);
     } else {
       sAppend(&sbOut,  "// prj-specific derived vars\nvoid %scalc_lhs(int _cSub, double __t, double *__zzStateVar__, double *_lhs) {\n    int _itwhile = 0;\n  (void)_itwhile;\n  double t = __t + _solveData->subjects[_cSub].curShift;\n  (void)t;\n  (&_solveData->subjects[_cSub])->_rxFlag=11;\n  ", prefix);
     }
-    if ((show_ode == 2 && found_jac == 1 && good_jac == 1) ||
-        (show_ode != 2 && show_ode != 3 && show_ode != 5  && show_ode != 8 &&
-         show_ode != 7 && show_ode != 6 &&
-         show_ode !=0 && show_ode != 9 && show_ode != 10 && show_ode != 11) ||
-        (show_ode == 8 && foundDur) ||
-        (show_ode == 7 && foundRate) ||
-        (show_ode == 6 && foundLag) ||
-        (show_ode == 5 && foundF) ||
-        (show_ode == 3 && foundF0) ||
-        (show_ode == 0 && tb.li) ||
-        (show_ode == 9 && nmtime) ||
-        (show_ode == 10 && tb.matn) ||
-        (show_ode == 11 && tb.matnf)){
+    if ((show_ode == ode_jac && found_jac == 1 && good_jac == 1) ||
+        (show_ode != ode_jac && show_ode != ode_ini && show_ode != ode_fbio &&
+         show_ode != ode_dur && show_ode != ode_rate && show_ode != ode_lag &&
+         show_ode != ode_lhs && show_ode != ode_mtime && show_ode != ode_mexp &&
+         show_ode != ode_indLinVec) ||
+        (show_ode == ode_dur && foundDur) ||
+        (show_ode == ode_rate && foundRate) ||
+        (show_ode == ode_lag && foundLag) ||
+        (show_ode == ode_fbio && foundF) ||
+        (show_ode == ode_ini && foundF0) ||
+        (show_ode == ode_lhs && tb.li) ||
+        (show_ode == ode_mtime && nmtime) ||
+        (show_ode == ode_mexp && tb.matn) ||
+        (show_ode == ode_indLinVec && tb.matnf)){
       prnt_vars(print_double, 0, "", "\n",show_ode);     /* declare all used vars */
       if (maxSumProdN > 0 || SumProdLD > 0){
         int mx = maxSumProdN;
@@ -318,22 +319,23 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         }
       }
       prnt_vars(print_lastLhsValue, 0,"","\n", 12);
-      if (show_ode == 3){
+      if (show_ode == ode_ini){
         sAppendN(&sbOut, "  _update_par_ptr(0.0, _cSub, _solveData, _idx);\n", 49);
-      } else if (show_ode == 6 || show_ode == 7 || show_ode == 8 || show_ode == 9){
+      } else if (show_ode == ode_lag || show_ode == ode_rate || show_ode == ode_dur ||
+                 show_ode == ode_mtime){
         // functional lag, rate, duration, mtime
         sAppendN(&sbOut, "  _update_par_ptr(NA_REAL, _cSub, _solveData, _idx);\n", 53);
-      } else if (show_ode == 11 || show_ode == 10){
+      } else if (show_ode == ode_indLinVec || show_ode == ode_mexp){
         sAppendN(&sbOut, "  _update_par_ptr(_t, _cSub, _solveData, _idx);\n", 48);
       } else {
         sAppendN(&sbOut, "  _update_par_ptr(__t, _cSub, _solveData, _idx);\n", 49);
       }
       prnt_vars(print_populateParameters, 1, "", "\n",show_ode);                   /* pass system pars */
-      if (show_ode != 9 && show_ode != 11){
+      if (show_ode != ode_mtime && show_ode != ode_indLinVec){
         for (i=0; i<tb.de.n; i++) {                   /* name state vars */
           buf = tb.ss.line[tb.di[i]];
           if(tb.idu[i] != 0){
-            if (show_ode == 6 || show_ode == 8 || show_ode == 7){
+            if (show_ode == ode_lag || show_ode == ode_dur || show_ode == ode_rate){
               sAppendN(&sbOut, "  ", 2);
               doDot(&sbOut, buf);
               sAppend(&sbOut, " = NA_REAL;\n", i, i);
@@ -350,87 +352,90 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppendN(&sbOut, "\n", 1);
       }
     }
-    if ((foundDur && show_ode == 8) ||
-        (foundRate && show_ode == 7) ||
-        (foundLag && show_ode == 6) ||
-        (foundF && show_ode == 5) ||
-        (foundF0 && show_ode == 3) ||
-        (show_ode == 0 && tb.li) ||
-        (show_ode == 9 && nmtime) ||
-        (show_ode == 2 && found_jac == 1 && good_jac == 1) ||
-        (show_ode != 9 && show_ode != 0 && show_ode != 2 && show_ode != 3 && show_ode != 5 && show_ode != 6  && show_ode != 7 && show_ode != 8)){
+    if ((foundDur && show_ode == ode_dur) ||
+        (foundRate && show_ode == ode_rate) ||
+        (foundLag && show_ode == ode_lag) ||
+        (foundF && show_ode == ode_fbio) ||
+        (foundF0 && show_ode == ode_ini) ||
+        (show_ode == ode_lhs && tb.li) ||
+        (show_ode == ode_mtime && nmtime) ||
+        (show_ode == ode_jac && found_jac == 1 && good_jac == 1) ||
+        (show_ode != ode_mtime && show_ode != ode_lhs &&
+         show_ode != ode_jac && show_ode != ode_ini &&
+         show_ode != ode_fbio && show_ode != ode_lag  &&
+         show_ode != ode_rate && show_ode != ode_dur)){
       for (i = 0; i < sbPm.n; i++){
         switch(sbPm.lType[i]){
         case TLIN:
-          if (show_ode != 10 && show_ode != 11 &&
-              show_ode != 5 && show_ode != 6 &&
-              show_ode != 7 && show_ode !=8){
-            sAppend(&sbOut,"  %s",show_ode == 1 ? sbPm.line[i] : sbPmDt.line[i]);
+          if (show_ode != ode_mexp && show_ode != ode_indLinVec &&
+              show_ode != ode_fbio && show_ode != ode_lag &&
+              show_ode != ode_rate && show_ode != ode_dur){
+            sAppend(&sbOut,"  %s",show_ode == ode_dydt ? sbPm.line[i] : sbPmDt.line[i]);
           }
           break;
         case TMTIME:
         case TASSIGN:
-          if (show_ode != 10 && show_ode != 11){
-            sAppend(&sbOut,"  %s",show_ode == 1 ? sbPm.line[i] : sbPmDt.line[i]);
+          if (show_ode != ode_mexp && show_ode != ode_indLinVec){
+            sAppend(&sbOut,"  %s",show_ode == ode_dydt ? sbPm.line[i] : sbPmDt.line[i]);
           }
           break;
         case TINI:
           // See if this is an ini or a reclaimed expression.
-          if (show_ode != 10 && show_ode != 11){
+          if (show_ode != ode_mexp && show_ode != ode_indLinVec){
             if (sbPm.lProp[i] >= 0 ){
               tb.ix = sbPm.lProp[i];
               if (tb.lh[tb.ix] == isLHS || tb.lh[tb.ix] == isLHSparam){
-                sAppend(&sbOut,"  %s",show_ode == 1 ? sbPm.line[i] : sbPmDt.line[i]);
+                sAppend(&sbOut,"  %s",show_ode == ode_dydt ? sbPm.line[i] : sbPmDt.line[i]);
               }
             }
           }
           break;
         case TF0:
           // functional ini
-          if (show_ode == 3) sAppend(&sbOut,"  %s",sbPmDt.line[i]);
+          if (show_ode == ode_ini) sAppend(&sbOut,"  %s",sbPmDt.line[i]);
           break;
         case FBIO:
-          if (show_ode == 5) sAppend(&sbOut,"  %s", sbPmDt.line[i]);
+          if (show_ode == ode_fbio) sAppend(&sbOut,"  %s", sbPmDt.line[i]);
           break;
         case ALAG:
-          if (show_ode == 6) sAppend(&sbOut, "  %s", sbPmDt.line[i]);
+          if (show_ode == ode_lag) sAppend(&sbOut, "  %s", sbPmDt.line[i]);
           break;
         case RATE:
-          if (show_ode == 7) sAppend(&sbOut, "  %s", sbPmDt.line[i]);
+          if (show_ode == ode_rate) sAppend(&sbOut, "  %s", sbPmDt.line[i]);
           break;
         case DUR:
-          if (show_ode == 8) sAppend(&sbOut,"  %s", sbPmDt.line[i]);
+          if (show_ode == ode_dur) sAppend(&sbOut,"  %s", sbPmDt.line[i]);
           break;
         case TJAC:
-          if (show_ode == 0) sAppend(&sbOut, "  %s", sbPmDt.line[i]);
-          else if (show_ode == 2)  sAppend(&sbOut, "  %s", sbPm.line[i]);
+          if (show_ode == ode_lhs) sAppend(&sbOut, "  %s", sbPmDt.line[i]);
+          else if (show_ode == ode_jac)  sAppend(&sbOut, "  %s", sbPm.line[i]);
           break;
         case TDDT:
           // d/dt()
-          if (show_ode != 3 && show_ode != 5 && show_ode != 6 &&
-              show_ode != 7 && show_ode != 8 && show_ode != 9 &&
-              show_ode !=10 && show_ode != 11){
-            sAppend(&sbOut, "  %s", show_ode == 1 ? sbPm.line[i] : sbPmDt.line[i]);
+          if (show_ode != ode_ini && show_ode != ode_fbio && show_ode != ode_lag &&
+              show_ode != ode_rate && show_ode != ode_dur && show_ode != ode_mtime &&
+              show_ode !=10 && show_ode != ode_indLinVec){
+            sAppend(&sbOut, "  %s", show_ode == ode_dydt ? sbPm.line[i] : sbPmDt.line[i]);
           }
           break;
         case PPRN:
           // Rprintf
-          if ((fullPrint && show_ode != 10 && show_ode != 11) || (!fullPrint && show_ode == 1)) {
-            sAppend(&sbOut, "  %s", show_ode == 1 ? sbPm.line[i] : sbPmDt.line[i]);
+          if ((fullPrint && show_ode != ode_mexp && show_ode != ode_indLinVec) || (!fullPrint && show_ode == 1)) {
+            sAppend(&sbOut, "  %s", show_ode == ode_dydt ? sbPm.line[i] : sbPmDt.line[i]);
           }
           break;
         case TLOGIC:
-          if (show_ode != 10 && show_ode != 11){
-            sAppend(&sbOut,"  %s",show_ode == 1 ? sbPm.line[i] : sbPmDt.line[i]);
+          if (show_ode != ode_mexp && show_ode != ode_indLinVec){
+            sAppend(&sbOut,"  %s",show_ode == ode_dydt ? sbPm.line[i] : sbPmDt.line[i]);
           }
           break;
         case TMAT0:
-          if (show_ode == 10){
+          if (show_ode == ode_mexp){
             sAppend(&sbOut,"  %s", sbPm.line[i]);
           }
           break;
         case TMATF:
-          if (show_ode == 11){
+          if (show_ode == ode_indLinVec){
             sAppend(&sbOut,"  %s", sbPm.line[i]);
           }
           break;
@@ -444,30 +449,30 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
       }
       // End statements
       switch (show_ode){
-      case 8:
+      case ode_dur:
         // RATE
         sAppendN(&sbOut, "\n  return _dur[_cmt];\n", 22);
         break;
-      case 7:
+      case ode_rate:
         // DUR
         sAppendN(&sbOut, "\n  return _rate[_cmt];\n", 23);
         break;
-      case 6:
+      case ode_lag:
         // Alag
         sAppendN(&sbOut, "\n  return t + _alag[_cmt] - _solveData->subjects[_cSub].curShift;\n", 66);
         break;
-      case 5:
+      case ode_fbio:
         sAppendN(&sbOut, "\n  return _f[_cmt]*_amt;\n", 25);
         break;
       }
     }
-    if (show_ode == 1){
+    if (show_ode == ode_dydt){
       sAppendN(&sbOut,  "  (&_solveData->subjects[_cSub])->dadt_counter[0]++;\n}\n\n", 56);
-    } else if (show_ode == 2){
+    } else if (show_ode == ode_jac){
       //sAppendN(&sbOut, "  free(__ld_DDtStateVar__);\n");
       sAppendN(&sbOut,  "  (&_solveData->subjects[_cSub])->jac_counter[0]++;\n", 52);
       sAppendN(&sbOut,  "}\n", 2);
-    } else if (show_ode == 3){
+    } else if (show_ode == ode_ini){
       if (foundF0){
         for (i = 0; i < tb.de.n; i++) {
           if (tb.idu[i]) {
@@ -479,9 +484,10 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         }
       }
       sAppendN(&sbOut,  "}\n", 2);
-    } else if (show_ode == 5 || show_ode == 6 || show_ode == 7 || show_ode == 8){
+    } else if (show_ode == ode_fbio || show_ode == ode_lag || show_ode == ode_rate ||
+               show_ode == ode_dur){
       sAppendN(&sbOut,  "}\n", 2);
-    } else if (show_ode == 0 && tb.li){
+    } else if (show_ode == ode_lhs && tb.li){
       sAppendN(&sbOut,  "\n", 1);
       for (i=0, j=0; i<NV; i++) {
         if (tb.lh[i] != isLHS && tb.lh[i] != isLhsStateExtra && tb.lh[i] != isLHSparam) continue;
@@ -492,7 +498,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         j++;
       }
       sAppendN(&sbOut,  "}\n", 2);
-    } else if (show_ode == 9 && nmtime){
+    } else if (show_ode == ode_mtime && nmtime){
       sAppendN(&sbOut,  "\n", 1);
       for (i=0, j=0; i<NV; i++) {
         if (tb.mtime[i] != 1) continue;

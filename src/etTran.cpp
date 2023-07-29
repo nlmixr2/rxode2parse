@@ -498,6 +498,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     combineDvidB = as<bool>(getOption("rxode2.combine.dvid", true));
   }
   IntegerVector curDvid = clone(as<IntegerVector>(mv[RxMv_dvid]));
+  IntegerVector curAlag = clone(as<IntegerVector>(mv[RxMv_alag]));
   CharacterVector trans = mv[RxMv_trans];
   if (Rf_inherits(inData,"rxEtTran")){
     CharacterVector cls = Rf_getAttrib(inData, R_ClassSymbol);
@@ -952,6 +953,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   int cmt99;  //= amt[i]-amt100*100;
   int cevid;
   int nevid;
+  int nevidLag;
   int caddl;
   double ctime;
   double cii;
@@ -1061,7 +1063,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       flg=40;
     }
 
-    if (cmtCol != -1){
+    if (cmtCol != -1) {
       tmpCmt = inCmt[i];
       if (inCmt[i] == 0 || IntegerVector::is_na(inCmt[i])){
         if (evidCol == -1){
@@ -1085,6 +1087,19 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     }
     // CMT flag
     else cmt = tmpCmt;
+    // see if you need to adjust for lagged
+    if (flg == 10 || flg == 20) {
+      for (int jj = 0; jj < curAlag.size(); ++jj) {
+        if (cmt == curAlag[jj]) {
+          if (flg == 10) {
+            flg = 9;
+          } else {
+            flg = 19;
+          }
+          break;
+        }
+      }
+    }
     if (cmt <= 99){
       cmt100=0;
       cmt99=cmt;
@@ -1485,7 +1500,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       }
       ii.push_back(cii);
       bool keepIIadl = false;
-      if ((flg == 10 || flg == 20 || flg == 40) && caddl > 0){
+      bool addLagged = false;
+      if (flg == 9 || flg == 19) {
+        keepIIadl = true;
+        addLagged = true;
+      } else if ((flg == 10 || flg == 20 || flg == 40) && caddl > 0){
         keepIIadl = true;
         //stop(_("'ss' with 'addl' not supported (id: %s row: %d)"), CHAR(idLvl[cid-1]), i+1);
       }
@@ -1496,12 +1515,33 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       idxOutput.push_back(curIdx);curIdx++;
       ndose++;
       if (rateI > 2 && rateI != 4 && rateI != 5 && flg != 40){
+        // modeled rate/duration
         if (ISNA(camt) || camt == 0.0) {
           if (nevid != 2){
             stop(_("'amt' value NA or 0 for dose event (id: %s row: %d)"), CHAR(idLvl[cid-1]), i+1);
           }
         }
         amt.push_back(camt);
+        if (addLagged) {
+          // add lagged dose for steady state
+          // note that steady state is already calculated with 09 or 19
+          // add lagged dose to continue ss tau
+          // if this is not a calculated rate/dur:
+          nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
+          id.push_back(cid);
+          evid.push_back(nevidLag);
+          cmtF.push_back(cmt);
+          amt.push_back(camt);
+          time.push_back(ctime);
+          //ii.push_back(cii);
+          ii.push_back(0.0);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+        }
         // turn off
         id.push_back(cid);
         evid.push_back(nevid);
@@ -1517,12 +1557,50 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         ndose++;
       } else if (rateI == 1 || rateI == 2){
         // In this case amt needs to be changed.
+        // specified rate/duration
         dur = camt/rate;
         amt.push_back(rate); // turn on
+        if (addLagged) {
+          // add lagged dose for steady state
+          // note that steady state is already calculated with 09 or 19
+          // add lagged dose to continue ss tau
+          // if this is not a calculated rate/dur:
+          id.push_back(cid);
+          evid.push_back(cevid-flg+8);
+          cmtF.push_back(cmt);
+          amt.push_back(-rate);
+          time.push_back(ctime);
+          ii.push_back(cii);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+
+          nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
+          id.push_back(cid);
+          evid.push_back(nevidLag);
+          cmtF.push_back(cmt);
+          amt.push_back(rate);
+          time.push_back(ctime);
+          //ii.push_back(cii);
+          ii.push_back(0.0);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+        }
         // turn off
         if (flg != 40){
           id.push_back(cid);
-          evid.push_back(cevid);
+          if (flg == 9 || flg == 19) {
+            evid.push_back(cevid-flg+1);
+          } else {
+            evid.push_back(cevid);
+          }
           cmtF.push_back(cmt);
           time.push_back(ctime+dur);
           amt.push_back(-rate);
@@ -1539,6 +1617,22 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           stop(_("'amt' value NA for dose event; (id: %s, amt: %f, evid: %d rxode2 evid: %d, row: %d)"), CHAR(idLvl[cid-1]), camt, inEvid[i], cevid, (int)i+1);
         }
         amt.push_back(camt);
+        if (addLagged) {
+          nevidLag = cmt100*100000+rateI*10000+cmt99*100+1;
+          id.push_back(cid);
+          evid.push_back(nevidLag);
+          cmtF.push_back(cmt);
+          amt.push_back(camt);
+          time.push_back(ctime);
+          //ii.push_back(cii);
+          ii.push_back(0.0);
+          idxInput.push_back(-1);
+          dv.push_back(NA_REAL);
+          limit.push_back(NA_REAL);
+          cens.push_back(0);
+          idxOutput.push_back(curIdx);curIdx++;
+          ndose++;
+        }
       }
       if (cii > 0 && caddl > 0) {
         if (!keepIIadl) {
@@ -1563,6 +1657,20 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           ndose++;
           if (rateI > 2 && rateI != 4 && rateI != 5){
             amt.push_back(camt);
+            if (addLagged) {
+              id.push_back(cid);
+              evid.push_back(nevidLag);
+              cmtF.push_back(cmt);
+              time.push_back(ctime);
+              ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              amt.push_back(camt);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+            }
             // turn off
             id.push_back(cid);
             evid.push_back(nevid);
@@ -1578,9 +1686,41 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             ndose++;
           } else if (rateI == 1 || rateI == 2){
             amt.push_back(rate);
+            if (addLagged) {
+              id.push_back(cid);
+              evid.push_back(cevid-flg+8);
+              cmtF.push_back(cmt);
+              amt.push_back(-rate);
+              time.push_back(ctime);
+              ii.push_back(cii);
+              //ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+
+              id.push_back(cid);
+              evid.push_back(nevidLag);
+              cmtF.push_back(cmt);
+              time.push_back(ctime);
+              ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              amt.push_back(rate);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+            }
             // turn off
             id.push_back(cid);
-            evid.push_back(cevid);
+            if (flg == 9 || flg == 19) {
+              evid.push_back(cevid-flg+1);
+            } else {
+              evid.push_back(cevid);
+            }
             cmtF.push_back(cmt);
             time.push_back(ctime+dur);
             amt.push_back(-rate);
@@ -1593,6 +1733,20 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             ndose++;
           } else {
             amt.push_back(camt);
+            if (addLagged) {
+              id.push_back(cid);
+              evid.push_back(nevidLag);
+              cmtF.push_back(cmt);
+              time.push_back(ctime);
+              ii.push_back(0.0);
+              idxInput.push_back(-1);
+              dv.push_back(NA_REAL);
+              limit.push_back(NA_REAL);
+              cens.push_back(0);
+              amt.push_back(camt);
+              idxOutput.push_back(curIdx);curIdx++;
+              ndose++;
+            }
           }
         }
       }
@@ -1912,13 +2066,16 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       stop("the columns that are kept must be either a string, a factor, an integer number, or a real number");
     }
   }
-
+  int maxItemsPerId = 0;
+  int curItems = 0;
   for (i =idxOutput.size(); i--;){
     if (idxOutput[i] != -1) {
       jj--;
       ivTmp = as<IntegerVector>(lst[0]);
       ivTmp[jj] = id[idxOutput[i]];
       if (lastId != id[idxOutput[i]]){
+        maxItemsPerId = max2(curItems, maxItemsPerId);
+        curItems=0;
         addId=true;
         idx1--;
         if (idx1 < 0) stop(_("number of individuals not calculated correctly"));
@@ -2059,8 +2216,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         addId=false;
         added=false;
       }
+      curItems++;
     }
   }
+  maxItemsPerId = max2(curItems, maxItemsPerId);
 #ifdef rxSolveT
   REprintf("  Time11: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
@@ -2133,7 +2292,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   Rf_setAttrib(lst1F, R_ClassSymbol, wrap("data.frame"));
   Rf_setAttrib(lst1F, R_RowNamesSymbol,
                IntegerVector::create(NA_INTEGER, -nid));
-  List e(29);
+  List e(30);
   RxTransNames;
   e[RxTrans_ndose] = IntegerVector::create(ndose);
   e[RxTrans_nobs]  = IntegerVector::create(nobs);
@@ -2191,6 +2350,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
                IntegerVector::create(NA_INTEGER,-idxOutput.size()+rmAmt));
   Rf_setAttrib(keepL, Rf_install("keepCov"), wrap(keepLc));
   e[RxTrans_keepL] = List::create(_["keepL"]=keepL, _["keepLtype"]=inDataFKL);
+  e[RxTrans_maxItemsPerId] = maxItemsPerId;
   Rf_setAttrib(e, R_ClassSymbol, wrap("rxHidden"));
   cls.attr(".rxode2.lst") = e;
   tmp = lstF[0];

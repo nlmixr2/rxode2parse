@@ -7,7 +7,6 @@ using namespace Rcpp;
 
 int fastFactorDataHasNa = 0;
 
-
 //
 // The unique ordered by occurrence comes from David Cooley:
 // It is found https://stackoverflow.com/questions/44697544/rcpp-unique-order-output

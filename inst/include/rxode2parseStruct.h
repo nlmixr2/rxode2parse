@@ -144,6 +144,7 @@ typedef struct {
   int *cens;
   int *idose;
   int *on;
+  int *skipDose;
   int idosen;
   int id;
   int idReal;
@@ -194,6 +195,25 @@ typedef struct {
   double *atol2;
   double *ssRtol;
   double *ssAtol;
+  // ignored and pending doses
+  int *ignoredDoses;
+  int *ignoredDosesN;
+  int *ignoredDosesAllocN;
+  int *pendingDoses;
+  int *pendingDosesN;
+  int *pendingDosesAllocN;
+  // extra doses
+  int *extraDoseTimeIdx;
+  int *extraDoseN;
+  int *extraDoseAllocN;
+  double *extraDoseTime;
+  int *extraDoseEvid;
+  double *extraDoseDose;
+  double extraDoseNewXout;
+  int idxExtra; // extra idx
+  int extraSorted; // extra sorted?
+  //double *extraDoseIi; // ii doses unsupported
+  bool lastIsSs2;
 } rx_solving_options_ind;
 
 typedef struct {

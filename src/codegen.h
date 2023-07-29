@@ -23,27 +23,35 @@
 #include "../inst/include/rxode2parseSbuf.h"
 
 // show_ode = 1 dydt
+#define ode_dydt 1
 // show_ode = 2 Jacobian
+#define ode_jac  2
 // show_ode = 3 Ini statement
+#define ode_ini 3
 // show_ode = 0 LHS
+#define ode_lhs 0
+// show_ode = 4 functional bioavailibility
+#define ode_printaux 4
 // show_ode = 5 functional bioavailibility
+#define ode_fbio 5
 // show_ode == 6 functional lag
+#define ode_lag 6
 // show_ode == 7 functional rate
+#define ode_rate 7
 // show_ode == 8 functional duration
+#define ode_dur 8
 // show_ode == 9 functional mtimes
+#define ode_mtime 9
 // show_ode == 10 ME matrix
+#define ode_mexp 10
 // show_ode == 11 Inductive vector
+#define ode_indLinVec 11
 // show_ode == 12 initialize lhs to last value
 // show_ode == 13 #define lags for lhs values
 // show_ode == 14 #define lags for params/covs
 // show_ode == 15 #define sync lhs for simeps
-// show_ode == 16 #define sync lhs for simeps
-
-#define ode_lhs 0
-#define ode_dydt 1
-#define ode_jac  2
-#define ode_ini 3
 #define ode_simeps 15
+// show_ode == 16 #define sync lhs for simeps
 #define ode_simeta 16
 
 // Scenarios
@@ -109,7 +117,7 @@ static inline int shouldSkipPrintLhsI(int scenario, int lhs, int i) {
   case print_paramLags:
     return (tb.lag[i] == notLHS || tb.lh[i] == isState);
   case print_lhsLags:
-    return (tb.lag[i] == 0 ||tb.lh[i] != isLHS);
+    return (tb.lag[i] == 0 || tb.lh[i] != isLHS);
   case print_lastLhsValue:
     return !(tb.lh[i] == isLHS || tb.lh[i] == isLhsStateExtra || tb.lh[i] == isLHSparam);
   }

@@ -2577,7 +2577,7 @@ double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
       tlast = getTime(ind->ix[idx-1], ind);
       Alast = getAdvan(idx-1);
     }
-    evid = ind->evid[ind->ix[idx]];
+    evid = getEvid(ind, ind->ix[idx]);
     if (op->nlinR == 2){
       r1 = rate[0];
       r2 = rate[1];
@@ -2683,7 +2683,7 @@ double linCmtC(rx_solve *rx, unsigned int id, double _t, int linCmt,
     for (int idx = 0; idx <= idxF; idx++) {
       ind->idx = idx;
       curTime = getTime(ind->ix[idx], ind);
-      evid = ind->evid[ind->ix[idx]];
+      evid = getEvid(ind, ind->ix[idx]);
       if (op->nlinR == 2){
         r1 = rate[0];
         r2 = rate[1];
@@ -3225,7 +3225,6 @@ double linCmtF(rx_solve *rx, unsigned int id, double _t, int linCmt,
   rx_solving_options_ind *ind = &(rx->subjects[id]);
   double t = _t - ind->curShift;
   int evid;
-  /* evid = ind->evid[ind->ix[ind->idx]]; */
   int idx = ind->idx;
   double Alast0[15] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   rx_solving_options *op = rx->op;
@@ -3282,7 +3281,7 @@ double linCmtF(rx_solve *rx, unsigned int id, double _t, int linCmt,
                   &rx_k21, &rx_k13, &rx_k31)){
       return NA_REAL;
     }
-    evid = ind->evid[ind->ix[idx]];
+    evid = getEvid(ind, ind->ix[idx]);
     if (op->nlinR == 2){
       r1 = rate[0];
       r2 = rate[1];
