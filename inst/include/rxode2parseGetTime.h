@@ -214,6 +214,64 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
   }
 }
 
+static inline int handleInfusionStartRm(int *startIdx, int *endIdx,
+																				 double *amt, int *idx,
+																				 rx_solve *rx, rx_solving_options *op,
+																				 rx_solving_options_ind *ind) {
+	if (ind->wh0 == EVID0_INFRM) {
+		// This is a possible removal event.  Look at the next duration
+		int curEvid = getEvid(ind, ind->idose[*endIdx+1]);
+		*startIdx = *endIdx+1;
+		for (*endIdx = *startIdx; *endIdx < ind->ndoses; ++(*endIdx)) {
+			if (getEvid(ind, ind->idose[*startIdx]) == getEvid(ind, ind->idose[*endIdx])) break;
+			if (*endIdx == ind->ndoses-1) {
+				//REprintf("curEvid@infrm: %d\n", curEvid);
+				if (!(ind->err & 32768)){
+					ind->err += 32768;
+				}
+				return 1;
+			}
+		}
+		return 1;
+	}
+	return 0;
+}
+
+static inline int handleInfusionStartDefault(int *startIdx, int *endIdx,
+																						 double *amt, int *idx,
+																						 rx_solve *rx, rx_solving_options *op,
+																						 rx_solving_options_ind *ind) {
+	// This finds the duration based on the end of infusion
+	int curEvid = getEvid(ind, ind->idose[*endIdx]);
+	int jj = 0;
+	for (*startIdx = 0; *startIdx < ind->ndoses; (*startIdx)++) {
+		if (getEvid(ind, ind->idose[*startIdx]) == curEvid &&
+				getDose(ind, ind->idose[*startIdx]) == -(*amt)) {
+			// This will look after the last known infusion stopping point
+			if (jj == 0) {
+				jj = *startIdx;
+			} else {
+				jj++;
+			}
+			for (; jj < ind->ndoses; jj++) {
+				if (getEvid(ind, ind->idose[jj]) == curEvid &&
+						getDose(ind, ind->idose[jj]) == *amt) {
+					break;
+				}
+			}
+			if (jj == *endIdx) break;
+		}
+	}
+	if (*startIdx == ind->ndoses) {
+		//REprintf("cant match: %d\n", curEvid);
+		if (!(ind->err & 32768)){
+			ind->err += 32768;
+		}
+		return 1;
+	}
+	return 1;
+}
+
 static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *endIdx,
 																												 double *amt, int *idx,
 																												 rx_solve *rx, rx_solving_options *op,
@@ -231,51 +289,8 @@ static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *end
 		return;
 		/* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
 	}
-	int jj;
-	if (ind->wh0 == EVID0_INFRM) {
-		// This is a possible removal event.  Look at the next duration
-		int curEvid = getEvid(ind, ind->idose[*endIdx+1]);
-		*startIdx = *endIdx+1;
-		for (*endIdx = *startIdx; *endIdx < ind->ndoses; ++(*endIdx)) {
-			if (getEvid(ind, ind->idose[*startIdx]) == getEvid(ind, ind->idose[*endIdx])) break;
-			if (*endIdx == ind->ndoses-1) {
-				//REprintf("curEvid@infrm: %d\n", curEvid);
-				if (!(ind->err & 32768)){
-					ind->err += 32768;
-				}
-				return;
-			}
-		}
-	} else {
-		// This finds the duration based on the end of infusion
-		int curEvid = getEvid(ind, ind->idose[*endIdx]);
-		jj = 0;
-		for (*startIdx = 0; *startIdx < ind->ndoses; (*startIdx)++) {
-			if (getEvid(ind, ind->idose[*startIdx]) == curEvid &&
-					getDose(ind, ind->idose[*startIdx]) == -(*amt)) {
-				// This will look after the last known infusion stopping point
-				if (jj == 0) {
-					jj = *startIdx;
-				} else {
-					jj++;
-				}
-				for (; jj < ind->ndoses; jj++) {
-					if (getEvid(ind, ind->idose[jj]) == curEvid &&
-							getDose(ind, ind->idose[jj]) == *amt) {
-						break;
-					}
-				}
-				if (jj == *endIdx) break;
-			}
-		}
-		if (*startIdx == ind->ndoses) {
-			//REprintf("cant match: %d\n", curEvid);
-			if (!(ind->err & 32768)){
-				ind->err += 32768;
-			}
-			return;
-		}
-	}
+	handleInfusionStartRm(startIdx, endIdx, amt, idx, rx, op, ind) ||
+		handleInfusionStartDefault(startIdx, endIdx, amt, idx, rx, op, ind);
 }
 
 static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
