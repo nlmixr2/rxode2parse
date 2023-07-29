@@ -49,7 +49,10 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="rxode2parse-development-version">rxode2parse (development version)<a class="anchor" aria-label="anchor" href="#rxode2parse-development-version"></a></h2>
-<ul><li><p>Make double assignment an error, ie <code>a &lt;- b &lt;-</code></p></li>
+<ul><li><p>Model variables now tracks which compartments have a lag-time defined</p></li>
+<li><p>For compartment with steady state doses (NONMEM equivalent SS=1, SS=2), an additional tracking time-point is added at to track the time when the lagged dose is given. As an upshot, the lagged dose will start at the steady state concentration shifted by + ii - lag in <code>rxode2</code></p></li>
+<li><p>This release calculates non bio-availability adjusted duration for all rates instead of trying to figure the rate duration during solving.</p></li>
+<li><p>Make double assignment an error, ie <code>a &lt;- b &lt;-</code></p></li>
 <li><p><code>NA</code> times are ignored (with warning)</p></li>
 </ul></div>
     <div class="section level2">
