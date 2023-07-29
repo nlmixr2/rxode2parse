@@ -1295,8 +1295,6 @@ rate(intestine) = ri
 d/dt(blood)     = a*intestine - b*blood
 ")
 
-  #fixme -- how should this work
-
   d <- data.frame(time=c(0, 1),
                   amt=c(100, 0),
                   ii=c(24, 0),
