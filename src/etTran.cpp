@@ -1638,10 +1638,14 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         if (!keepIIadl) {
           ii.pop_back();ii.push_back(0.0);
         }
+        int cevidAddl = cevid;
+        if (rateI == 0 && (flg ==10 || flg == 20)) {
+          cevidAddl = cmt100*100000+rateI*10000+cmt99*100+1;
+        }
         for (j=caddl;j--;){
           ctime+=cii;
           id.push_back(cid);
-          evid.push_back(cevid);
+          evid.push_back(cevidAddl);
           cmtF.push_back(cmt);
           time.push_back(ctime);
           if (keepIIadl) {
