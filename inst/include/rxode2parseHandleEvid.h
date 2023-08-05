@@ -66,6 +66,7 @@ extern "C" {
 // c1 = Compartment numbers below 99
 // xx =  1, regular event (no lag time)
 // xx =  2, An infusion/rate event that doesn't look for start/end of infusion
+// xx =  3, regular event that resets pending doses
 // xx =  8, possibly turn off steady state infusion with lag time (needed in case spans dur)
 // xx =  9, steady state event SS=1 with lag time
 // xx = 10, steady state event SS=1 (no lag)
@@ -78,6 +79,7 @@ extern "C" {
 // Steady state events need a II data item > 0
 #define EVID0_REGULAR  1
 #define EVID0_RATEADJ 2
+#define EVID0_RESETDOSE 3
 #define EVID0_INFRM 8
 #define EVID0_SS0 9
 #define EVID0_SS 10
