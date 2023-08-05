@@ -85,7 +85,7 @@ SEXP _rxode2parse_etTransEvidIsObs(SEXP);
 SEXP _rxode2parse_forderForceBase(SEXP);
 SEXP _rxode2parse_rxSetIni0(SEXP);
 SEXP _rxode2parse_etTransParse(SEXP, SEXP, SEXP, SEXP, SEXP,
-                               SEXP, SEXP, SEXP);
+                               SEXP, SEXP, SEXP, SEXP);
 
 SEXP _rxode2parse_rxEtTransAsDataFrame_(SEXP);
 
@@ -137,7 +137,7 @@ void R_init_rxode2parse(DllInfo *info){
     {"_rxode2parse_convertId_", (DL_FUNC) &_rxode2parse_convertId_, 1},
     {"_rxode2parse_funPtrs", (DL_FUNC) &_rxode2parse_funPtrs, 0},
     {"_rxode2parse_rxEtTransAsDataFrame_", (DL_FUNC) &_rxode2parse_rxEtTransAsDataFrame_, 1},
-    {"_rxode2parse_etTransParse", (DL_FUNC) &_rxode2parse_etTransParse, 8},
+    {"_rxode2parse_etTransParse", (DL_FUNC) &_rxode2parse_etTransParse, 9},
     {"_rxode2parse_rxSetIni0", (DL_FUNC) &_rxode2parse_rxSetIni0, 1},
     {"_rxode2parse_forderForceBase", (DL_FUNC) &_rxode2parse_forderForceBase, 1},
     {"_rxode2parse_etTransEvidIsObs", (DL_FUNC) &_rxode2parse_etTransEvidIsObs, 1},

@@ -474,6 +474,9 @@ bool rxode2parseIsIntegerish(SEXP in) {
 //' @param keep This is a named vector of items you want to keep in the final rxode2 dataset.
 //'     For added rxode2 event records (if seen), last observation carried forward will be used.
 //'
+//' @param addlKeepsCov This determines if the additional dosing items
+//'   repeats the dose only (`FALSE`) or keeps the covariates at the
+//'   record of the dose (`TRUE`)
 //' 
 //' @return Object for solving in rxode2
 //'
@@ -484,7 +487,8 @@ bool rxode2parseIsIntegerish(SEXP in) {
 List etTransParse(List inData, List mv, bool addCmt=false,
                   bool dropUnits=false, bool allTimeVar=false,
                   bool keepDosingOnly=false, Nullable<LogicalVector> combineDvid=R_NilValue,
-                  CharacterVector keep = CharacterVector(0)){
+                  CharacterVector keep = CharacterVector(0),
+                  bool addlKeepsCov=false) {
 #ifdef rxSolveT
   clock_t _lastT0 = clock();
 #endif
@@ -1642,7 +1646,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         if (flg ==10 || flg == 20) {
           cevidAddl = cmt100*100000+rateI*10000+cmt99*100+3;
         }
-        for (j=caddl;j--;){
+        for (j=caddl;j--;) {
           ctime+=cii;
           id.push_back(cid);
           evid.push_back(cevidAddl);
@@ -1653,7 +1657,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           } else {
             ii.push_back(0.0);
           }
-          idxInput.push_back(-1);
+          if (addlKeepsCov) {
+            idxInput.push_back(i);
+          } else {
+            idxInput.push_back(-1);
+          }
           dv.push_back(NA_REAL);
           limit.push_back(NA_REAL);
           cens.push_back(0);
@@ -1667,7 +1675,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               cmtF.push_back(cmt);
               time.push_back(ctime);
               ii.push_back(0.0);
-              idxInput.push_back(-1);
+              if (addlKeepsCov) {
+                idxInput.push_back(i);
+              } else {
+                idxInput.push_back(-1);
+              }
               dv.push_back(NA_REAL);
               limit.push_back(NA_REAL);
               cens.push_back(0);
@@ -1682,7 +1694,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             time.push_back(ctime);
             amt.push_back(camt);
             ii.push_back(0.0);
-            idxInput.push_back(-1);
+            if (addlKeepsCov) {
+              idxInput.push_back(i);
+            } else {
+              idxInput.push_back(-1);
+            }
             dv.push_back(NA_REAL);
             limit.push_back(NA_REAL);
             cens.push_back(0);
@@ -1698,7 +1714,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               time.push_back(ctime);
               ii.push_back(cii);
               //ii.push_back(0.0);
-              idxInput.push_back(-1);
+              if (addlKeepsCov) {
+                idxInput.push_back(i);
+              } else {
+                idxInput.push_back(-1);
+              }
               dv.push_back(NA_REAL);
               limit.push_back(NA_REAL);
               cens.push_back(0);
@@ -1710,7 +1730,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               cmtF.push_back(cmt);
               time.push_back(ctime);
               ii.push_back(0.0);
-              idxInput.push_back(-1);
+              if (addlKeepsCov) {
+                idxInput.push_back(i);
+              } else {
+                idxInput.push_back(-1);
+              }
               dv.push_back(NA_REAL);
               limit.push_back(NA_REAL);
               cens.push_back(0);
@@ -1729,6 +1753,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             time.push_back(ctime+dur);
             amt.push_back(-rate);
             ii.push_back(0.0);
+            if (addlKeepsCov) {
+              idxInput.push_back(i);
+            } else {
+              idxInput.push_back(-1);
+            }
             idxInput.push_back(-1);
             dv.push_back(NA_REAL);
             limit.push_back(NA_REAL);
@@ -1743,7 +1772,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               cmtF.push_back(cmt);
               time.push_back(ctime);
               ii.push_back(0.0);
-              idxInput.push_back(-1);
+              if (addlKeepsCov) {
+                idxInput.push_back(i);
+              } else {
+                idxInput.push_back(-1);
+              }
               dv.push_back(NA_REAL);
               limit.push_back(NA_REAL);
               cens.push_back(0);

@@ -91,7 +91,8 @@
 #define Rxc_nLlikAlloc 87
 #define Rxc_useStdPow 88
 #define Rxc_naTimeHandle 89
-#define Rxc__zeros 90
+#define Rxc_addlKeepsCov 90
+#define Rxc__zeros 91
 #define RxMv_params 0
 #define RxMv_lhs 1
 #define RxMv_state 2

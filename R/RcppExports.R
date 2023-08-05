@@ -60,14 +60,17 @@ etTransEvidIsObs <- function(isObsSexp) {
 #' @param keep This is a named vector of items you want to keep in the final rxode2 dataset.
 #'     For added rxode2 event records (if seen), last observation carried forward will be used.
 #'
+#' @param addlKeepsCov This determines if the additional dosing items
+#'   repeats the dose only (`FALSE`) or keeps the covariates at the
+#'   record of the dose (`TRUE`)
 #' 
 #' @return Object for solving in rxode2
 #'
 #' @keywords internal
 #'
 #' @export
-etTransParse <- function(inData, mv, addCmt = FALSE, dropUnits = FALSE, allTimeVar = FALSE, keepDosingOnly = FALSE, combineDvid = NULL, keep = character(0)) {
-    .Call(`_rxode2parse_etTransParse`, inData, mv, addCmt, dropUnits, allTimeVar, keepDosingOnly, combineDvid, keep)
+etTransParse <- function(inData, mv, addCmt = FALSE, dropUnits = FALSE, allTimeVar = FALSE, keepDosingOnly = FALSE, combineDvid = NULL, keep = character(0), addlKeepsCov = FALSE) {
+    .Call(`_rxode2parse_etTransParse`, inData, mv, addCmt, dropUnits, allTimeVar, keepDosingOnly, combineDvid, keep, addlKeepsCov)
 }
 
 rxEtTransAsDataFrame_ <- function(inData1) {
