@@ -1643,7 +1643,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           ii.pop_back();ii.push_back(0.0);
         }
         int cevidAddl = cevid;
-        if (flg ==10 || flg == 20) {
+        if (rateI == 0 && (flg ==10 || flg == 20)) {
           cevidAddl = cmt100*100000+rateI*10000+cmt99*100+3;
         }
         for (j=caddl;j--;) {
