@@ -92,7 +92,9 @@
 #define Rxc_useStdPow 88
 #define Rxc_naTimeHandle 89
 #define Rxc_addlKeepsCov 90
-#define Rxc__zeros 91
+#define Rxc_addlDropSs 91
+#define Rxc_ssAtDoseTime 92
+#define Rxc__zeros 93
 #define RxMv_params 0
 #define RxMv_lhs 1
 #define RxMv_state 2

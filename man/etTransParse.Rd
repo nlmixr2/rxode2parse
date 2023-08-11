@@ -13,7 +13,9 @@ etTransParse(
   keepDosingOnly = FALSE,
   combineDvid = NULL,
   keep = character(0),
-  addlKeepsCov = FALSE
+  addlKeepsCov = FALSE,
+  addlDropSs = TRUE,
+  ssAtDoseTime = TRUE
 )
 }
 \arguments{
@@ -41,6 +43,14 @@ For added rxode2 event records (if seen), last observation carried forward will 
 \item{addlKeepsCov}{This determines if the additional dosing items
 repeats the dose only (\code{FALSE}) or keeps the covariates at the
 record of the dose (\code{TRUE})}
+
+\item{addlDropSs}{When there are steady state doses with an \code{addl}
+specification the steady state flag is dropped with repeated
+doses (when \code{TRUE}) or retained (when \code{FALSE})}
+
+\item{ssAtDoseTime}{Boolean that when \code{TRUE} back calculates the
+steady concentration at the actual time of dose, otherwise when
+\code{FALSE} the doses are shifted}
 }
 \value{
 Object for solving in rxode2

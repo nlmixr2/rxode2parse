@@ -63,14 +63,22 @@ etTransEvidIsObs <- function(isObsSexp) {
 #' @param addlKeepsCov This determines if the additional dosing items
 #'   repeats the dose only (`FALSE`) or keeps the covariates at the
 #'   record of the dose (`TRUE`)
+#'
+#' @param addlDropSs When there are steady state doses with an `addl`
+#'   specification the steady state flag is dropped with repeated
+#'   doses (when `TRUE`) or retained (when `FALSE`)
+#'
+#' @param ssAtDoseTime Boolean that when `TRUE` back calculates the
+#'   steady concentration at the actual time of dose, otherwise when
+#'   `FALSE` the doses are shifted
 #' 
 #' @return Object for solving in rxode2
 #'
 #' @keywords internal
 #'
 #' @export
-etTransParse <- function(inData, mv, addCmt = FALSE, dropUnits = FALSE, allTimeVar = FALSE, keepDosingOnly = FALSE, combineDvid = NULL, keep = character(0), addlKeepsCov = FALSE) {
-    .Call(`_rxode2parse_etTransParse`, inData, mv, addCmt, dropUnits, allTimeVar, keepDosingOnly, combineDvid, keep, addlKeepsCov)
+etTransParse <- function(inData, mv, addCmt = FALSE, dropUnits = FALSE, allTimeVar = FALSE, keepDosingOnly = FALSE, combineDvid = NULL, keep = character(0), addlKeepsCov = FALSE, addlDropSs = TRUE, ssAtDoseTime = TRUE) {
+    .Call(`_rxode2parse_etTransParse`, inData, mv, addCmt, dropUnits, allTimeVar, keepDosingOnly, combineDvid, keep, addlKeepsCov, addlDropSs, ssAtDoseTime)
 }
 
 rxEtTransAsDataFrame_ <- function(inData1) {

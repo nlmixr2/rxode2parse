@@ -477,6 +477,14 @@ bool rxode2parseIsIntegerish(SEXP in) {
 //' @param addlKeepsCov This determines if the additional dosing items
 //'   repeats the dose only (`FALSE`) or keeps the covariates at the
 //'   record of the dose (`TRUE`)
+//'
+//' @param addlDropSs When there are steady state doses with an `addl`
+//'   specification the steady state flag is dropped with repeated
+//'   doses (when `TRUE`) or retained (when `FALSE`)
+//'
+//' @param ssAtDoseTime Boolean that when `TRUE` back calculates the
+//'   steady concentration at the actual time of dose, otherwise when
+//'   `FALSE` the doses are shifted
 //' 
 //' @return Object for solving in rxode2
 //'
@@ -488,7 +496,9 @@ List etTransParse(List inData, List mv, bool addCmt=false,
                   bool dropUnits=false, bool allTimeVar=false,
                   bool keepDosingOnly=false, Nullable<LogicalVector> combineDvid=R_NilValue,
                   CharacterVector keep = CharacterVector(0),
-                  bool addlKeepsCov=false) {
+                  bool addlKeepsCov=false,
+                  bool addlDropSs = true,
+                  bool ssAtDoseTime=true) {
 #ifdef rxSolveT
   clock_t _lastT0 = clock();
 #endif
@@ -565,9 +575,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   bool allBolus = true;
   bool allInf = true;
   int mxCmt = 0;
-  std::vector<int> keepI(keep.size(), 0);
-
-  for (i = lName.size(); i--;){
+  std::vector<int> keepI(keep.size(), 0);  for (i = lName.size(); i--;){
     tmpS0= as<std::string>(lName[i]);
     tmpS = as<std::string>(lName[i]);
     std::transform(tmpS.begin(), tmpS.end(), tmpS.begin(), ::tolower);
@@ -1092,15 +1100,17 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     // CMT flag
     else cmt = tmpCmt;
     // see if you need to adjust for lagged
-    if (flg == 10 || flg == 20) {
-      for (int jj = 0; jj < curAlag.size(); ++jj) {
-        if (cmt == curAlag[jj]) {
-          if (flg == 10) {
-            flg = 9;
-          } else {
-            flg = 19;
+    if (ssAtDoseTime) {
+      if (flg == 10 || flg == 20) {
+        for (int jj = 0; jj < curAlag.size(); ++jj) {
+          if (cmt == curAlag[jj]) {
+            if (flg == 10) {
+              flg = 9;
+            } else {
+              flg = 19;
+            }
+            break;
           }
-          break;
         }
       }
     }
@@ -1643,7 +1653,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           ii.pop_back();ii.push_back(0.0);
         }
         int cevidAddl = cevid;
-        if (rateI == 0 && (flg ==10 || flg == 20)) {
+        if (addlDropSs && rateI == 0 && (flg ==10 || flg == 20)) {
           cevidAddl = cmt100*100000+rateI*10000+cmt99*100+3;
         }
         for (j=caddl;j--;) {
