@@ -404,19 +404,19 @@ static inline int cancelPendingDoses(rx_solving_options_ind *ind, int id) {
 			double curLag = getLag(ind, id, ind->cmt, startTime);
       if (startTime < curTime) {
 				// dose has been given but hasn't been realized completely
-        int infEixds=-1;
-        handleInfusionGetEndOfInfusionIndex(j, &infEixds, &rx_global, &op_global, ind);
-        if (infEixds != -1) {
-          double endTime = getAllTimes(ind, ind->idose[infEixds]);
-					endTime = getLag(ind, id, ind->cmt, endTime);
-          if (curTime < endTime) {
-						// the infusion ends after the current time, ignore
-						double rate = getDoseIndex(ind, ind->idose[j]);
-						if (rate < 0) {
+				double rate = getDoseIndex(ind, ind->idose[j]);
+				if (rate > 0) {
+					int infEixds=-1;
+					handleInfusionGetEndOfInfusionIndex(j, &infEixds, &rx_global, &op_global, ind);
+					if (infEixds != -1) {
+						double endTime = getAllTimes(ind, ind->idose[infEixds]);
+						endTime = getLag(ind, id, ind->cmt, endTime);
+						if (curTime < endTime) {
+							// the infusion ends after the current time, ignore
 							re = pushIgnoredDose(infEixds, ind) || re;
 						}
-          }
-        }
+					}
+				}
       }
     } else if (whI == EVIDF_MODEL_DUR_ON || whI == EVIDF_MODEL_RATE_ON) {
       double startTime = getAllTimes(ind, ind->idose[j]);
