@@ -1653,8 +1653,14 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           ii.pop_back();ii.push_back(0.0);
         }
         int cevidAddl = cevid;
-        if (addlDropSs && rateI == 0 && (flg ==10 || flg == 20)) {
-          cevidAddl = cmt100*100000+rateI*10000+cmt99*100+3;
+        if (addlDropSs) {
+          if ((rateI == 0 ||  rateI == 1 || rateI == 2) && (flg ==10 || flg == 20)) {
+            cevidAddl = cmt100*100000+rateI*10000+cmt99*100+3;
+          } else if (addLagged) {
+            cevidAddl = nevid = cmt100*100000+rateI*10000+cmt99*100+3;
+            flg = -2;
+            addLagged = false;
+          }
         }
         for (j=caddl;j--;) {
           ctime+=cii;
@@ -1677,7 +1683,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           cens.push_back(0);
           idxOutput.push_back(curIdx);curIdx++;
           ndose++;
-          if (rateI > 2 && rateI != 4 && rateI != 5){
+          if (rateI > 2 && rateI != 4 && rateI != 5) {
             amt.push_back(camt);
             if (addLagged) {
               id.push_back(cid);
@@ -1757,7 +1763,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
             if (flg == 9 || flg == 19) {
               evid.push_back(cevid-flg+1);
             } else {
-              evid.push_back(cevid);
+              evid.push_back(cevidAddl);
             }
             cmtF.push_back(cmt);
             time.push_back(ctime+dur);
