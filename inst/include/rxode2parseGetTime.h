@@ -389,9 +389,7 @@ static inline double getTime_(int idx, rx_solving_options_ind *ind) {
 static inline int cancelPendingDoses(rx_solving_options_ind *ind, int id) {
   int re = 0;
   for (int i = 0; i < ind->pendingDosesN[0]; ++i) {
-    int ds = ind->pendingDoses[i];
-    if (ds >= 0) re = pushIgnoredDose(ds, ind) || re;
-    if (ds < 0) re = pushIgnoredDose(ds, ind) || re;
+    re = pushIgnoredDose(ind->pendingDoses[i], ind) || re;
   }
   ind->pendingDosesN[0] = 0;
   // now cancel pending doses based on current dose time
