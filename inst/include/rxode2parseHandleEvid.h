@@ -652,11 +652,10 @@ static inline int handleEvid1(int *i, rx_solve *rx, int *neq, double *yp, double
   rx_solving_options_ind *ind = &(rx->subjects[neq[1]]);
   rx_solving_options *op = rx->op;
   ind->idx = *i;
-  int evid = getEvid(ind, ind->ix[ind->idx]);
-  if (!isObs(evid)) {
+  if (!isObs(getEvid(ind, ind->ix[ind->idx]))) {
     syncIdx(ind);
   }
-  return handle_evid(evid, neq[0] + op->extraCmt,
+  return handle_evid(getEvid(ind, ind->ix[ind->idx]), neq[0] + op->extraCmt,
 										 ind->BadDose, ind->InfusionRate, ind->dose, yp,
 										 *xout, neq[1], ind);
 }
