@@ -18,6 +18,8 @@
 
 * Steady state bolus doses with `addl` are treated as non steady state
   events (like what is observed in `NONMEM`)
+  
+* Timsort was upgraded; drop radix support in rxode2 struct
 
 # rxode2parse 2.0.16
 

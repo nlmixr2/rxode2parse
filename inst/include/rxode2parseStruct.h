@@ -250,15 +250,8 @@ typedef struct {
   vLines factorNames;
   int factorNs[500];
   int hasFactors;
-  // For forder
-  uint64_t minD;
-  uint64_t maxD;
   int maxAllTimes;
-  uint8_t ***keys;// = NULL; keys per thread
-  int *TMP;
   int *ordId;
-  uint8_t *UGRP;
-  int *nradix;
   double *ypNA;
   bool sample;
   int *par_sample;

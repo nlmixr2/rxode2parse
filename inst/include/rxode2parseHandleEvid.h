@@ -257,8 +257,8 @@ static inline int syncIdx(rx_solving_options_ind *ind) {
     // bisection https://en.wikipedia.org/wiki/Binary_search_algorithm
     int m = getDoseNumberFromIndex(ind, ind->ix[ind->idx]);
     if (m != -1) {
-      REprintf("sync to %d ind->ixds from %d to %d #1 (ind->idx: %d)\n", getEvid(ind, ind->idose[m]),
-               ind->ixds, m, ind->idx);
+      // REprintf("sync to %d ind->ixds from %d to %d #1 (ind->idx: %d)\n", getEvid(ind, ind->idose[m]),
+      //          ind->ixds, m, ind->idx);
       ind->ixds=m;
     } else {
       //262144
@@ -270,7 +270,6 @@ static inline int syncIdx(rx_solving_options_ind *ind) {
     // Need to adjust ixdsr
     for(int j = ind->ixds; j--;){
       if (ind->ix[ind->idx] == ind->idose[j]){
-        REprintf("sync ind->ixds from %d to %d #2\n", ind->ixds, j);
         ind->ixds = j;
         break;
       }
@@ -278,7 +277,6 @@ static inline int syncIdx(rx_solving_options_ind *ind) {
     if (ind->ix[ind->idx] != ind->idose[ind->ixds]){
       for(int j = ind->ixds+1; j< ind->ndoses; j++){
         if (ind->ix[ind->idx] == ind->idose[j]){
-          REprintf("sync ind->ixds from %d to  %d #3\n", ind->ixds, j);
           ind->ixds = j;
           break;
         }
@@ -477,17 +475,14 @@ static inline int handle_evid(int evid, int neq,
                               rx_solving_options_ind *ind) {
   if (isObs(evid)) return 0;
   if (isIgnoredDose(ind)) {
-    if (!ind->doSS) {
-      REprintf("ignored evid %d dose at %f is %f (ind->ixds: %d)\n",
-               evid, xout, getDoseIndex(ind, ind->idx), ind->ixds);
-    }
-    REprintf("ixds++ #aa\n");
+    // REprintf("ignored evid %d dose at %f is %f (ind->ixds: %d: ind->idx: %d)\n",
+    //          evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
     ind->ixds++;
     ind->solved = ind->idx;
     return 0;
   } else if (!ind->doSS) {
-    REprintf("handle evid %d dose at %f is %f (ind->ixds: %d)\n",
-             evid, xout, getDoseIndex(ind, ind->idx), ind->ixds);
+    // REprintf("handle evid %d dose at %f is %f (ind->ixds: %d; ind->idx: %d)\n",
+    //          evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
   }
   int cmt, foundBad, j;
   double tmp;
@@ -495,7 +490,6 @@ static inline int handle_evid(int evid, int neq,
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
   handleTlastInline(&xout, ind);
   if (ind->wh0 == EVID0_SSINF) {
-    REprintf("ixds++ #a\n");
     ind->ixds++;
     ind->solved = ind->idx;
     return 1;
@@ -621,7 +615,7 @@ static inline int handle_evid(int evid, int neq,
         // }
       }
       if (!ind->doSS) {
-        REprintf("infusion dose at %f is %f ind->ixds: %d\n", xout, tmp, ind->ixds);
+        // REprintf("infusion dose at %f is %f ind->ixds: %d\n", xout, tmp, ind->ixds);
       }
       InfusionRate[cmt] += tmp;
       ind->cacheME=0;
@@ -647,7 +641,6 @@ static inline int handle_evid(int evid, int neq,
         yp[cmt] += getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp);     //dosing before obs
       }
 		}
-    REprintf("ixds++ #b\n");
 		ind->ixds++;
 		ind->solved = ind->idx;
     return 1;
@@ -659,8 +652,11 @@ static inline int handleEvid1(int *i, rx_solve *rx, int *neq, double *yp, double
   rx_solving_options_ind *ind = &(rx->subjects[neq[1]]);
   rx_solving_options *op = rx->op;
   ind->idx = *i;
-  if (!isObs(getEvid(ind, ind->ix[ind->idx]))) syncIdx(ind);
-  return handle_evid(getEvid(ind, ind->ix[ind->idx]), neq[0] + op->extraCmt,
+  int evid = getEvid(ind, ind->ix[ind->idx]);
+  if (!isObs(evid)) {
+    syncIdx(ind);
+  }
+  return handle_evid(evid, neq[0] + op->extraCmt,
 										 ind->BadDose, ind->InfusionRate, ind->dose, yp,
 										 *xout, neq[1], ind);
 }
