@@ -70,7 +70,7 @@ extern "C" {
 //      9 = Rate is modeled, AMT=dose; Duration = AMT/(Modeled Rate) NONMEM RATE=-1
 // c1 = Compartment numbers below 99
 // xx =  1, regular event (no lag time)
-// xx =  2, An infusion/rate event that doesn't look for start/end of infusion
+// xx =  2, An infusion/rate event that doesn't look for start/end of infusion AND does not apply lags
 // xx =  8, possibly turn off steady state infusion with lag time (needed in case spans dur)
 // xx =  9, steady state event SS=1 with lag time
 // xx = 10, steady state event SS=1 (no lag)
@@ -339,7 +339,6 @@ static inline int pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
   return re;
 }
 
-
 static inline int pushPendingDose(int doseIdx, rx_solving_options_ind *ind) {
   int re = 0;
   if (ind->pendingDosesN[0]+1 >= ind->pendingDosesAllocN[0]) {
@@ -475,18 +474,17 @@ static inline int handle_evid(int evid, int neq,
                               rx_solving_options_ind *ind) {
   if (isObs(evid)) return 0;
   if (isIgnoredDose(ind)) {
-    // REprintf("ignored evid %d dose at %f is %f (ind->ixds: %d: ind->idx: %d)\n",
+    // REprintf("ignored evid %d dose at time %f is value %f (ind->ixds: %d: ind->idx: %d)\n",
     //          evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
     ind->ixds++;
     ind->solved = ind->idx;
     return 0;
   } else if (!ind->doSS) {
-    // REprintf("handle evid %d dose at %f is %f (ind->ixds: %d; ind->idx: %d)\n",
+    // REprintf("handle evid %d dose at time %f is value %f (ind->ixds: %d; ind->idx: %d)\n",
     //          evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
   }
   int cmt, foundBad, j;
   double tmp;
-  // REprintf("evid %d for %d\n", evid, ind->idx);ef
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
   handleTlastInline(&xout, ind);
   if (ind->wh0 == EVID0_SSINF) {
@@ -614,9 +612,9 @@ static inline int handle_evid(int evid, int neq,
         //   pushPendingDose(infEixds, ind);
         // }
       }
-      if (!ind->doSS) {
-        // REprintf("infusion dose at %f is %f ind->ixds: %d\n", xout, tmp, ind->ixds);
-      }
+      // if (!ind->doSS) {
+      //   REprintf("infusion dose at %f is %f ind->ixds: %d\n", xout, tmp, ind->ixds);
+      // }
       InfusionRate[cmt] += tmp;
       ind->cacheME=0;
       if (ind->wh0 == EVID0_SS2 && getDoseIndex(ind, ind->idx) > 0 &&

@@ -294,13 +294,13 @@ static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *end
 }
 
 static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
+  if (ind->wh0 == EVID0_RATEADJ) {
+    return getAllTimes(ind, idx);
+  }
   double amt = getDose(ind, idx);
   if (amt > 0) {
     return getLag(ind, ind->id, ind->cmt, getAllTimes(ind, idx));
   } else if (amt < 0) {
-    if (ind->wh0 == EVID0_RATEADJ) {
-      return getAllTimes(ind, idx);
-    }
     int j = getDoseNumberFromIndex(ind, idx);
     if (j == -1){
       if (!(ind->err & 16384)){
@@ -392,53 +392,6 @@ static inline int cancelPendingDoses(rx_solving_options_ind *ind, int id) {
     re = pushIgnoredDose(ind->pendingDoses[i], ind) || re;
   }
   ind->pendingDosesN[0] = 0;
-  // now cancel pending doses based on current dose time
-  // double curTime = getAllTimes(ind, ind->idose[ind->ixds]);
-  // for (int j = 0; j < ind->ndoses; j++) {
-  //   if (j == ind->idx) continue;
-  //   int wh, cmt, wh100, whI, wh0, curEvid=getEvid(ind, ind->idose[j]);
-  //   getWh(curEvid, &wh, &cmt, &wh100, &whI, &wh0);
-  //   if (wh0 == 3) continue;
-  //   if (whI == EVIDF_INF_RATE || whI == EVIDF_INF_DUR) {
-  //     double startTime = getAllTimes(ind, ind->idose[j]);
-  //     double curLag = getLag(ind, id, ind->cmt, startTime);
-  //     if (startTime < curTime) {
-  //       // dose has been given but hasn't been realized completely
-  //       double rate = getDoseIndex(ind, ind->idose[j]);
-  //       if (rate > 0) {
-  //         int infEixds=-1;
-  //         handleInfusionGetEndOfInfusionIndex(j, &infEixds, &rx_global, &op_global, ind);
-  //         if (infEixds != -1) {
-  //           double endTime = getAllTimes(ind, ind->idose[infEixds]);
-  //           endTime = getLag(ind, id, ind->cmt, endTime);
-  //           if (curTime < endTime) {
-  //             // the infusion ends after the current time, ignore
-  //             re = pushIgnoredDose(infEixds, ind) || re;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   } else if (whI == EVIDF_MODEL_DUR_ON || whI == EVIDF_MODEL_RATE_ON) {
-  //     double startTime = getAllTimes(ind, ind->idose[j]);
-  //     double curLag = getLag(ind, id, ind->cmt, startTime);
-  //     if (startTime < curTime) {
-  //       // dose has beeen given but hasn't been realized completely
-  //       if (curTime < curLag) {
-  //         // the infusion starts after current time, ignore
-  //         re = pushIgnoredDose(j, ind) || re;
-  //         re = pushIgnoredDose(j+1, ind) || re;
-  //       } else {
-  //         int infEixds = j+1;
-  //         double endTime = getAllTimes(ind, ind->idose[infEixds]);
-  //         endTime = getLag(ind, id, ind->cmt, endTime);
-  //         if (curTime < endTime) {
-  //           // the infusion ends after current time, ignore
-  //           re = pushIgnoredDose(infEixds, ind) || re;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
   return re;
 }
 

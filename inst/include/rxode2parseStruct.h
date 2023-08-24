@@ -213,6 +213,7 @@ typedef struct {
   int extraSorted; // extra sorted?
   //double *extraDoseIi; // ii doses unsupported
   bool lastIsSs2;
+  double *timeThread;
 } rx_solving_options_ind;
 
 typedef struct {
