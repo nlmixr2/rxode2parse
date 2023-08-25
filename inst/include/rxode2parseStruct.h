@@ -265,6 +265,7 @@ typedef struct {
   int *ovar;
   int hasEvid2;
   int useStdPow;
+  bool ss2cancelAllPending;
 } rx_solve;
 
 

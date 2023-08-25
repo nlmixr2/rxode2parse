@@ -400,6 +400,63 @@ static inline int cancelPendingDoses(rx_solving_options_ind *ind, int id) {
   return re;
 }
 
+static inline int cancelPendingDosesAfter(rx_solving_options_ind *ind, int id, double time) {
+  // this cancels pending doses that were added by steady state (or
+  // possibly internally added doses) since they are in the extra doses queue.
+  int re = 0;
+  int pendIdx = 0;
+  for (int i = 0; i < ind->pendingDosesN[0]; ++i) {
+    int cur = ind->pendingDoses[i];
+    if (cur < 0) {
+      double curTime  = getAllTimes(ind, cur);
+      if (curTime < time) {
+        // keep
+        int wh, cmt, wh100, whI, wh0;
+        int evid = getEvid(ind, cur);
+        getWh(evid, &wh, &cmt, &wh100, &whI, &wh0);
+        if (whI == 1 || whI == 2) {
+          // infusion pushed from possible ss event
+          double amt = getDose(ind, cur);
+          // keep on infusion
+          ind->pendingDoses[pendIdx++] = cur;
+          if (amt) {
+            for (int j  = i+1; j < ind->pendingDosesN[0]; ++j) {
+              int cur2 = ind->pendingDoses[i];
+              double amt2 = getDose(ind, cur2);
+              if (amt2 == -amt && evid == getEvid(ind, cur2)) {
+                // keep off infusion (even if it is after time to make sure it is balanced)
+                ind->pendingDoses[pendIdx++] = cur2;
+                break;
+              }
+            }
+          } else {
+            // could already be canceled
+            int isCanceled=0;
+            for (int j = 0; j < pendIdx; ++j) {
+              if (cur == ind->pendingDoses[j]) {
+                isCanceled = 1;
+                break;
+              }
+            }
+            if (isCanceled == 0) {
+              // haven't canceled off infusion yet, cancel
+              ind->pendingDoses[pendIdx++] = cur; 
+            }
+          }
+        } else {
+          // non infusion event kept
+          ind->pendingDoses[pendIdx++] = cur;
+        }
+      } else {
+        re = pushIgnoredDose(cur, ind) || re;
+      }
+    } else {
+      re = pushIgnoredDose(cur, ind) || re;
+    }
+  }
+  ind->pendingDosesN[0] = pendIdx;
+}
+
 
 #undef returnBadTime
 

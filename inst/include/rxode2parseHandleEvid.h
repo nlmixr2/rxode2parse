@@ -307,11 +307,11 @@ static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double
   return ret;
 }
 
-static inline int isIgnoredDose(rx_solving_options_ind *ind, int idx) {
+static inline int isIgnoredDose(rx_solving_options_ind *ind, int ixds) {
   for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
-    if (idx < 0 ) {
+    if (ind->idx < 0 ) {
       return 0;
-    } else if (idx >= 0 && ind->ignoredDoses[i] == ixds) {
+    } else if (ind->idx >= 0 && ind->ignoredDoses[i] == ixds) {
       return 1;
     }
   }
@@ -472,16 +472,16 @@ static inline int handle_evid(int evid, int neq,
                               double xout, int id,
                               rx_solving_options_ind *ind) {
   if (isObs(evid)) return 0;
-  if (isIgnoredDose(ind, ind->idx)) {
+  if (isIgnoredDose(ind, ind->ixds)) {
     // REprintf("ignored evid %d dose at time %f is value %f (ind->ixds: %d: ind->idx: %d)\n",
     //          evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
     ind->ixds++;
     ind->solved = ind->idx;
     return 0;
-  } else if (!ind->doSS) {
-    // REprintf("handle evid %d dose at time %f is value %f (ind->ixds: %d; ind->idx: %d)\n",
-    //          evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
-  }
+  }//  else if (!ind->doSS) {
+  //   REprintf("handle evid %d dose at time %f is value %f (ind->ixds: %d; ind->idx: %d)\n",
+  //            evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
+  // }
   int cmt, foundBad, j;
   double tmp;
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
