@@ -457,6 +457,7 @@ static inline int cancelPendingDosesAfter(rx_solving_options_ind *ind, int id, d
     ind->pendingDoses[pendIdx++] = cur;
   }
   ind->pendingDosesN[0] = pendIdx;
+  return re;
 }
 
 
