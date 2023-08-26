@@ -926,7 +926,7 @@ test_that("test etTran on addl ss items", {
                  row.names = c(NA, -82L))
 
    # should not drop the off infusion record
-  t <- etTransParse(e, rx)
+  t <- etTransParse(e, rx, addlDropSs=FALSE)
 
   expect_equal(t$TIME[length(t$TIME)], 82)
   expect_equal(t$AMT[length(t$AMT)], -10)
@@ -968,7 +968,7 @@ test_that("warning for all na", {
     EVID = c(10101L, 0L, 10101L, 0L, 0L, 0L, 10101L, 0L, 10101L, 0L)
   )
 
-  expect_warning(etTransParse(d3na, mod1), "column 'V1I' has only 'NA' values for id '2'")
+  expect_warning(etTransParse(d3na, mod1, addlDropSs=FALSE), "column 'V1I' has only 'NA' values for id '2'")
 
   d3na <-
     data.frame(
@@ -981,7 +981,7 @@ test_that("warning for all na", {
       EVID = c(10101L, 0L, 10101L, 0L, 0L, 0L, 10101L, 0L, 10101L, 0L)
     )
 
-  expect_warning(etTransParse(d3na, mod1), NA)
+  expect_warning(etTransParse(d3na, mod1, addlDropSs=FALSE), NA)
 
 })
 
@@ -1031,15 +1031,15 @@ NA, NA, NA, NA, NA, NA)), row.names = c(NA, -24L), class = c("tbl_df",
 
 mydata$ID[mydata$EVID == 0] <- NA
 
-expect_error(etTransParse(mydata, mod1))
+expect_error(etTransParse(mydata, mod1, addlDropSs=FALSE))
 
 mydata$ID <- as.double(mydata$ID)
 
-expect_error(etTransParse(mydata, mod1))
+expect_error(etTransParse(mydata, mod1, addlDropSs=FALSE))
 
 mydata$ID <- as.character(mydata$ID)
 
-expect_error(etTransParse(mydata, mod1))
+expect_error(etTransParse(mydata, mod1, addlDropSs=FALSE))
 
 })
 
@@ -1055,44 +1055,44 @@ d/dt(blood)     = a*intestine - b*blood
 
   dSimple <-
     data.frame(ID = 1, EVID = c(1, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
-  expect_error(etTransParse(dSimple, mod), "EVID=1")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "EVID=1")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(1, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, AMT=NA)
-  expect_error(etTransParse(dSimple, mod), "evid: 1")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "evid: 1")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
-  expect_error(etTransParse(dSimple, mod), "EVID=7")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "EVID=7")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
-  expect_error(etTransParse(dSimple, mod), "evid: 7")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "evid: 7")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(4, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
-  expect_error(etTransParse(dSimple, mod), "EVID=4")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "EVID=4")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(4, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
-  expect_error(etTransParse(dSimple, mod), "evid: 4")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "evid: 4")
 
 
   dSimple <-
     data.frame(ID = 1, EVID = c(5, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
-  expect_error(etTransParse(dSimple, mod), "EVID=5")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "EVID=5")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(5, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
-  expect_error(etTransParse(dSimple, mod), "evid: 5")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "evid: 5")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(6, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1)
-  expect_error(etTransParse(dSimple, mod), "EVID=6")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "EVID=6")
 
   dSimple <-
     data.frame(ID = 1, EVID = c(7, 0), cmt = c("depot", "central"), DV = c(NA, 1), TIME = 0:1, amt=NA)
-  expect_error(etTransParse(dSimple, mod), "evid: 7")
+  expect_error(etTransParse(dSimple, mod, addlDropSs=FALSE), "evid: 7")
 })
 
 test_that("etTrans lag ss", {
@@ -1124,7 +1124,7 @@ d/dt(blood)     = a*intestine - b*blood
                   evid=c(1,0),
                   ss=c(2, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 1))
   expect_equal(tmp$EVID, c(119L, 101L, 0L))
@@ -1138,7 +1138,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ss=c(1, 0),
                   rate=c(5, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
   expect_equal(tmp$EVID, c(10109L, 10108L, 10101L, 0L, 10101L))
@@ -1153,7 +1153,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ss=c(1, 0),
                   dur=c(20, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
   expect_equal(tmp$EVID, c(20109L, 20108L, 20101L, 0L, 20101L))
@@ -1167,7 +1167,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ss=c(2, 0),
                   rate=c(5, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
   expect_equal(tmp$EVID, c(10119L, 10108L, 10101L, 0L, 10101L))
@@ -1181,7 +1181,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ss=c(2, 0),
                   dur=c(20, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 1, 20))
   expect_equal(tmp$EVID, c(20119L, 20108L, 20101L, 0L, 20101L))
@@ -1196,7 +1196,7 @@ d/dt(blood)     = a*intestine - b*blood
                   rate=c(5, 0),
                   addl=c(3, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
   expect_equal(tmp$EVID, c(10109L, 10108L, 10101L, 10101L, 10109L, 10108L, 10101L, 10101L,
@@ -1213,7 +1213,7 @@ d/dt(blood)     = a*intestine - b*blood
                   dur=c(20, 0),
                   addl=c(3, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
   expect_equal(tmp$EVID, c(20109L, 20108L, 20101L, 20101L, 20109L, 20108L, 20101L, 20101L,
@@ -1229,7 +1229,7 @@ d/dt(blood)     = a*intestine - b*blood
                   rate=c(5, 0),
                   addl=c(3, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
   expect_equal(tmp$EVID, c(10119L, 10108L, 10101L, 10101L, 10119L, 10108L, 10101L, 10101L,
@@ -1246,7 +1246,7 @@ d/dt(blood)     = a*intestine - b*blood
                   dur=c(20, 0),
                   addl=c(3, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 20, 24, 24, 24, 44, 48, 48, 48, 68, 72, 72, 72, 92, 200))
   expect_equal(tmp$EVID, c(20119L, 20108L, 20101L, 20101L, 20119L, 20108L, 20101L, 20101L,
@@ -1263,7 +1263,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ss=c(1, 0),
                   addl=c(3,0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 24, 24, 48, 48, 72, 72, 200))
   expect_equal(tmp$EVID, c(109L, 101L, 109L, 101L, 109L, 101L, 109L, 101L, 0L))
@@ -1277,7 +1277,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ss=c(2, 0),
                   addl=c(3,0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 24, 24, 48, 48, 72, 72, 200))
   expect_equal(tmp$EVID, c(119L, 101L, 119L, 101L, 119L, 101L, 119L, 101L, 0L))
@@ -1302,7 +1302,7 @@ d/dt(blood)     = a*intestine - b*blood
                   ss=c(1, 0),
                   rate=c(-1, 0))
 
-  tmp <- etTransParse(d, mod)
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
 
   expect_equal(tmp$TIME, c(0, 0, 0, 1))
   expect_equal(tmp$EVID, c(90109L, 90101L, 70101L, 0L))
