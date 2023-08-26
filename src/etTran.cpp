@@ -6,7 +6,7 @@
 #include <Rcpp.h>
 #include <algorithm>
 #include "../inst/include/rxode2parse.h"
-#include "timsort.h"
+#include "../inst/include/timsort.h"
 #include "needSortDefines.h"
 #define SORT gfx::timsort
 
