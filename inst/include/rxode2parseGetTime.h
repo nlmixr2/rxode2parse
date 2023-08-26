@@ -4,6 +4,8 @@
 #if defined(__cplusplus)
 
 #include "rxode2parse.h"
+#include "rxode2parseTimeEvidShared.h"
+
 
 extern t_F AMT;
 extern t_LAG LAG;
@@ -26,6 +28,7 @@ extern t_calc_mtime calc_mtime;
       break;                                        \
     }                                               \
   }
+
 
 
 static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time) {
@@ -400,6 +403,7 @@ static inline int cancelPendingDoses(rx_solving_options_ind *ind, int id) {
   return re;
 }
 
+
 static inline int cancelPendingDosesAfter(rx_solving_options_ind *ind, int id, double time) {
   // this cancels pending doses that were added by steady state (or
   // possibly internally added doses) since they are in the extra doses queue.
@@ -412,55 +416,58 @@ static inline int cancelPendingDosesAfter(rx_solving_options_ind *ind, int id, d
       re = pushIgnoredDose(cur, ind) || re;
       continue;
     }
-    double curTime  = getAllTimes(ind, cur);
-    if (curTime >= time) {
-      // These events are after, ignore
-      re = pushIgnoredDose(cur, ind) || re;
-      continue;
-    }
-    // keep
-    int wh, cmt, wh100, whI, wh0;
+  }
+  // go through the extra doses
+  sortExtraDose(ind);
+  for (int i = 0; i < ind->extraDoseN[0]; ++i) {
+    int cur = -1-ind->extraDoseTimeIdx[i];
+    if (isIgnoredDose(ind, cur)) continue;
+    double curTime = getAllTimes(ind, cur);
     int evid = getEvid(ind, cur);
+    double amt = getDose(ind, cur);
+    int wh, cmt, wh100, whI, wh0;
     getWh(evid, &wh, &cmt, &wh100, &whI, &wh0);
-    if (whI != 1 && whI != 2) {
-      // only duration/rate infusions are supported in extra
-      // therefore non-infusion, simply cancel
+    if (whI != 2 && whI != 1) {
+      if (curTime < time) {
+        // keep
+        ind->pendingDoses[pendIdx++]  = cur;
+        continue;
+      }
+      // ignore
       re = pushIgnoredDose(cur, ind) || re;
       continue;
     }
-    // infusion pushed from possible ss event
-    double amt = getDose(ind, cur);
-    // keep on infusion
-    ind->pendingDoses[pendIdx++] = cur;
-    if (amt > 0) {
-      for (int j  = i+1; j < ind->pendingDosesN[0]; ++j) {
-        int cur2 = ind->pendingDoses[i];
-        double amt2 = getDose(ind, cur2);
-        if (amt2 == -amt && evid == getEvid(ind, cur2)) {
-          // keep off infusion (even if it is after time to make sure it is balanced)
-          ind->pendingDoses[pendIdx++] = cur2;
-          break;
-        }
+    if (wh0 == 1 && amt <= 0) continue; // pushed in a pair with
+                                        // regEvid, use infusion start
+                                        // to track
+    if (wh0 == 1) {
+      int infEixds;
+      rx_solve *rx = &rx_global;
+      rx_solving_options *op = &op_global;
+      handleInfusionGetEndOfInfusionIndex(cur, &infEixds,rx, op, ind);
+      if (curTime < time) {
+        // keep
+        ind->pendingDoses[pendIdx++] = cur;
+        if (infEixds != NA_INTEGER) ind->pendingDoses[pendIdx++] = infEixds;
+        continue;
       }
+      re = pushIgnoredDose(cur, ind) || re;
+      if (infEixds != NA_INTEGER) re = pushIgnoredDose(infEixds, ind) || re;
       continue;
     }
-    // infusion off event
-    int isCanceled=0;
-    for (int j = 0; j < pendIdx; ++j) {
-      if (cur == ind->pendingDoses[j]) {
-        isCanceled = 1;
-        break;
-      }
+    if (curTime < time) {
+      // keep
+      ind->pendingDoses[pendIdx++] = cur;
+      continue;
     }
-    if (isCanceled) continue;
-    // haven't canceled yet, canncel now
-    ind->pendingDoses[pendIdx++] = cur;
+    // ignore
+    re = pushIgnoredDose(cur, ind) || re;
   }
   ind->pendingDosesN[0] = pendIdx;
   return re;
 }
 
-
+#undef SORT
 #undef returnBadTime
 
 
