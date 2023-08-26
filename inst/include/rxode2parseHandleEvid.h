@@ -3,33 +3,12 @@
 #define __RXODE2PARSEHANDLEVID_H___
 
 #include "rxode2parse.h"
-#include "rxode2parseTimeEvidShared.h"
 //#include "rxThreadData.h"
 
-#define rxErrCorruptETSort    1
-#define rxErrRate0            2
-#define rxErrModelRateAbsent  4
-#define rxErrCorruptETSort2   8
-#define rxErrDurNeg0          16
-#define rxErrModelDurAbsent   32
-#define rxErrModelData686     64
-#define rxErrModelDataNeg6    128
-#define rxErrModelDataErr8    256
-#define rxErrModelDataErr886  512
-#define rxErrModelDataErr797  1024
-#define rxErrModelDataNeg7    2048
-#define rxErrModelDataErr9    4096
-#define rxErrModelDataErr997  8192
-#define rxErrCorruptETSort3   16384
-#define rxErrCorruptET        32768
-#define rxErrNegCmt           65536
-#define rxErrCorruptET2       131072
-#define rxErrSync             262144
-#define rxErrSync2            524288
-#define rxErrSs2LargeLag      1048576
-#define rxErrModeledFss2n2    2097152
-#define rxErrModeledFss2n3    4194304
-#define rxErrRate02           8388608
+#define rxErrNegCmt      65536
+#define rxErrSync        262144
+#define rxErrSync2       524288
+#define rxErrModeledFss2 1048576
 
 #if defined(__cplusplus)
 #define FLOOR(x) std::floor(x)
@@ -167,6 +146,40 @@ static inline void setDoseNumber(rx_solving_options_ind *ind, int i, int j, doub
   setDoseP1(ind, ind->idose[i] + j, value)
 }
 
+static inline void handleInfusionGetEndOfInfusionIndex(int idx, int *infEixds,
+																											 rx_solve *rx, rx_solving_options *op,
+																											 rx_solving_options_ind *ind) {
+	int curEvid = getEvid(ind, ind->idose[idx]);
+	double curAmt = getDoseNumber(ind, idx);
+	int lastKnownOff = 0;
+	*infEixds = -1;
+	for (int j = 0; j < ind->ndoses; j++) {
+		if (curEvid == getEvid(ind, ind->idose[j]) &&
+				curAmt == getDoseNumber(ind, j)) {
+			// get the first dose combination
+			if (lastKnownOff == 0) {
+				lastKnownOff=j+1;
+			} else {
+				lastKnownOff++;
+			}
+			for (int k = lastKnownOff; k < ind->ndoses; k++) {
+				if (curEvid == getEvid(ind, ind->idose[k]) &&
+						curAmt == -getDoseNumber(ind, k)) {
+					lastKnownOff = k;
+					if (j == idx) {
+						*infEixds = k;
+						// dur = getTime_(ind->idose[infEixds], ind);// -
+						// dur -= getTime_(ind->idose[ind->ixds+2], ind);
+						// dur2 = getIiNumber(ind, ind->ixds) - dur;
+					}
+					k = ind->ndoses;
+				}
+			}
+		}
+		if (*infEixds != -1) break;
+	}
+}
+
 static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind *ind, double *curDose, double *tinf) {
   unsigned int p;
   switch (ind->whI) {
@@ -292,6 +305,17 @@ static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double
     op->naTime = 1;
   }
   return ret;
+}
+
+static inline int isIgnoredDose(rx_solving_options_ind *ind, int ixds) {
+  for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
+    if (ind->idx < 0 ) {
+      return 0;
+    } else if (ind->idx >= 0 && ind->ignoredDoses[i] == ixds) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 static inline int pushIgnoredDose(int doseIdx, rx_solving_options_ind *ind) {
@@ -523,8 +547,8 @@ static inline int handle_evid(int evid, int neq,
         if (ind->wh0 == EVID0_SS2 &&
             getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
             getDoseIndex(ind, ind->idx)) {
-          if (!(ind->err & rxErrModeledFss2n2)){
-            ind->err += rxErrModeledFss2n2;
+          if (!(ind->err & rxErrModeledFss2)){
+            ind->err += rxErrModeledFss2;
           }
           return 0;
         }
@@ -538,6 +562,14 @@ static inline int handle_evid(int evid, int neq,
       // ind->curDose and ind->curDoseS[cmt] are handled when the modeled item is turned on.
       InfusionRate[cmt] += getDoseIndex(ind, ind->idx);
       ind->cacheME=0;
+      if (ind->wh0 == EVID0_SS2 &&
+          getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
+          getDoseIndex(ind, ind->idx)) {
+        if (!(ind->err & 2097152)){
+          ind->err += 2097152;
+        }
+        return 0;
+      }
       break;
     case EVIDF_INF_DUR:
       // In this case bio-availability changes the rate, but the
@@ -557,6 +589,12 @@ static inline int handle_evid(int evid, int neq,
       tmp = getAmt(ind, id, cmt, tmp, xout, yp);
       InfusionRate[cmt] += tmp;
       ind->cacheME=0;
+      if (ind->wh0 == EVID0_SS2 && tmp != getDoseIndex(ind, ind->idx)) {
+        if (!(ind->err & 4194304)){
+          ind->err += 4194304;
+        }
+        return 0;
+      }
       break;
     case EVIDF_INF_RATE:
       // In this case bio-availability changes the duration, but the
@@ -578,6 +616,13 @@ static inline int handle_evid(int evid, int neq,
       // }
       InfusionRate[cmt] += tmp;
       ind->cacheME=0;
+      if (ind->wh0 == EVID0_SS2 && getDoseIndex(ind, ind->idx) > 0 &&
+          getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
+          getDoseIndex(ind, ind->idx)) {
+        if (!(ind->err & 4194304)){
+          ind->err += 4194304;
+        }
+      }
       break;
     case EVIDF_REPLACE: // replace
       ind->on[cmt] = 1;
