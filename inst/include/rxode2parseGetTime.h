@@ -400,6 +400,89 @@ static inline int cancelPendingDoses(rx_solving_options_ind *ind, int id) {
   return re;
 }
 
+static inline int cancelInfusionsThatHaveStarted(rx_solving_options_ind *ind, int id, double time) {
+  int re = 0;
+  int wh, cmt, wh100, whI, wh0, evid;
+  double amt, curTime;
+  for (int i = 0; i < ind->extraDoseN[0]; ++i) {
+    int cur = -1-i;
+    evid = getEvid(ind, cur);
+    // REprintf("Extra dose information (%d):\n", cur);
+    // REprintf("\ttime: %f (curTime %f)\n", getAllTimes(ind, cur), time);
+    // REprintf("\tevid: %d ", getEvid(ind, cur));
+    // REprintf("\tdose: %f \n", getDose(ind, cur));
+    // REprintf("================================================================================\n");
+    getWh(evid, &wh, &cmt, &wh100, &whI, &wh0);
+    if (whI != 1 && whI != 2) {
+      // not an infusion
+      continue;
+    }
+    // infusions
+    amt = getDose(ind, cur);
+    curTime = getAllTimes(ind, cur);
+    if (amt > 0) {
+      // an infusion start dose
+      bool ignore = curTime < time;
+      // infusion starts after time;
+      // These should still be pending
+      if (ignore) {
+        // REprintf("ignore!\n");
+        re = pushIgnoredDose(cur, ind) || re;
+      }
+      i++;
+      if (i >= ind->extraDoseN[0]) break;
+      cur = -1-i;
+      double nextAmt = getDose(ind, cur);
+      evid = getEvid(ind, cur);
+      int nextWhI =0;
+      getWh(evid, &wh, &cmt, &wh100, &nextWhI, &wh0);
+      // REprintf("pair (%d):\n", cur);
+      // REprintf("\ttime: %f (curTime %f)\n", getAllTimes(ind, cur), time);
+      // REprintf("\tevid: %d ", evid);
+      // REprintf("\tdose: %f \n", nextAmt);
+      // REprintf("================================================================================\n");
+      if (amt == -nextAmt && whI == nextWhI) {
+        if (ignore) {
+          // REprintf("ignore!\n");
+          re = pushIgnoredDose(cur, ind) || re;
+        }
+      } else {
+        i--;
+      }
+      continue;
+    }
+    // turn infusion off. Not sure what to do here. For now keep.
+  }
+  rx_solve *rx = &rx_global;
+  rx_solving_options *op = &op_global;
+  int infEixds=-1;
+  for (int i = 0; i < ind->ndoses; i++) {
+    evid = getEvid(ind, ind->idose[i]);
+    curTime = getTime_(ind->idose[i], ind);
+    if (curTime >= time) continue; // next dose
+    getWh(evid, &wh, &cmt, &wh100, &whI, &wh0);
+    switch (whI) {
+    case EVIDF_MODEL_RATE_ON: // modeled rate.
+    case EVIDF_MODEL_DUR_ON: // modeled duration.
+      // infusion started, make sure the off is actually off
+      re = pushIgnoredDose(i, ind) || re;
+      re = pushIgnoredDose(i+1, ind) || re;
+      break;
+    case EVIDF_INF_DUR:
+    case EVIDF_INF_RATE:
+      // infusion started, find end index and make sure it is turned off too.
+      handleInfusionGetEndOfInfusionIndex(i, &infEixds, rx, op, ind);
+      re = pushIgnoredDose(i, ind) || re;
+      if (infEixds != -1) {
+        re = pushIgnoredDose(infEixds, ind) || re;
+      }
+      break;
+    }
+  }
+  return re;
+}
+
+#undef cancelOrPush
 #undef returnBadTime
 
 
