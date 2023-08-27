@@ -43,6 +43,8 @@
 #ifdef _isrxode2parse_
 #define max2( a , b )  ( (a) > (b) ? (a) : (b) )
 #define isSameTime(xout, xp) (fabs((xout)-(xp))  <= DBL_EPSILON*max2(fabs(xout),fabs(xp)))
+// use ~dop853 definition of same time
+#define isSameTimeDop(xout, xp) (0.1 * fabs((xout)-(xp)) <= fabs(xout) * 2.3E-16)
 #define _linCmtParse _rxode2parse_linCmtParse
 #define _rxode2_linCmtGen _rxode2parse_linCmtGen
 #define rc_buf_read _rxode2parse_rc_buf_read

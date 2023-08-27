@@ -46,8 +46,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // etTransParse
-List etTransParse(List inData, List mv, bool addCmt, bool dropUnits, bool allTimeVar, bool keepDosingOnly, Nullable<LogicalVector> combineDvid, CharacterVector keep);
-RcppExport SEXP _rxode2parse_etTransParse(SEXP inDataSEXP, SEXP mvSEXP, SEXP addCmtSEXP, SEXP dropUnitsSEXP, SEXP allTimeVarSEXP, SEXP keepDosingOnlySEXP, SEXP combineDvidSEXP, SEXP keepSEXP) {
+List etTransParse(List inData, List mv, bool addCmt, bool dropUnits, bool allTimeVar, bool keepDosingOnly, Nullable<LogicalVector> combineDvid, CharacterVector keep, bool addlKeepsCov, bool addlDropSs, bool ssAtDoseTime);
+RcppExport SEXP _rxode2parse_etTransParse(SEXP inDataSEXP, SEXP mvSEXP, SEXP addCmtSEXP, SEXP dropUnitsSEXP, SEXP allTimeVarSEXP, SEXP keepDosingOnlySEXP, SEXP combineDvidSEXP, SEXP keepSEXP, SEXP addlKeepsCovSEXP, SEXP addlDropSsSEXP, SEXP ssAtDoseTimeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -59,7 +59,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type keepDosingOnly(keepDosingOnlySEXP);
     Rcpp::traits::input_parameter< Nullable<LogicalVector> >::type combineDvid(combineDvidSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type keep(keepSEXP);
-    rcpp_result_gen = Rcpp::wrap(etTransParse(inData, mv, addCmt, dropUnits, allTimeVar, keepDosingOnly, combineDvid, keep));
+    Rcpp::traits::input_parameter< bool >::type addlKeepsCov(addlKeepsCovSEXP);
+    Rcpp::traits::input_parameter< bool >::type addlDropSs(addlDropSsSEXP);
+    Rcpp::traits::input_parameter< bool >::type ssAtDoseTime(ssAtDoseTimeSEXP);
+    rcpp_result_gen = Rcpp::wrap(etTransParse(inData, mv, addCmt, dropUnits, allTimeVar, keepDosingOnly, combineDvid, keep, addlKeepsCov, addlDropSs, ssAtDoseTime));
     return rcpp_result_gen;
 END_RCPP
 }

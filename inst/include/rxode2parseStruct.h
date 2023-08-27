@@ -144,7 +144,6 @@ typedef struct {
   int *cens;
   int *idose;
   int *on;
-  int *skipDose;
   int idosen;
   int id;
   int idReal;
@@ -214,6 +213,7 @@ typedef struct {
   int extraSorted; // extra sorted?
   //double *extraDoseIi; // ii doses unsupported
   bool lastIsSs2;
+  double *timeThread;
 } rx_solving_options_ind;
 
 typedef struct {
@@ -251,15 +251,8 @@ typedef struct {
   vLines factorNames;
   int factorNs[500];
   int hasFactors;
-  // For forder
-  uint64_t minD;
-  uint64_t maxD;
   int maxAllTimes;
-  uint8_t ***keys;// = NULL; keys per thread
-  int *TMP;
   int *ordId;
-  uint8_t *UGRP;
-  int *nradix;
   double *ypNA;
   bool sample;
   int *par_sample;
@@ -272,6 +265,7 @@ typedef struct {
   int *ovar;
   int hasEvid2;
   int useStdPow;
+  bool ss2cancelAllPending;
 } rx_solve;
 
 

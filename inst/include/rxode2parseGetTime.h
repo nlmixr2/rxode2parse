@@ -1,4 +1,4 @@
-// -*- mode: c++; c-basic-offset: 2; tab-width: 2; indent-tabs-mode: t; -*-
+// -*- mode: c++; c-basic-offset: 2; tab-width: 2; indent-tabs-mode: nil; -*-
 #ifndef __RXODE2PARSEGETTTIME_H__
 #define __RXODE2PARSEGETTTIME_H__
 #if defined(__cplusplus)
@@ -13,27 +13,27 @@ extern t_calc_mtime calc_mtime;
 
 #ifndef __DOINIT__
 
-#define returnBadTime(time)											\
-	if (ISNA(time)) {															\
-	switch (op->naTimeInput) {										\
-	case rxode2naTimeInputWarn:										\
-	    op->naTimeInputWarn=1;										\
-	case rxode2naTimeInputIgnore:                 \
-      return time;								  					 	\
-      break;																		\
-  case rxode2naTimeInputError:                  \
+#define returnBadTime(time)                         \
+  if (ISNA(time)) {                                 \
+    switch (op->naTimeInput) {                      \
+    case rxode2naTimeInputWarn:                     \
+      op->naTimeInputWarn=1;                        \
+    case rxode2naTimeInputIgnore:                   \
+      return time;                                  \
+      break;                                        \
+    case rxode2naTimeInputError:                    \
       Rf_errorcall(R_NilValue, "supplied NA time"); \
-			break;                                    \
-		}                                           \
-	}
+      break;                                        \
+    }                                               \
+  }
 
 
-static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time){
-	rx_solving_options *op = &op_global;
-	returnBadTime(time);
-	if (ind->wh0 == EVID0_SS0 || ind->wh0 == EVID0_SS20) {
-		return time;
-	}
+static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time) {
+  rx_solving_options *op = &op_global;
+  returnBadTime(time);
+  if (ind->wh0 == EVID0_SS0 || ind->wh0 == EVID0_SS20) {
+    return time;
+  }
   double ret = LAG(id, cmt, time);
   if (ISNA(ret)) {
     op->badSolve=1;
@@ -43,8 +43,8 @@ static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double
 }
 
 static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
-	rx_solving_options *op = &op_global;
-	returnBadTime(t);
+  rx_solving_options *op = &op_global;
+  returnBadTime(t);
   double ret = RATE(id, cmt, dose, t);
   if (ISNA(ret)){
     op->badSolve=1;
@@ -54,9 +54,9 @@ static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, doubl
 }
 
 static inline double getDur(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
-	rx_solving_options *op = &op_global;
-	returnBadTime(t);
-	if (ISNA(t)) return t;
+  rx_solving_options *op = &op_global;
+  returnBadTime(t);
+  if (ISNA(t)) return t;
   double ret = DUR(id, cmt, dose, t);
   if (ISNA(ret)){
     op->badSolve=1;
@@ -87,8 +87,8 @@ static inline void updateDur(int idx, rx_solving_options_ind *ind, double *yp){
   dur  = getDur(ind, ind->id, ind->cmt, amt, t);
   ind->idx = oldIdx;
   if (dur > 0) {
-		setDoseP1(ind, idx, -amt/dur);
-		setAllTimesP1(ind, idx, t+dur);
+    setDoseP1(ind, idx, -amt/dur);
+    setAllTimesP1(ind, idx, t+dur);
   } else {
     rx_solve *rx = &rx_global;
     rx_solving_options *op = &op_global;
@@ -117,8 +117,8 @@ static inline void updateRate(int idx, rx_solving_options_ind *ind, double *yp) 
   rate  = getRate(ind, ind->id, ind->cmt, amt, t);
   if (rate > 0){
     dur = amt/rate; // mg/hr
-		setDoseP1(ind, idx, -rate);
-		setAllTimesP1(ind, idx, t+dur);
+    setDoseP1(ind, idx, -rate);
+    setAllTimesP1(ind, idx, t+dur);
     ind->idx=oldIdx;
   } else {
     rx_solve *rx;
@@ -209,121 +209,126 @@ static inline void handleTurnOnModeledRate(int idx, rx_solve *rx, rx_solving_opt
       }
       return;
     }
-		setAllTimesP1(ind, idx, getAllTimes(ind, idx));
+    setAllTimesP1(ind, idx, getAllTimes(ind, idx));
     updateRate(idx, ind, rx->ypNA);
   }
 }
 
 static inline int handleInfusionStartRm(int *startIdx, int *endIdx,
-																				 double *amt, int *idx,
-																				 rx_solve *rx, rx_solving_options *op,
-																				 rx_solving_options_ind *ind) {
-	if (ind->wh0 == EVID0_INFRM) {
-		// This is a possible removal event.  Look at the next duration
-		int curEvid = getEvid(ind, ind->idose[*endIdx+1]);
-		*startIdx = *endIdx+1;
-		for (*endIdx = *startIdx; *endIdx < ind->ndoses; ++(*endIdx)) {
-			if (getEvid(ind, ind->idose[*startIdx]) == getEvid(ind, ind->idose[*endIdx])) break;
-			if (*endIdx == ind->ndoses-1) {
-				//REprintf("curEvid@infrm: %d\n", curEvid);
-				if (!(ind->err & 32768)){
-					ind->err += 32768;
-				}
-				return 1;
-			}
-		}
-		return 1;
-	}
-	return 0;
+                                        double *amt, int *idx,
+                                        rx_solve *rx, rx_solving_options *op,
+                                        rx_solving_options_ind *ind) {
+  if (ind->wh0 == EVID0_INFRM) {
+    // This is a possible removal event.  Look at the next duration
+    int curEvid = getEvid(ind, ind->idose[*endIdx+1]);
+    *startIdx = *endIdx+1;
+    for (*endIdx = *startIdx; *endIdx < ind->ndoses; ++(*endIdx)) {
+      if (getEvid(ind, ind->idose[*startIdx]) == getEvid(ind, ind->idose[*endIdx])) break;
+      if (*endIdx == ind->ndoses-1) {
+        //REprintf("curEvid@infrm: %d\n", curEvid);
+        if (!(ind->err & 32768)){
+          ind->err += 32768;
+        }
+        return 1;
+      }
+    }
+    return 1;
+  }
+  return 0;
 }
 
 static inline int handleInfusionStartDefault(int *startIdx, int *endIdx,
-																						 double *amt, int *idx,
-																						 rx_solve *rx, rx_solving_options *op,
-																						 rx_solving_options_ind *ind) {
-	// This finds the duration based on the end of infusion
-	int curEvid = getEvid(ind, ind->idose[*endIdx]);
-	int jj = 0;
-	for (*startIdx = 0; *startIdx < ind->ndoses; (*startIdx)++) {
-		if (getEvid(ind, ind->idose[*startIdx]) == curEvid &&
-				getDose(ind, ind->idose[*startIdx]) == -(*amt)) {
-			// This will look after the last known infusion stopping point
-			if (jj == 0) {
-				jj = *startIdx;
-			} else {
-				jj++;
-			}
-			for (; jj < ind->ndoses; jj++) {
-				if (getEvid(ind, ind->idose[jj]) == curEvid &&
-						getDose(ind, ind->idose[jj]) == *amt) {
-					break;
-				}
-			}
-			if (jj == *endIdx) break;
-		}
-	}
-	if (*startIdx == ind->ndoses) {
-		//REprintf("cant match: %d\n", curEvid);
-		if (!(ind->err & 32768)){
-			ind->err += 32768;
-		}
-		return 1;
-	}
-	return 1;
+                                             double *amt, int *idx,
+                                             rx_solve *rx, rx_solving_options *op,
+                                             rx_solving_options_ind *ind) {
+  // This finds the duration based on the end of infusion
+  int curEvid = getEvid(ind, ind->idose[*endIdx]);
+  int jj = 0;
+  for (*startIdx = 0; *startIdx < ind->ndoses; (*startIdx)++) {
+    if (getEvid(ind, ind->idose[*startIdx]) == curEvid &&
+        getDose(ind, ind->idose[*startIdx]) == -(*amt)) {
+      // This will look after the last known infusion stopping point
+      if (jj == 0) {
+        jj = *startIdx;
+      } else {
+        jj++;
+      }
+      for (; jj < ind->ndoses; jj++) {
+        if (getEvid(ind, ind->idose[jj]) == curEvid &&
+            getDose(ind, ind->idose[jj]) == *amt) {
+          break;
+        }
+      }
+      if (jj == *endIdx) break;
+    }
+  }
+  if (*startIdx == ind->ndoses) {
+    //REprintf("cant match: %d\n", curEvid);
+    if (!(ind->err & 32768)){
+      ind->err += 32768;
+    }
+    return 1;
+  }
+  return 1;
 }
 
 static inline void handleInfusionGetStartOfInfusionIndex(int *startIdx, int *endIdx,
-																												 double *amt, int *idx,
-																												 rx_solve *rx, rx_solving_options *op,
-																												 rx_solving_options_ind *ind) {
-	if (*amt > 0) {
-		*startIdx = -1;
-		*endIdx = -1;
-		return;
-	}
-	*endIdx = getDoseNumberFromIndex(ind, *idx);
-	if (*endIdx == -1){
-		if (!(ind->err & 16384)){
-			ind->err += 16384;
-		}
-		return;
-		/* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
-	}
-	handleInfusionStartRm(startIdx, endIdx, amt, idx, rx, op, ind) ||
-		handleInfusionStartDefault(startIdx, endIdx, amt, idx, rx, op, ind);
+                                                         double *amt, int *idx,
+                                                         rx_solve *rx, rx_solving_options *op,
+                                                         rx_solving_options_ind *ind) {
+  if (*amt > 0) {
+    *startIdx = -1;
+    *endIdx = -1;
+    return;
+  }
+  *endIdx = getDoseNumberFromIndex(ind, *idx);
+  if (*endIdx == -1){
+    if (!(ind->err & 16384)){
+      ind->err += 16384;
+    }
+    return;
+    /* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
+  }
+  handleInfusionStartRm(startIdx, endIdx, amt, idx, rx, op, ind) ||
+    handleInfusionStartDefault(startIdx, endIdx, amt, idx, rx, op, ind);
 }
 
 static inline double handleInfusionItem(int idx, rx_solve *rx, rx_solving_options *op, rx_solving_options_ind *ind) {
+  if (ind->wh0 == EVID0_RATEADJ) {
+    return getAllTimes(ind, idx);
+  }
   double amt = getDose(ind, idx);
   if (amt > 0) {
-		return getLag(ind, ind->id, ind->cmt, getAllTimes(ind, idx));
+    return getLag(ind, ind->id, ind->cmt, getAllTimes(ind, idx));
   } else if (amt < 0) {
-		if (ind->wh0 == EVID0_RATEADJ) {
-			return getAllTimes(ind, idx);
-		}
-    int j = getDoseNumberFromIndex(ind, idx);
-    if (j == -1){
+    int infEidx = getDoseNumberFromIndex(ind, idx);
+    if (infEidx == -1){
       if (!(ind->err & 16384)){
         ind->err += 16384;
       }
       return 0.0;
       /* Rf_errorcall(R_NilValue, "Corrupted event table during sort (1)."); */
     }
-		int k;
-		handleInfusionGetStartOfInfusionIndex(&k, &j, &amt, &idx, rx, op, ind);
-		if (k == -1) return 0.0;
+    int infBidx;
+    handleInfusionGetStartOfInfusionIndex(&infBidx, &infEidx, &amt, &idx, rx, op, ind);
+    if (infBidx == -1) return 0.0;
     rx_solve *rx = &rx_global;
-    double f = getAmt(ind, ind->id, ind->cmt, 1.0, getAllTimes(ind, ind->idose[j-1]), rx->ypNA);
+    double f = getAmt(ind, ind->id, ind->cmt, 1.0, getAllTimes(ind, ind->idose[infBidx]), rx->ypNA);
     if (ISNA(f)){
       rx_solving_options *op = &op_global;
       op->badSolve=1;
       op->naTime = 1;
     }
-    double durOld = (getAllTimes(ind, ind->idose[j]) -
-                     getAllTimes(ind, ind->idose[k]));
+    double durOld = (getAllTimes(ind, ind->idose[infEidx]) -
+                     getAllTimes(ind, ind->idose[infBidx]));
     double dur = f*durOld;
-    double t = getAllTimes(ind, ind->idose[k]) + dur;
-    return getLag(ind, ind->id, ind->cmt, t);
+    // To the correct lag time, we need to make sure the steady state flags are not set...
+    int wh0 = ind->wh0;
+    int wh, cmt, wh100, whI;
+    getWh(getEvid(ind, ind->idose[infBidx]), &wh, &cmt, &wh100, &whI, &(ind->wh0));
+    double tB = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idose[infBidx]));
+    ind->wh0 = wh0;
+    return tB + dur;
   } else {
     /* Rf_errorcall(R_NilValue, "Corrupted events."); */
     if (!(ind->err & 131072)){
@@ -363,8 +368,8 @@ static inline double getTime__(int idx, rx_solving_options_ind *ind, int update)
   if (isObs(evid)) return getAllTimes(ind, idx);
   getWh(evid, &(ind->wh), &(ind->cmt), &(ind->wh100), &(ind->whI), &(ind->wh0));
   if (ind->wh0 == EVID0_SSINF ||
-			ind->wh0 == EVID0_SS0 ||
-			ind->wh0 == EVID0_SS20){
+      ind->wh0 == EVID0_SS0 ||
+      ind->wh0 == EVID0_SS20){
   } else {
     // yp should be the current solve values
     //
@@ -386,6 +391,98 @@ static inline double getTime_(int idx, rx_solving_options_ind *ind) {
   return getTime__(idx, ind, 0);
 }
 
+static inline int cancelPendingDoses(rx_solving_options_ind *ind, int id) {
+  int re = 0;
+  for (int i = 0; i < ind->pendingDosesN[0]; ++i) {
+    re = pushIgnoredDose(ind->pendingDoses[i], ind) || re;
+  }
+  ind->pendingDosesN[0] = 0;
+  return re;
+}
+
+static inline int cancelInfusionsThatHaveStarted(rx_solving_options_ind *ind, int id, double time) {
+  int re = 0;
+  int wh, cmt, wh100, whI, wh0, evid;
+  double amt, curTime;
+  for (int i = 0; i < ind->extraDoseN[0]; ++i) {
+    int cur = -1-i;
+    evid = getEvid(ind, cur);
+    // REprintf("Extra dose information (%d):\n", cur);
+    // REprintf("\ttime: %f (curTime %f)\n", getAllTimes(ind, cur), time);
+    // REprintf("\tevid: %d ", getEvid(ind, cur));
+    // REprintf("\tdose: %f \n", getDose(ind, cur));
+    // REprintf("================================================================================\n");
+    getWh(evid, &wh, &cmt, &wh100, &whI, &wh0);
+    if (whI != 1 && whI != 2) {
+      // not an infusion
+      continue;
+    }
+    // infusions
+    amt = getDose(ind, cur);
+    curTime = getAllTimes(ind, cur);
+    if (amt > 0) {
+      // an infusion start dose
+      bool ignore = curTime < time;
+      // infusion starts after time;
+      // These should still be pending
+      if (ignore) {
+        // REprintf("ignore!\n");
+        re = pushIgnoredDose(cur, ind) || re;
+      }
+      i++;
+      if (i >= ind->extraDoseN[0]) break;
+      cur = -1-i;
+      double nextAmt = getDose(ind, cur);
+      evid = getEvid(ind, cur);
+      int nextWhI =0;
+      getWh(evid, &wh, &cmt, &wh100, &nextWhI, &wh0);
+      // REprintf("pair (%d):\n", cur);
+      // REprintf("\ttime: %f (curTime %f)\n", getAllTimes(ind, cur), time);
+      // REprintf("\tevid: %d ", evid);
+      // REprintf("\tdose: %f \n", nextAmt);
+      // REprintf("================================================================================\n");
+      if (amt == -nextAmt && whI == nextWhI) {
+        if (ignore) {
+          // REprintf("ignore!\n");
+          re = pushIgnoredDose(cur, ind) || re;
+        }
+      } else {
+        i--;
+      }
+      continue;
+    }
+    // turn infusion off. Not sure what to do here. For now keep.
+  }
+  rx_solve *rx = &rx_global;
+  rx_solving_options *op = &op_global;
+  int infEixds=-1;
+  for (int i = 0; i < ind->ndoses; i++) {
+    evid = getEvid(ind, ind->idose[i]);
+    curTime = getTime_(ind->idose[i], ind);
+    if (curTime >= time) continue; // next dose
+    getWh(evid, &wh, &cmt, &wh100, &whI, &wh0);
+    switch (whI) {
+    case EVIDF_MODEL_RATE_ON: // modeled rate.
+    case EVIDF_MODEL_DUR_ON: // modeled duration.
+      // infusion started, make sure the off is actually off
+      re = pushIgnoredDose(i, ind) || re;
+      re = pushIgnoredDose(i+1, ind) || re;
+      break;
+    case EVIDF_INF_DUR:
+    case EVIDF_INF_RATE:
+      // infusion started, find end index and make sure it is turned off too.
+      handleInfusionGetEndOfInfusionIndex(i, &infEixds, rx, op, ind);
+      re = pushIgnoredDose(i, ind) || re;
+      if (infEixds != -1) {
+        re = pushIgnoredDose(infEixds, ind) || re;
+      }
+      break;
+    }
+  }
+  return re;
+}
+
+#undef cancelOrPush
 #undef returnBadTime
 
 

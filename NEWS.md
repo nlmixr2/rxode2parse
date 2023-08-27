@@ -5,7 +5,8 @@
 * For compartment with steady state doses (NONMEM equivalent SS=1,
   SS=2), an additional tracking time-point is added at to track the
   time when the lagged dose is given.  As an upshot, the lagged dose
-  will start at the steady state concentration shifted by + ii - lag in `rxode2`
+  will start at the steady state concentration shifted by + ii - lag
+  in `rxode2`
 
 * This release calculates non bio-availability adjusted duration for
   all rates instead of trying to figure the rate duration during
@@ -14,6 +15,11 @@
 * Make double assignment an error, ie  `a <- b <-`
 
 * `NA` times are ignored (with warning)
+
+* Steady state bolus doses with `addl` are treated as non steady state
+  events (like what is observed in `NONMEM`)
+  
+* Timsort was upgraded; drop radix support in rxode2 struct
 
 # rxode2parse 2.0.16
 
