@@ -462,12 +462,12 @@ static inline int cancelInfusionsThatHaveStarted(rx_solving_options_ind *ind, in
     if (curTime >= time) continue; // next dose
     getWh(evid, &wh, &cmt, &wh100, &whI, &wh0);
     switch (whI) {
-    case EVIDF_MODEL_RATE_ON: // modeled rate.
-    case EVIDF_MODEL_DUR_ON: // modeled duration.
-      // infusion started, make sure the off is actually off
-      re = pushIgnoredDose(i, ind) || re;
-      re = pushIgnoredDose(i+1, ind) || re;
-      break;
+    // case EVIDF_MODEL_RATE_ON: // modeled rate.
+    // case EVIDF_MODEL_DUR_ON: // modeled duration.
+    //   // infusion started, make sure the off is actually off
+    //   re = pushIgnoredDose(i, ind) || re;
+    //   re = pushIgnoredDose(i+1, ind) || re;
+    //   break;
     case EVIDF_INF_DUR:
     case EVIDF_INF_RATE:
       // infusion started, find end index and make sure it is turned off too.
