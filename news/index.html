@@ -54,6 +54,8 @@
 <li><p>This release calculates non bio-availability adjusted duration for all rates instead of trying to figure the rate duration during solving.</p></li>
 <li><p>Make double assignment an error, ie <code>a &lt;- b &lt;-</code></p></li>
 <li><p><code>NA</code> times are ignored (with warning)</p></li>
+<li><p>Steady state bolus doses with <code>addl</code> are treated as non steady state events (like what is observed in <code>NONMEM</code>)</p></li>
+<li><p>Timsort was upgraded; drop radix support in rxode2 struct</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.16" id="rxode2parse-2016">rxode2parse 2.0.16<small>2023-03-28</small><a class="anchor" aria-label="anchor" href="#rxode2parse-2016"></a></h2>
