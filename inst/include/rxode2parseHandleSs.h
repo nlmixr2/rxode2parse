@@ -16,8 +16,6 @@ extern "C" {
   op->badSolve = 1;                                                     \
   i = ind->n_all_times-1; // Get out of here!
 
-  typdef void (*RSprintf_fun)(const char *format, ...);
-
   typedef void (*solveWith1Pt_fn)(int *neq,
                                   int *BadDose,
                                   double *InfusionRate,
@@ -142,80 +140,80 @@ extern "C" {
     }
   }
 
-  static inline void printErr(int err, int id, RSprintf_fun RSprintf) {
-    RSprintf("Recovered solving errors for internal ID %s (%d):\n", getId(id), err);
+  static inline void printErr(int err, int id) {
+    REprintf("Recovered solving errors for internal ID %s (%d):\n", getId(id), err);
     if (err & rxErrCorruptETSort){
-      RSprintf("  Corrupted event table during sort (1)\n");
+      REprintf("  Corrupted event table during sort (1)\n");
     }
     if (err & rxErrRate0){
-      RSprintf("  Rate is zero/negative\n");
+      REprintf("  Rate is zero/negative\n");
     }
     if (err & rxErrModelRateAbsent){
-      RSprintf("  Modeled rate requested in event table, but not in model; use 'rate(cmt) ='\n");
+      REprintf("  Modeled rate requested in event table, but not in model; use 'rate(cmt) ='\n");
     }
     if (err & rxErrCorruptETSort2){
-      RSprintf("  Corrupted event table during sort (2)\n");
+      REprintf("  Corrupted event table during sort (2)\n");
     }
     if (err & rxErrDurNeg0){
-      RSprintf("  Duration is zero/negative\n");
+      REprintf("  Duration is zero/negative\n");
     }
     if (err & rxErrModelDurAbsent){
-      RSprintf("  Modeled duration requested in event table, but not in model; use 'dur(cmt) ='\n");
+      REprintf("  Modeled duration requested in event table, but not in model; use 'dur(cmt) ='\n");
     }
     if (err & rxErrModelData686){
-      RSprintf("  Data error 686\n");
+      REprintf("  Data error 686\n");
     }
     if (err & rxErrModelDataNeg6){
-      RSprintf("  Data Error -6\n");
+      REprintf("  Data Error -6\n");
     }
     if (err & rxErrModelDataErr8){
-      RSprintf("  Data Error 8\n");
+      REprintf("  Data Error 8\n");
     }
     if (err & rxErrModelDataErr886){
-      RSprintf("  Data error 886\n");
+      REprintf("  Data error 886\n");
     }
     if (err & rxErrModelDataErr797){
-      RSprintf("  Data error 797\n");
+      REprintf("  Data error 797\n");
     }
     if (err & rxErrModelDataNeg7){
-      RSprintf("  Data Error -7\n");
+      REprintf("  Data Error -7\n");
     }
     if (err & rxErrModelDataErr9){
-      RSprintf("  Data Error 9\n");
+      REprintf("  Data Error 9\n");
     }
     if (err & rxErrModelDataErr997){
-      RSprintf("  Data error 997\n");
+      REprintf("  Data error 997\n");
     }
     if (err & rxErrCorruptETSort3){
-      RSprintf("  Corrupted event table during sort (3)\n");
+      REprintf("  Corrupted event table during sort (3)\n");
     }
     if (err & rxErrCorruptET) {
-      RSprintf("  Corrupted event table\n");
+      REprintf("  Corrupted event table\n");
     }
     if (err & rxErrCorruptET2){
-      RSprintf("  Corrupted events\n");
+      REprintf("  Corrupted events\n");
     }
     if (err & rxErrNegCmt){
-      RSprintf("  Supplied an invalid EVID\n");
+      REprintf("  Supplied an invalid EVID\n");
     }
     if (err & rxErrSync){
-      RSprintf("  Corrupted event table (during sync)\n");
+      REprintf("  Corrupted event table (during sync)\n");
     }
     if (err & rxErrSync2){
-      RSprintf("  Corrupted event table (end of sync)\n");
+      REprintf("  Corrupted event table (end of sync)\n");
     }
     if (err & rxErrModeledFss2){
-      RSprintf("  SS=2 & Modeled F does not work\n");
+      REprintf("  SS=2 & Modeled F does not work\n");
     }
 
     if (err & rxErrModeledFss2n2){
-      RSprintf("  SS=2 & Modeled F does not work\n");
+      REprintf("  SS=2 & Modeled F does not work\n");
     }
     if (err & rxErrModeledFss2n3){
-      RSprintf("  SS=2 & Modeled F does not work\n");
+      REprintf("  SS=2 & Modeled F does not work\n");
     }
     if (err & rxErrRate02){
-      RSprintf(" Rate is zero/negative\n");
+      REprintf(" Rate is zero/negative\n");
     }
   }
 
@@ -236,8 +234,7 @@ extern "C" {
                                  solveSSinf_fn solveSSinf,
                                  solveSSinfLargeDur_fn solveSSinfLargeDur,
                                  handleSSinf8_fn handleSSinf8,
-                                 updateExtraDoseGlobals_fn updateExtraDoseGlobalsI,
-                                 RSprintf_fun RSprintf) {
+                                 updateExtraDoseGlobals_fn updateExtraDoseGlobalsI) {
     rx_solve *rx = &rx_global;
     int j;
     int doSS2=0;
@@ -787,7 +784,7 @@ extern "C" {
             pushIgnoredDose(ignoreDoses[ii], ind);
           }
         } else if (ind->err) {
-          printErr(ind->err, ind->id, RSprintf);
+          printErr(ind->err, ind->id);
           badSolveExit(*i);
         } else {
           // Infusion
