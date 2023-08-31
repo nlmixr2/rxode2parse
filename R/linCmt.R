@@ -1,0 +1,134 @@
+#' R implementation of `rxode2parse`/`rxode2` `linCmt()` solutions
+#'
+#' This interfaces the C/C++ linCmt() interface for use in R without
+#' having to compile any `rxode2` models
+#'  
+#' @param data input dataset, may have some parameters in the dataset
+#'   itself; It also uses the standard `rxode2` dataset format which
+#'   is translated as usual with `etTrans()`.  This procedure will
+#'   produce the underlying `rxode2` model code and variables to
+#'   translate the compartmental model
+#' 
+#' @param ... Parameters that can be passed/parsed and integrated into
+#'   the `data` for a linear compartment solution.  You can either
+#'   have the parameters in the dataset itself or in this parameter
+#'   block.  The type of linear compartmental model is determined by
+#'   the parameters you specify in either the `data` or this extra set
+#'   of arguments.
+#' 
+#' @param fdepot The bioavailibility of doses to the depot.  Also
+#'   affects rate/dur. The default is `1` or there is no
+#'   bioavailibilty effect.  In `rxode2` you can specify this in a
+#'   `linCmt()` model by adding `f(depot)=`.
+#' 
+#' @param fcentral The bioavailibility of doses to the central compartment.  Also
+#'   affects rate/dur. The default is `1` or there is no
+#'   bioavailibilty effect.  In `rxode2` you can specify this in a
+#'   `linCmt()` model by adding `f(central)=`.
+#' 
+#' @param ratedepot The rate of doses that are modeled with `rate=-1`
+#'   when dosed to the `depot` compartment.  This can be added to a
+#'   `rxode2` `linCmt()` model by adding `rate(depot)=` to the model.
+#' 
+#' @param ratecentral The rate of doses that are modeled with
+#'   `rate=-1` when dosed to the `central` compartment.  This can be
+#'   added to a `rxode2` `linCmt()` model by adding `rate(central)=`.
+#' 
+#' @param durdepot The duration of infusion in the depot compartment
+#'   with doses that are modeled with `rate=-2`.  This can be added to
+#'   a `rxode2` `linCmt()` model by adding `dur(depot)=` to the model.
+#' 
+#' @param durcentral The duration of infusions in the central
+#'   compartment with doses that are modeled with `rate=-2`. This can
+#'   be added to a `rxode2` `linCmt()` model by adding `dur(central)=`
+#'   to the model.
+#'
+#' @param lagdepot The lag time of the depot compartment.  Can be
+#'   specified in an `rxode2` model by `alag(depot)=`
+#'
+#' @param lagcentral he lag time of the depot compartment.  Can be
+#'   specified in an `rxode2` model by `alag(central)=`
+#' 
+#' @param scale Scaling factor for the final `Cc` output
+#' 
+#' @param gradient If `TRUE`, this will add the gradients for the
+#'   linear compartment models to the output, otherwise it only shows
+#'   the concentration in the central compartment
+#' 
+#' @inheritParams etTransParse
+#' 
+#' @return A dataframe containing the linear compartment solution of
+#'   the model appended as a column to the input data as `Cc`
+#' 
+#' @export
+#' @author Matthew L. Fidler
+#' @examples
+#' 
+#' linCmt(nlmixr2data::nmtest, cl=1.1, v=20, ka=1.5)
+#' 
+linCmt <- function(data, ...,
+                   fdepot=1, fcentral=1,
+                   ratedepot=1, ratecentral=1,
+                   durdepot=1, durcentral=1,
+                   lagdepot=0, lagcentral=0,
+                   addlKeepsCov=FALSE, addlDropSs=TRUE, ssAtDoseTime=TRUE, scale=1,
+                   gradient=FALSE,
+                   keep=NULL) {
+  checkmate::assertNumeric(fdepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(fcentral, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(ratedepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(ratecentral, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(durdepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(durcentral, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(scale, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(lagdepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertNumeric(lagcentral, len=1, lower=0, finite=TRUE, any.missing=FALSE)
+  checkmate::assertLogical(addlKeepsCov, len=1, any.missing=FALSE)
+  checkmate::assertLogical(addlDropSs, len=1, any.missing=FALSE)
+  checkmate::assertLogical(ssAtDoseTime, len=1, any.missing=FALSE)
+  checkmate::assertLogical(gradient, len=1, any.missing=FALSE)
+  .linNamesData <- names(data)
+  .w <- which(grepl(.rxDerivedReg, .linNamesData, ignore.case = TRUE))
+  if (length(.w) > 0L) {
+    .linNamesData <- .names[.w]    
+  } else {
+    .linNamesData <- character(0)
+  }
+  .lst <- list(...)
+  .linNamePar <- names(.lst)
+  .w <- which(grepl(.rxDerivedReg, .linNamePar, ignore.case = TRUE))
+  if (length(.w) > 0) {
+    .linNamePar <- .linNamePar[.w]
+    for (.i in .linNamePar) {
+      data[[.i]] <- .lst[[.i]]
+    }
+  } else {
+    .linNamePar <- character(0)
+  }
+  .base <- paste(c(.linNamesData, .linNamePar), collapse=", ")
+  .trans <- eval(str2lang(paste0(".rxTransInfo(", .base, ")")))
+  if (is.na(.trans$str["ka"])) {
+    .mv <- rxode2parse(paste0("Cc=linCmt(", .base, ")\n",
+                              "f(central)=fcentral\n",
+                              "rate(central)=ratecentral\n",
+                              "dur(central)=durcentral\n",
+                              "alag(central)=lagcentral\n"), linear=TRUE)
+  } else {
+    .mv <- rxode2parse(paste0("Cc=linCmt(", .base, ")\n",
+                              "f(depot)=fdepot\n",
+                              "f(central)=fcentral\n",
+                              "rate(depot)=ratedepot\n",
+                              "rate(central)=ratecentral\n",
+                              "dur(depot)=durdepot\n",
+                              "dur(central)=durcentral\n",
+                              "alag(depot)=lagdepot\n",
+                              "alag(central)=lagcentral\n"), linear=TRUE)
+    
+  }
+  data$rxRowNum <- seq_along(data[,1])
+  .data <- as.data.frame(etTransParse(data, .mv, dropUnits=TRUE, allTimeVar = TRUE, 
+                                      addlKeepsCov=addlKeepsCov, addlDropSs=addlDropSs,
+                                      ssAtDoseTime=ssAtDoseTime,
+                                      keep = c("rxRowNum", keep)))
+  .data
+}
