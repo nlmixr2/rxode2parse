@@ -12,6 +12,7 @@
 #include "tran.h"
 #include "../inst/include/rxode2parseSbuf.h"
 
+SEXP _rxode2parse_linCmtR1(SEXP, SEXP);
 SEXP _rxode2parse_codeLoaded(void);
 SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname, SEXP pMd5, SEXP timeId, SEXP lastMv, SEXP goodFuns);
 SEXP _rxode2parse_parseModel(SEXP type);
@@ -135,6 +136,7 @@ int get_sexp_uniqueL( SEXP s );
 
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_linCmtR1", (DL_FUNC) &_rxode2parse_linCmtR1, 2},
     {"_rxode2parse_convertId_", (DL_FUNC) &_rxode2parse_convertId_, 1},
     {"_rxode2parse_funPtrs", (DL_FUNC) &_rxode2parse_funPtrs, 0},
     {"_rxode2parse_rxEtTransAsDataFrame_", (DL_FUNC) &_rxode2parse_rxEtTransAsDataFrame_, 1},
