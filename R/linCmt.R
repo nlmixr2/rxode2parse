@@ -7,15 +7,6 @@
   end
 )
 
-.rxLinInfoReg <- rex::rex(
-  start,
-  or("fdepot",
-     "ratedepot",
-     "durdepot",
-     "lagdepot"),
-  end
-)
-
 #' R implementation of `rxode2parse`/`rxode2` `linCmt()` solutions
 #'
 #' This interfaces the C/C++ linCmt() interface for use in R without
@@ -82,12 +73,19 @@
 #' @author Matthew L. Fidler
 #' @examples
 #'
-#' linCmt(nlmixr2data::nmtest, cl=1.1, v=20, ka=1.5)
+#' d <- nlmixr2data::nmtest
+#' names(d) <- names(d) %>%
+#'      sub("lagt", "lagcentral",.) %>%
+#'      sub("bioav", "fdepot", .)  %>%
+#'      sub("rat2", "ratecentral", .) %>%
+#'      sub("dur2", "durcentral", .)
+#'
+#' linCmt(d, cl=1.1, v=20, ka=1.5)
 #'
 linCmt <- function(data, ...,
                    fdepot=1, fcentral=1,
-                   ratedepot=1, ratecentral=1,
-                   durdepot=1, durcentral=1,
+                   ratedepot=0, ratecentral=0,
+                   durdepot=0, durcentral=0,
                    lagdepot=0, lagcentral=0,
                    addlKeepsCov=FALSE, addlDropSs=TRUE, ssAtDoseTime=TRUE, scale=1,
                    gradient=FALSE,
@@ -105,10 +103,37 @@ linCmt <- function(data, ...,
   checkmate::assertLogical(addlDropSs, len=1, any.missing=FALSE)
   checkmate::assertLogical(ssAtDoseTime, len=1, any.missing=FALSE)
   checkmate::assertLogical(gradient, len=1, any.missing=FALSE)
+  # First take care of the possible inputs to lag time
+
   .linNamesData <- names(data)
+  .w <- grepl(.rxLinInfoKaReg, .linNamesData, ignore.case=TRUE)
+  if (length(.w) > 0L) {
+    names(data)[.w] <- tolower(names(data)[.w])
+    .lagDataInfo <- names(data)[.w]
+    .linNamesData <- names(data)
+  } else {
+    .lagDataInfo <- character(0)
+  }
+  .lagParInfo <- list(fdepot=fdepot, fcentral=fcentral,
+                      ratedepot=ratedepot, ratecentral=ratecentral,
+                      durdepot=durdepot, durcentral=durcentral,
+                      lagdepot=lagdepot, lagcentral=lagcentral)
+  if (length(.lagDataInfo) > 0) {
+    .keepLagParInfo <- names(.lagParInfo)[!(names(.lagParInfo) %in% .lagDataInfo)]
+    .lagParInfo <- lapply(.keepLagParInfo,
+                          function(x) {
+                            .lagParInfo[[x]]
+                          })
+  }
+  if (length(.lagParInfo) > 0) {
+    for (v in names(.lagParInfo)) {
+      data[[v]] <- .lagParInfo[[v]]
+    }
+  }
+
   .w <- which(grepl(.rxDerivedReg, .linNamesData, ignore.case = TRUE))
   if (length(.w) > 0L) {
-    .linNamesData <- .names[.w]
+    .linNamesData <- .linNamesData[.w]
   } else {
     .linNamesData <- character(0)
   }
@@ -135,7 +160,7 @@ linCmt <- function(data, ...,
     .w <- which(grepl(.rxLinInfoKaReg, .linNamesData), .linNamePar, ignore.case=TRUE)
     if (length(.w) > 0) {
       .linNameExtra <- .linNamesData[.w]
-      for (.n %in% .linNameExtra) {
+      for (.n in .linNameExtra) {
         data[[tolower(.n)]] <- .lst[[]]
       }
     }
