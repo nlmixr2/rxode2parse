@@ -1,43 +1,61 @@
+.rxLinInfoKaReg <- rex::rex(
+  start,
+  or("fdepot","fcentral",
+     "ratedepot","ratecentral",
+     "durdepot","durcentral",
+     "lagdepot","lagcentral"),
+  end
+)
+
+.rxLinInfoReg <- rex::rex(
+  start,
+  or("fdepot",
+     "ratedepot",
+     "durdepot",
+     "lagdepot"),
+  end
+)
+
 #' R implementation of `rxode2parse`/`rxode2` `linCmt()` solutions
 #'
 #' This interfaces the C/C++ linCmt() interface for use in R without
 #' having to compile any `rxode2` models
-#'  
+#'
 #' @param data input dataset, may have some parameters in the dataset
 #'   itself; It also uses the standard `rxode2` dataset format which
 #'   is translated as usual with `etTrans()`.  This procedure will
 #'   produce the underlying `rxode2` model code and variables to
 #'   translate the compartmental model
-#' 
+#'
 #' @param ... Parameters that can be passed/parsed and integrated into
 #'   the `data` for a linear compartment solution.  You can either
 #'   have the parameters in the dataset itself or in this parameter
 #'   block.  The type of linear compartmental model is determined by
 #'   the parameters you specify in either the `data` or this extra set
 #'   of arguments.
-#' 
+#'
 #' @param fdepot The bioavailibility of doses to the depot.  Also
 #'   affects rate/dur. The default is `1` or there is no
 #'   bioavailibilty effect.  In `rxode2` you can specify this in a
 #'   `linCmt()` model by adding `f(depot)=`.
-#' 
+#'
 #' @param fcentral The bioavailibility of doses to the central compartment.  Also
 #'   affects rate/dur. The default is `1` or there is no
 #'   bioavailibilty effect.  In `rxode2` you can specify this in a
 #'   `linCmt()` model by adding `f(central)=`.
-#' 
+#'
 #' @param ratedepot The rate of doses that are modeled with `rate=-1`
 #'   when dosed to the `depot` compartment.  This can be added to a
 #'   `rxode2` `linCmt()` model by adding `rate(depot)=` to the model.
-#' 
+#'
 #' @param ratecentral The rate of doses that are modeled with
 #'   `rate=-1` when dosed to the `central` compartment.  This can be
 #'   added to a `rxode2` `linCmt()` model by adding `rate(central)=`.
-#' 
+#'
 #' @param durdepot The duration of infusion in the depot compartment
 #'   with doses that are modeled with `rate=-2`.  This can be added to
 #'   a `rxode2` `linCmt()` model by adding `dur(depot)=` to the model.
-#' 
+#'
 #' @param durcentral The duration of infusions in the central
 #'   compartment with doses that are modeled with `rate=-2`. This can
 #'   be added to a `rxode2` `linCmt()` model by adding `dur(central)=`
@@ -48,24 +66,24 @@
 #'
 #' @param lagcentral he lag time of the depot compartment.  Can be
 #'   specified in an `rxode2` model by `alag(central)=`
-#' 
+#'
 #' @param scale Scaling factor for the final `Cc` output
-#' 
+#'
 #' @param gradient If `TRUE`, this will add the gradients for the
 #'   linear compartment models to the output, otherwise it only shows
 #'   the concentration in the central compartment
-#' 
+#'
 #' @inheritParams etTransParse
-#' 
+#'
 #' @return A dataframe containing the linear compartment solution of
 #'   the model appended as a column to the input data as `Cc`
-#' 
+#'
 #' @export
 #' @author Matthew L. Fidler
 #' @examples
-#' 
+#'
 #' linCmt(nlmixr2data::nmtest, cl=1.1, v=20, ka=1.5)
-#' 
+#'
 linCmt <- function(data, ...,
                    fdepot=1, fcentral=1,
                    ratedepot=1, ratecentral=1,
@@ -90,7 +108,7 @@ linCmt <- function(data, ...,
   .linNamesData <- names(data)
   .w <- which(grepl(.rxDerivedReg, .linNamesData, ignore.case = TRUE))
   if (length(.w) > 0L) {
-    .linNamesData <- .names[.w]    
+    .linNamesData <- .names[.w]
   } else {
     .linNamesData <- character(0)
   }
@@ -108,6 +126,28 @@ linCmt <- function(data, ...,
   .base <- paste(c(.linNamesData, .linNamePar), collapse=", ")
   .trans <- eval(str2lang(paste0(".rxTransInfo(", .base, ")")))
   if (is.na(.trans$str["ka"])) {
+    .trans$str <- c(.trans$str[1:6],
+                    c("lagcentral"="lagcentral","fcentral"="fcentral","ratecentral"="ratecentral",
+                      "durcentral"="durcentral"),
+                    .trans$str[7],
+                    c("lagdepot"=NA_character_,"fdepot"=NA_character_,
+                      "ratedepot"=NA_character_,"durdepot"=NA_character_))
+    .w <- which(grepl(.rxLinInfoKaReg, .linNamesData), .linNamePar, ignore.case=TRUE)
+    if (length(.w) > 0) {
+      .linNameExtra <- .linNamesData[.w]
+      for (.n %in% .linNameExtra) {
+        data[[tolower(.n)]] <- .lst[[]]
+      }
+    }
+  } else {
+    .trans$str <- c(.trans$str[1:6],
+                    c("lagdepot"="lagdepot","fdepot"="fdepot","ratedepot"="ratedepot","durdepot"="durdepot"),
+                    .trans$str[7],
+                    c("lagcentral"="lagcentral","fcentral"="fcentral","ratecentral"="ratecentral",
+                      "durcentral"="durcentral"))
+  }
+
+  if (is.na(.trans$str["ka"])) {
     .mv <- rxode2parse(paste0("Cc=linCmt(", .base, ")\n",
                               "f(central)=fcentral\n",
                               "rate(central)=ratecentral\n",
@@ -123,12 +163,34 @@ linCmt <- function(data, ...,
                               "dur(central)=durcentral\n",
                               "alag(depot)=lagdepot\n",
                               "alag(central)=lagcentral\n"), linear=TRUE)
-    
+
   }
   data$rxRowNum <- seq_along(data[,1])
-  .data <- as.data.frame(etTransParse(data, .mv, dropUnits=TRUE, allTimeVar = TRUE, 
+  .data <- as.data.frame(etTransParse(data, .mv, dropUnits=TRUE, allTimeVar = TRUE,
                                       addlKeepsCov=addlKeepsCov, addlDropSs=addlDropSs,
                                       ssAtDoseTime=ssAtDoseTime,
                                       keep = c("rxRowNum", keep)))
-  .data
+
+  .ret <- lapply(unique(.data$ID), function(i) {
+    .dati <- .data[.data$ID==i,]
+    .l <- length(.dati$TIME)
+    .extra <- as.data.frame(setNames(lapply(names(.trans$str), function(n) {
+      .t <- .trans$str[n]
+      if (!is.na(.t) && !any(names(.dati) == .t)) {
+        .t <- NA_character_
+      }
+      if (is.na(.t)) {
+        if (grepl("^f", n)) {
+          return(rep(1.0, .l))
+        } else {
+          return(rep(0.0, .l))
+        }
+      }
+      .dati[,.t]
+    }), names(.trans$str)))
+    .pars <-
+      list(.dati[, c("TIME", "EVID", "AMT", "II")],
+           .extra)
+  })
+  .ret
 }
