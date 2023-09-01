@@ -10,17 +10,17 @@
 #include "timsort.h"
 #define SORT gfx::timsort
 static inline int handleExtraDose(int *neq,
-                                    int *BadDose,
-                                    double *InfusionRate,
-                                    double *dose,
-                                    double *yp,
-                                    double xout, double xp, int id,
-                                    int *i, int nx,
-                                    int *istate,
-                                    rx_solving_options *op,
-                                    rx_solving_options_ind *ind,
-                                    t_update_inis u_inis,
-                                    void *ctx) {
+                                  int *BadDose,
+                                  double *InfusionRate,
+                                  double *dose,
+                                  double *yp,
+                                  double xout, double xp, int id,
+                                  int *i, int nx,
+                                  int *istate,
+                                  rx_solving_options *op,
+                                  rx_solving_options_ind *ind,
+                                  t_update_inis u_inis,
+                                  void *ctx) {
     if (ind->extraDoseN[0] > ind->idxExtra) {
       if (ind->extraSorted == 0) {
         // do sort
