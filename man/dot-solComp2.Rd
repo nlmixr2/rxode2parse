@@ -2,7 +2,7 @@
 % Please edit documentation in R/linCmt.R
 \name{.solComp2}
 \alias{.solComp2}
-\title{Calculate the lambdas and coefficients of the two compartment models}
+\title{Calculate the lambdas and coefficients of the two compartment model}
 \usage{
 .solComp2(k10, k12, k21)
 }
@@ -17,12 +17,13 @@
 List with \code{L} vector and matrices \code{C1} and \code{C2}
 }
 \description{
-Calculate the lambdas and coefficients of the two compartment models
+Calculate the lambdas and coefficients of the two compartment model
 }
 \examples{
 .solComp2(k10=0.1, k12=3, k21=1)
 }
 \author{
-Matthew L. Fidler based on \code{wnl} package/paper
+Matthew L. Fidler based on \code{wnl} package/paper, implemented
+in C/C++
 }
 \keyword{internal}

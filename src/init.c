@@ -133,10 +133,11 @@ int get_sexp_uniqueL( SEXP s );
   return(ret);
 }
 
-
+SEXP _rxode2parse_solComp3(SEXP sK10, SEXP sK12, SEXP sK21, SEXP sK13, SEXP sK31);
 SEXP _rxode2parse_solComp2(SEXP sK10, SEXP sK12, SEXP sK21);
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_solComp3",(DL_FUNC)  &_rxode2parse_solComp3, 5},
     {"_rxode2parse_solComp2",(DL_FUNC)  &_rxode2parse_solComp2, 3},
     {"_rxode2parse_linCmtR1", (DL_FUNC) &_rxode2parse_linCmtR1, 2},
     {"_rxode2parse_convertId_", (DL_FUNC) &_rxode2parse_convertId_, 1},
