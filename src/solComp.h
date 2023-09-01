@@ -10,11 +10,11 @@ static inline int solComp2C(double *k10, double *k12, double *k21,
   div[0] = L[1] - L[0];
   div[1] = L[0] - L[1];
   if (div[0]*div[1] == 0) return 0;
-  C1[0] = *k21 - L[0];
-  C1[2] = *k21 - L[1];
-  C2[0] = C2[2] = *k21;
-  C1[1] = C1[3] = *k12;
-  tmp = *k10 + *k12;
+  C1[0] = (*k21) - L[0];
+  C1[2] = (*k21) - L[1];
+  C2[0] = C2[2] = (*k21);
+  C1[1] = C1[3] = (*k12);
+  tmp = (*k10) + (*k12);
   C2[1] = tmp - L[0];
   C2[3] = tmp - L[1];
   C1[0] = C1[0]/div[0];
@@ -36,10 +36,10 @@ static inline int solComp3C(double *k10, double *k12, double *k21,
   double A2 = (*k10)* (*k21) + (*k10)*(*k31) +
     (*k12)*(*k31) + (*k13)*(*k21) + (*k21)*(*k31);
   double A3 = (*k21)*(*k31)*(*k10);
-  double Q = (A1*A1 - 3.0*A2)/9.0;
+  double Q  = (A1*A1 - 3.0*A2)/9.0;
   double RQ = 2.0*sqrt(Q);
-  double R = (2.0*A1*A1*A1 - 9.0*A1*A2 + 27.0*A3)/54.0;
-  double M = Q*Q*Q - R*R;
+  double R  = (2.0*A1*A1*A1 - 9.0*A1*A2 + 27.0*A3)/54.0;
+  double M  = Q*Q*Q - R*R;
   if (M < 0) return 0;//stop("Error: Not real roots.")
   double Th = acos(8.0*R/(RQ*RQ*RQ));
   L[0] = RQ*cos(Th/3.0) + A1/3.0;
