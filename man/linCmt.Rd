@@ -9,10 +9,10 @@ linCmt(
   ...,
   fdepot = 1,
   fcentral = 1,
-  ratedepot = 1,
-  ratecentral = 1,
-  durdepot = 1,
-  durcentral = 1,
+  ratedepot = 0,
+  ratecentral = 0,
+  durdepot = 0,
+  durcentral = 0,
   lagdepot = 0,
   lagcentral = 0,
   addlKeepsCov = FALSE,
@@ -101,7 +101,14 @@ having to compile any \code{rxode2} models
 }
 \examples{
 
-linCmt(nlmixr2data::nmtest, cl=1.1, v=20, ka=1.5)
+d <- nlmixr2data::nmtest
+names(d) <- names(d) \%>\%
+     sub("lagt", "lagcentral",.) \%>\%
+     sub("bioav", "fdepot", .)  \%>\%
+     sub("rat2", "ratecentral", .) \%>\%
+     sub("dur2", "durcentral", .)
+
+linCmt(d, cl=1.1, v=20, ka=1.5)
 
 }
 \author{
