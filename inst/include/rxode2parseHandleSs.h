@@ -107,13 +107,12 @@ extern "C" {
   op->badSolve = 1;                                                     \
   i = ind->n_all_times-1; // Get out of here!
 
-  typedef void (*solveWith1Pt_fn)(int *neq,
-                                  int *BadDose,
+  typedef void (*solveWith1Pt_fn)(int *BadDose,
                                   double *InfusionRate,
                                   double *dose,
                                   double *yp,
-                                  double xout, double xp, int id,
-                                  int *i, int nx,
+                                  double xout, double xp,
+                                  int *i,
                                   int *istate,
                                   rx_solving_options *op,
                                   rx_solving_options_ind *ind,
@@ -750,8 +749,8 @@ extern "C" {
                       BadDose, InfusionRate, dose, yp,
                       xout, neq[1], ind);
           // yp is last solve or y0
-          solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                       xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+          solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                       xout2, xp2, i, istate, op, ind, u_inis, ctx);
           for (int cur = 0; cur < overIi; ++cur) {
             pushDosingEvent(startTimeD+curLagExtra+cur*curIi,
                             rateOn, regEvid, ind);
@@ -822,8 +821,8 @@ extern "C" {
               // yp is last solve or y0
               *istate=1;
               // yp is last solve or y0
-              solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                           xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+              solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                           xout2, xp2, i, istate, op, ind, u_inis, ctx);
               xp2 = xout2;
               // Turn off Infusion, and solve to infusion stop time
               xout2 = xp2 + solveTo - offTime;
@@ -834,8 +833,8 @@ extern "C" {
                           BadDose, InfusionRate, dose, yp,
                           xout+dur, neq[1], ind);
               *istate=1;
-              solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                           xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+              solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                           xout2, xp2, i, istate, op, ind, u_inis, ctx);
               pushDosingEvent(startTimeD+curLagExtra,
                               rateOn, extraEvid, ind);
             } else {
@@ -852,8 +851,8 @@ extern "C" {
               // yp is last solve or y0
               *istate=1;
               // yp is last solve or y0
-              solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                           xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+              solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                           xout2, xp2, i, istate, op, ind, u_inis, ctx);
               pushDosingEvent(startTimeD+offTime-solveTo,
                               rateOff, extraEvid, ind);
               pushDosingEvent(startTimeD+curLagExtra,
@@ -930,8 +929,8 @@ extern "C" {
                 // yp is last solve or y0
                 *istate=1;
                 // yp is last solve or y0
-                solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                             xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+                solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                             xout2, xp2, i, istate, op, ind, u_inis, ctx);
                 ind->idx=ei;
                 ind->ixds = infEixds;
                 handle_evid(getEvid(ind, ind->idose[infEixds]), neq[0],
@@ -962,8 +961,8 @@ extern "C" {
                 // yp is last solve or y0
                 *istate=1;
                 // yp is last solve or y0
-                solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                             xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+                solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                             xout2, xp2, i, istate, op, ind, u_inis, ctx);
 
                 for (int cur = 0; cur < (overIi+1); ++cur) {
                   pushDosingEvent(startTimeD+dur-solveExtra+cur*curIi,
@@ -989,8 +988,8 @@ extern "C" {
                 // yp is last solve or y0
                 *istate=1;
                 // yp is last solve or y0
-                solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                             xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+                solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                             xout2, xp2, i, istate, op, ind, u_inis, ctx);
                 if (!isSameTimeOp(totTime, xout2)) {
                   // don't give the infusion off dose
                   xp2 = xout2;
@@ -1003,8 +1002,8 @@ extern "C" {
                               xout+dur, neq[1], ind);
                   // yp is last solve or y0
                   *istate=1;
-                  solveWith1Pt(neq, BadDose, InfusionRate, dose, yp,
-                               xout2, xp2, id, i, nx, istate, op, ind, u_inis, ctx);
+                  solveWith1Pt(BadDose, InfusionRate, dose, yp,
+                               xout2, xp2, i, istate, op, ind, u_inis, ctx);
                 }
                 for (int cur = 0; cur < (overIi+1); ++cur) {
                   pushDosingEvent(startTimeD+curLagExtra+cur*curIi,
