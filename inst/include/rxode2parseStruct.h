@@ -146,6 +146,7 @@ typedef struct {
   int *on;
   int idosen;
   int id;
+  int solveid;
   int idReal;
   int sim;
   int idx;

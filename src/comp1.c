@@ -25,7 +25,7 @@
 #include "compSSc.h"
 
 // Handle single point solve
-void comp1solve1(double *yp, // prior solving information, will be updated with new information (like lsoda and the like)
+int comp1solve1(double *yp, // prior solving information, will be updated with new information (like lsoda and the like)
                  double *xout, // time to solve to
                  double *xp, // last time
                  double *rate, // rate in central compartment
@@ -47,4 +47,5 @@ void comp1solve1(double *yp, // prior solving information, will be updated with 
   if (hasDepot) {
     yp[0] *= Ea;
   }
+  return 1;
 }
