@@ -22,6 +22,8 @@
 #include "../inst/include/rxode2parseHandleEvid.h"
 #include "../inst/include/rxode2parseGetTime.h"
 
+#include "compSSc.h"
+
 // Handle single point solve
 void comp1solve1(double *yp, // prior solving information, will be updated with new information (like lsoda and the like)
                  double *xout, // time to solve to

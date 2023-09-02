@@ -7,7 +7,7 @@ static inline void comp1ssInf8(double *yp, double *rate, double *ka, double *kel
   yp[hasDepot] = (*rate)/(*kel);
 }
 
-static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
+static inline void comp1ssInf(double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *kel) {
   double eiK = exp(-(*kel)*(*dur));
   double eK = exp(-(*kel)*((*ii)-(*dur)))/(1.0-exp(-(*kel)*(*ii)));
@@ -104,3 +104,135 @@ static inline void comp2ssBolusDepot(double *yp, double *ii, double *dose,
   yp[2]=(*ka)*(*dose)*(*k12)*(eL1/((-L1 + L2)*((*ka) - L1)) + eL2/((L1 - L2)*((*ka) - L2)) + eKa/((-(*ka) + L2)*(-(*ka) + L1)));
 }
 
+//////////////////////////////////////////////////
+// 3cmt
+//////////////////////////////////////////////////
+static inline void comp3ssInf8(double *yp, double *rate,
+                               double *ka, double *k10,
+                               double *k12, double *k21,
+                               double *k13, double *k31) {
+}
+
+static inline void comp3ssInf(double *yp, double *dur, double *ii, double *rate,
+                              double *ka, double *k10,
+                              double *k12, double *k21,
+                              double *k13, double *k31) {
+  int hasDepot = (*ka) != 0.0;
+  double E1 = (*k10)+(*k12)+(*k13);
+  double E2 = (*k21);
+  double E3 = (*k31);
+
+  double a = E1+E2+E3;
+  double b = E1*E2+E3*(E1+E2)-(*k12)*(*k21)-(*k13)*(*k31);
+  double c = E1*E2*E3-E3*(*k12)*(*k21)-E2*(*k13)*(*k31);
+
+  double a2 = a*a;
+  double m = 0.333333333333333*(3.0*b - a2);
+  double n = 0.03703703703703703*(2.0*a2*a - 9.0*a*b + 27.0*c);
+  double Q = 0.25*(n*n) + 0.03703703703703703*(m*m*m);
+
+  double alpha = sqrt(-Q);
+  double beta = -0.5*n;
+  double gamma = sqrt(beta*beta+alpha*alpha);
+  double theta = atan2(alpha,beta);
+  double theta3 = 0.333333333333333*theta;
+  double ctheta3 = cos(theta3);
+  double stheta3 = 1.7320508075688771932*sin(theta3);
+  double gamma3 = R_pow(gamma,0.333333333333333);
+  
+  double L1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
+  double L2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
+  double L3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
+  double eTi1 = exp(-(*dur)*L1);
+  double eTi2 = exp(-(*dur)*L2);
+  double eTi3 = exp(-(*dur)*L3);
+  double eT1 = exp(-L1*((*ii)-(*dur)))/(1.0-exp(-(*ii)*L1));
+  double eT2 = exp(-L2*((*ii)-(*dur)))/(1.0-exp(-(*ii)*L2));
+  double eT3 = exp(-L3*((*ii)-(*dur)))/(1.0-exp(-(*ii)*L3));
+  yp[hasDepot] = (*rate)*(eT1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)) + eT2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)) + eT3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)))*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) + eT2*(L2*((*rate)*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3))) - ((*rate)*E2*(*k13)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*E3*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))))/((L1 - L2)*(L2 - L3)) + eT1*(-L1*((*rate)*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3))) + (*rate)*E2*(*k13)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*E3*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)))/((L1 - L3)*(L1 - L2)) + eT3*(L3*((*rate)*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3))) - ((*rate)*E2*(*k13)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*E3*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))))/((L1 - L3)*(-L2 + L3));
+  yp[hasDepot+1]=(*rate)*(*k12)*(eT1*(E3 - L1)*(E1 - L1)/((-L1 + L3)*(-L1 + L2)) + eT2*(E1 - L2)*(E3 - L2)/((L1 - L2)*(-L2 + L3)) + eT3*(E1 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)))*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) + eT2*((*rate)*(*k12)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))*L2 - ((*rate)*E3*(*k12)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k12)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) - (*rate)*(*k13)*(*k12)*(*k31)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))))/((L1 - L2)*(L2 - L3)) + eT1*((*rate)*E3*(*k12)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) - (*rate)*(*k12)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))*L1 + (*rate)*(*k13)*(*k12)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) - (*rate)*(*k13)*(*k12)*(*k31)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)))/((L1 - L3)*(L1 - L2)) + eT3*((*rate)*(*k12)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))*L3 - ((*rate)*E3*(*k12)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k12)*(*k31)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) - (*rate)*(*k13)*(*k12)*(*k31)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))))/((L1 - L3)*(-L2 + L3));
+  yp[hasDepot+2] =(*rate)*(*k13)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3))*(eT1*(E2 - L1)*(E1 - L1)/((-L1 + L3)*(-L1 + L2)) + eT2*(E1 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)) + eT3*(E1 - L3)*(E2 - L3)/((L1 - L3)*(L2 - L3))) + eT2*((*rate)*(*k13)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))*L2 - ((*rate)*E2*(*k13)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) - (*rate)*(*k13)*(*k12)*(*k21)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))))/((L1 - L2)*(L2 - L3)) + eT1*((*rate)*E2*(*k13)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) - (*rate)*(*k13)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))*L1 - (*rate)*(*k13)*(*k12)*(*k21)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)))/((L1 - L3)*(L1 - L2)) + eT3*((*rate)*(*k13)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))*L3 - ((*rate)*E2*(*k13)*(E2*E3/(L1*L2*L3) - eTi1*(E2 - L1)*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3)) - (*rate)*(*k13)*(*k12)*(*k21)*(E2/(L1*L2*L3) - eTi1*(E2 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E2 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E2 - L3)/((L1 - L3)*(L2 - L3)*L3)) + (*rate)*(*k13)*(*k12)*(*k21)*(E3/(L1*L2*L3) - eTi1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*L1) - eTi2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*L2) - eTi3*(E3 - L3)/((L1 - L3)*(L2 - L3)*L3))))/((L1 - L3)*(-L2 + L3));  
+}
+
+// Steady state central dosing
+static inline void comp3ssBolusCentral(double *yp, double *ii, double *dose,
+                                       double *ka, double *k10,
+                                       double *k12, double *k21,
+                                       double *k13, double *k31) {
+  int hasDepot = (*ka) != 0.0;
+  double E2 = (*k10)+(*k12)+(*k13);
+  double E3 = (*k21);
+  double E4 = (*k31);
+
+  double a = E2+E3+E4;
+  double b = E2*E3+E4*(E2+E3)-(*k12)*(*k21)-(*k13)*(*k31);
+  double c = E2*E3*E4-E4*(*k12)*(*k21)-E3*(*k13)*(*k31);
+
+  double a2 = a*a;
+  double m = 0.333333333333333*(3.0*b - a2);
+  double n = 0.03703703703703703*(2.0*a2*a - 9.0*a*b + 27.0*c);
+  double Q = 0.25*(n*n) + 0.03703703703703703*(m*m*m);
+
+  double alpha = sqrt(-Q);
+  double beta = -0.5*n;
+  double gamma = sqrt(beta*beta+alpha*alpha);
+  double theta = atan2(alpha,beta);
+  double theta3 = 0.333333333333333*theta;
+  double ctheta3 = cos(theta3);
+  double stheta3 = 1.7320508075688771932*sin(theta3);
+  double gamma3 = R_pow(gamma,0.333333333333333);
+  
+  double L1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
+  double L2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
+  double L3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
+
+  double eL1 = 1.0/(1.0-exp(-(*ii)*L1));
+  double eL2 = 1.0/(1.0-exp(-(*ii)*L2));
+  double eL3 = 1.0/(1.0-exp(-(*ii)*L3));
+  
+  yp[hasDepot]=(*dose)*(eL1*(E3 - L1)*(E4 - L1)/((-L1 + L3)*(-L1 + L2)) + eL2*(E3 - L2)*(E4 - L2)/((L1 - L2)*(-L2 + L3)) + eL3*(E3 - L3)*(E4 - L3)/((L1 - L3)*(L2 - L3)));
+  yp[hasDepot+1]=eL2*(-(*dose)*E4*(*k12) + (*dose)*(*k12)*L2)/((L1 - L2)*(L2 - L3)) + eL1*((*dose)*E4*(*k12) - (*dose)*(*k12)*L1)/((L1 - L3)*(L1 - L2)) + eL3*(-(*dose)*E4*(*k12) + (*dose)*(*k12)*L3)/((L1 - L3)*(-L2 + L3));
+  yp[hasDepot+2]=eL2*(-(*dose)*E3*(*k13) + (*dose)*(*k13)*L2)/((L1 - L2)*(L2 - L3)) + eL1*((*dose)*E3*(*k13) - (*dose)*(*k13)*L1)/((L1 - L3)*(L1 - L2)) + eL3*(-(*dose)*E3*(*k13) + (*dose)*(*k13)*L3)/((L1 - L3)*(-L2 + L3));
+}
+
+// Steady state bolus dosing
+static inline void comp3ssBolusDepot(double *yp, double *ii, double *dose, 
+                                     double *ka, double *k10,
+                                     double *k12, double *k21,
+                                     double *k13, double *k31) {
+  double E2 = (*k10)+(*k12)+(*k13);
+  double E3 = (*k21);
+  double E4 = (*k31);
+
+  double a = E2+E3+E4;
+  double b = E2*E3+E4*(E2+E3)-(*k12)*(*k21)-(*k13)*(*k31);
+  double c = E2*E3*E4-E4*(*k12)*(*k21)-E3*(*k13)*(*k31);
+
+  double a2 = a*a;
+  double m = 0.333333333333333*(3.0*b - a2);
+  double n = 0.03703703703703703*(2.0*a2*a - 9.0*a*b + 27.0*c);
+  double Q = 0.25*(n*n) + 0.03703703703703703*(m*m*m);
+
+  double alpha = sqrt(-Q);
+  double beta = -0.5*n;
+  double gamma = sqrt(beta*beta+alpha*alpha);
+  double theta = atan2(alpha,beta);
+  double theta3 = 0.333333333333333*theta;
+  double ctheta3 = cos(theta3);
+  double stheta3 = 1.7320508075688771932*sin(theta3);
+  double gamma3 = R_pow(gamma,0.333333333333333);
+  
+  double L1= 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
+  double L2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
+  double L3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
+
+  double eKa = 1.0/(1.0-exp(-(*ii)*(*ka)));
+  double eL1 = 1.0/(1.0-exp(-(*ii)*L1));
+  double eL2 = 1.0/(1.0-exp(-(*ii)*L2));
+  double eL3 = 1.0/(1.0-exp(-(*ii)*L3));
+  
+  yp[0]=eKa*(*dose);
+  yp[1]=(*ka)*(*dose)*(eL1*(E3 - L1)*(E4 - L1)/((-L1 + L3)*(-L1 + L2)*((*ka) - L1)) + eL2*(E3 - L2)*(E4 - L2)/((L1 - L2)*(-L2 + L3)*((*ka) - L2)) + eL3*(E3 - L3)*(E4 - L3)/((L1 - L3)*(L2 - L3)*((*ka) - L3)) + eKa*(E3 - (*ka))*(E4 - (*ka))/((-(*ka) + L1)*(-(*ka) + L3)*(-(*ka) + L2)));
+  yp[2]=(*ka)*(*dose)*(*k12)*(eL1*(E4 - L1)/((-L1 + L3)*(-L1 + L2)*((*ka) - L1)) + eL2*(E4 - L2)/((L1 - L2)*(-L2 + L3)*((*ka) - L2)) + eL3*(E4 - L3)/((L1 - L3)*(L2 - L3)*((*ka) - L3)) + eKa*(E4 - (*ka))/((-(*ka) + L1)*(-(*ka) + L3)*(-(*ka) + L2)));
+  yp[3]=(*ka)*(*dose)*(*k13)*(eL1*(E3 - L1)/((-L1 + L3)*(-L1 + L2)*((*ka) - L1)) + eL2*(E3 - L2)/((L1 - L2)*(-L2 + L3)*((*ka) - L2)) + eL3*(E3 - L3)/((L1 - L3)*(L2 - L3)*((*ka) - L3)) + eKa*(E3 - (*ka))/((-(*ka) + L1)*(-(*ka) + L3)*(-(*ka) + L2)));
+}
