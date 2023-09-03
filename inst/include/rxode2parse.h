@@ -4,6 +4,12 @@
 #define __rxode2parse_H__
 #define rxLlikSaveSize 9
 
+typedef void (*t_dydt)(int *neq, double t, double *A, double *DADT);
+typedef void (*t_calc_jac)(int *neq, double t, double *A, double *JAC, unsigned int __NROWPD__);
+typedef void (*t_calc_lhs)(int cSub, double t, double *A, double *lhs);
+typedef void (*t_update_inis)(int cSub, double *);
+
+
 #define getAdvan(idx) ind->solve + (op->neq + op->nlin)*(idx) + op->neq
 #define getSolve(idx) ind->solve + (op->neq + op->nlin)*(idx)
 #define isDose(evid) ((evid) == 3 || (evid) >= 100)
