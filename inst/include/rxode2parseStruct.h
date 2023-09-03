@@ -300,5 +300,5 @@ typedef void (*t_IndF)(int _cSub, double _t, double t, double *_mat);
 
 typedef double (*t_getTime)(int idx, rx_solving_options_ind *ind);
 typedef int (*t_locateTimeIndex)(double obs_time,  rx_solving_options_ind *ind);
-typedef int (*t_handle_evidL)(int evid, double *yp, double xout, int id, rx_solving_options_ind *ind) ;
+typedef int (*t_handle_evidL)(int evid, double *yp, double xout, rx_solving_options_ind *ind) ;
 typedef double (*t_getDur)(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);

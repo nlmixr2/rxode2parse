@@ -107,10 +107,7 @@ extern "C" {
   op->badSolve = 1;                                                     \
   i = ind->n_all_times-1; // Get out of here!
 
-  typedef void (*solveWith1Pt_fn)(int *BadDose,
-                                  double *InfusionRate,
-                                  double *dose,
-                                  double *yp,
+  typedef void (*solveWith1Pt_fn)(double *yp,
                                   double xout, double xp,
                                   int *i,
                                   int *istate,
@@ -745,12 +742,9 @@ extern "C" {
           xout2 = xp2 + curIi - curLagExtra;
           // Use "real" xout for handle_evid functions.
           *istate=1;
-          handle_evid(getEvid(ind, ind->ix[bi]), neq[0],
-                      BadDose, InfusionRate, dose, yp,
-                      xout, neq[1], ind);
+          handle_evid(getEvid(ind, ind->ix[bi]),yp, xout, ind);
           // yp is last solve or y0
-          solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                       xout2, xp2, i, istate, op, ind, u_inis, ctx);
+          solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
           for (int cur = 0; cur < overIi; ++cur) {
             pushDosingEvent(startTimeD+curLagExtra+cur*curIi,
                             rateOn, regEvid, ind);
@@ -815,26 +809,20 @@ extern "C" {
               ind->idx=bi;
               ind->ixds = infBixds;
               // REprintf("Assign ind->ixds to %d (idx: %d) #2\n", ind->ixds, ind->idx);
-              handle_evid(getEvid(ind, ind->idose[infBixds]), neq[0],
-                          BadDose, InfusionRate, dose, yp,
-                          xout, neq[1], ind);
+              handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
               // yp is last solve or y0
               *istate=1;
               // yp is last solve or y0
-              solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                           xout2, xp2, i, istate, op, ind, u_inis, ctx);
+              solveWith1Pt(yp,xout2, xp2, i, istate, op, ind, u_inis, ctx);
               xp2 = xout2;
               // Turn off Infusion, and solve to infusion stop time
               xout2 = xp2 + solveTo - offTime;
               ind->ixds = infEixds;
               ind->idx=ei;
               // REprintf("Assign ind->ixds to %d (idx: %d) #3\n", ind->ixds, ind->idx);
-              handle_evid(getEvid(ind, ind->idose[infEixds]), neq[0],
-                          BadDose, InfusionRate, dose, yp,
-                          xout+dur, neq[1], ind);
+              handle_evid(getEvid(ind, ind->idose[infEixds]), yp, xout+dur, ind);
               *istate=1;
-              solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                           xout2, xp2, i, istate, op, ind, u_inis, ctx);
+              solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
               pushDosingEvent(startTimeD+curLagExtra,
                               rateOn, extraEvid, ind);
             } else {
@@ -845,14 +833,11 @@ extern "C" {
               ind->ixds = infBixds;
               // REprintf("Assign ind->ixds to %d (idx: %d) #4\n", ind->ixds, ind->idx);
 
-              handle_evid(getEvid(ind, ind->idose[infBixds]), neq[0],
-                          BadDose, InfusionRate, dose, yp,
-                          xout, neq[1], ind);
+              handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
               // yp is last solve or y0
               *istate=1;
               // yp is last solve or y0
-              solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                           xout2, xp2, i, istate, op, ind, u_inis, ctx);
+              solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
               pushDosingEvent(startTimeD+offTime-solveTo,
                               rateOff, extraEvid, ind);
               pushDosingEvent(startTimeD+curLagExtra,
@@ -864,8 +849,7 @@ extern "C" {
             ind->idx = bi;
             ind->ixds = infBixds;
             // REprintf("Assign ind->ixds to %d (idx: %d) #5\n", ind->ixds, ind->idx);
-            handle_evid(getEvid(ind, ind->idose[infBixds]), neq[0], BadDose, InfusionRate, dose, yp,
-                        xout, neq[1], ind);
+            handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
           }
           // REprintf("Assign ind->ixds to %d (idx: %d) #5a\n", ind->ixds, ind->idx);
           // yp is last solve or y0
@@ -921,21 +905,16 @@ extern "C" {
                 //          curLagExtra, dur, curIi);
                 ind->idx  = bi;
                 ind->ixds = infBixds;
-                handle_evid(getEvid(ind, ind->idose[infBixds]), neq[0],
-                            BadDose, InfusionRate, dose, yp,
-                            xout, neq[1], ind);
+                handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
                 xp2   = startTimeD;
                 xout2 = startTimeD + dur;
                 // yp is last solve or y0
                 *istate=1;
                 // yp is last solve or y0
-                solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                             xout2, xp2, i, istate, op, ind, u_inis, ctx);
+                solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
                 ind->idx=ei;
                 ind->ixds = infEixds;
-                handle_evid(getEvid(ind, ind->idose[infEixds]), neq[0],
-                            BadDose, InfusionRate, dose, yp,
-                            xout, neq[1], ind);
+                handle_evid(getEvid(ind, ind->idose[infEixds]), yp, xout, ind);
                 ind->idx=ei;
                 ind->ixds = infEixds;
                 for (int cur = 0; cur < (overIi+1); ++cur) {
@@ -953,16 +932,13 @@ extern "C" {
                 double solveExtra=dur+dur2-curLagExtra;
                 ind->idx=bi;
                 ind->ixds = infBixds;
-                handle_evid(getEvid(ind, ind->idose[infBixds]), neq[0],
-                            BadDose, InfusionRate, dose, yp,
-                            xout, neq[1], ind);
+                handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
                 xp2   = startTimeD;
                 xout2 = startTimeD + solveExtra;
                 // yp is last solve or y0
                 *istate=1;
                 // yp is last solve or y0
-                solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                             xout2, xp2, i, istate, op, ind, u_inis, ctx);
+                solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
 
                 for (int cur = 0; cur < (overIi+1); ++cur) {
                   pushDosingEvent(startTimeD+dur-solveExtra+cur*curIi,
@@ -982,14 +958,11 @@ extern "C" {
                 }
                 ind->idx=bi;
                 ind->ixds = infBixds;
-                handle_evid(getEvid(ind, ind->idose[infBixds]), neq[0],
-                            BadDose, InfusionRate, dose, yp,
-                            xout, neq[1], ind);
+                handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
                 // yp is last solve or y0
                 *istate=1;
                 // yp is last solve or y0
-                solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                             xout2, xp2, i, istate, op, ind, u_inis, ctx);
+                solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
                 if (!isSameTimeOp(totTime, xout2)) {
                   // don't give the infusion off dose
                   xp2 = xout2;
@@ -997,13 +970,10 @@ extern "C" {
                   xout2 = totTime;
                   ind->ixds = infEixds;
                   ind->idx = ei;
-                  handle_evid(getEvid(ind, ind->idose[infEixds]), neq[0],
-                              BadDose, InfusionRate, dose, yp,
-                              xout+dur, neq[1], ind);
+                  handle_evid(getEvid(ind, ind->idose[infEixds]), yp, xout+dur, ind);
                   // yp is last solve or y0
                   *istate=1;
-                  solveWith1Pt(BadDose, InfusionRate, dose, yp,
-                               xout2, xp2, i, istate, op, ind, u_inis, ctx);
+                  solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
                 }
                 for (int cur = 0; cur < (overIi+1); ++cur) {
                   pushDosingEvent(startTimeD+curLagExtra+cur*curIi,
@@ -1021,9 +991,7 @@ extern "C" {
           if (doNoLag) {
             ind->idx=bi;
             ind->ixds=infBixds;
-            handle_evid(getEvid(ind, ind->idose[infBixds]), neq[0],
-                        BadDose, InfusionRate, dose, yp,
-                        xout, neq[1], ind);
+            handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
             pushDosingEvent(startTimeD+dur,
                             rateOff, extraEvid, ind);
           }
@@ -1045,9 +1013,7 @@ extern "C" {
       }
       if (!doSSinf && !isSsLag && !skipDosingEvent){
         // REprintf("handleEvid %d %d %d\n", doSSinf, isSsLag, skipDosingEvent);
-        handle_evid(getEvid(ind, ind->ix[*i]), neq[0],
-                    BadDose, InfusionRate, dose, yp,
-                    xout, neq[1], ind);
+        handle_evid(getEvid(ind, ind->ix[*i]), yp, xout, ind);
       }
       ind->doSS=0;
       ind->ixds=oldIxds; ind->idx=oldIdx;

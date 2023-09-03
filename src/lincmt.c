@@ -2597,7 +2597,7 @@ double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
       for (int i = nSave; i--;){
         aSave[i] = A[i];
       }
-      if (handle_evidL(evid, A, curTime, id, ind)){
+      if (handle_evidL(evid, A, curTime, ind)){
         handleSSL(A, Alast, tlast, curTime, ncmt, oral0,
                   &b1, &b2, &r1, &r2, &d_ka, &rx_k,
                   &rx_k12, &rx_k21, &rx_k13, &rx_k31,
@@ -2709,7 +2709,7 @@ double linCmtC(rx_solve *rx, unsigned int id, double _t, int linCmt,
       for (int i = nSave; i--;){
         aSave[i] = A[i];
       }
-      if (handle_evidL(evid, A, curTime, id, ind)){
+      if (handle_evidL(evid, A, curTime, ind)){
         handleSSL(A, Alast, tlast, curTime, ncmt, oral0, 
                   &b1, &b2, &r1, &r2, &d_ka, &rx_k,
                   &rx_k12, &rx_k21, &rx_k13, &rx_k31,
@@ -3301,7 +3301,7 @@ double linCmtF(rx_solve *rx, unsigned int id, double _t, int linCmt,
       for (int i = nSave; i--;){
         aSave[i] = A[i];
       }
-      if (handle_evidL(evid, A, curTime, id, ind)){
+      if (handle_evidL(evid, A, curTime, ind)){
         handleSSL(A, Alast, tlast, curTime, ncmt, oral0, 
                   &b1, &b2, &r1, &r2, &d_ka, &rx_k,
                   &rx_k12, &rx_k21, &rx_k13, &rx_k31,

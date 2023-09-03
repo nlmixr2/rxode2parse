@@ -38,7 +38,7 @@ extern "C" {
 
 #ifndef _isrxode2parse_
 
-  int handle_evidL(int evid, double *yp, double xout, int id, rx_solving_options_ind *ind);
+  int handle_evidL(int evid, double *yp, double xout, rx_solving_options_ind *ind);
   void handleTlast(double *time, rx_solving_options_ind *ind);
   double _getDur(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);
 
@@ -483,13 +483,10 @@ static inline int pushUniqueDosingEvent(double time, double amt, int evid,
   return re;
 }
 
-static inline int handle_evid(int evid, int neq,
-                              int *BadDose,
-                              double *InfusionRate,
-                              double *dose,
-                              double *yp,
-                              double xout, int id,
-                              rx_solving_options_ind *ind) {
+static inline int handle_evid(int evid, double *yp, double xout, rx_solving_options_ind *ind) {
+  rx_solving_options *op = &op_global;
+  int neq = op->neq + op->extraCmt;
+  int id  = ind->solveid;
   if (isObs(evid)) return 0;
   if (isIgnoredDose(ind, ind->ixds)) {
     // REprintf("ignored evid %d dose at time %f is value %f (ind->ixds: %d: ind->idx: %d)\n",
@@ -522,21 +519,20 @@ static inline int handle_evid(int evid, int neq,
   if (cmt >= neq) {
     foundBad = 0;
     for (j = 0; j < ind->nBadDose; j++) {
-      if (BadDose[j] == cmt+1) {
+      if (ind->BadDose[j] == cmt+1) {
         foundBad=1;
         break;
       }
     }
     if (!foundBad) {
-      BadDose[ind->nBadDose]=cmt+1;
+      ind->BadDose[ind->nBadDose]=cmt+1;
       ind->nBadDose++;
     }
   } else {
-    rx_solving_options *op = &op_global;
     //if (syncIdx(ind) == 0) return 0;
     if (ind->wh0 == EVID0_OFF) {
       yp[cmt]=op_global.inits[cmt];
-      InfusionRate[cmt] = 0;
+      ind->InfusionRate[cmt] = 0;
       ind->cacheME=0;
       ind->on[cmt] = 0;
       return 1;
@@ -553,7 +549,7 @@ static inline int handle_evid(int evid, int neq,
           ind->wh0 != EVID0_SS20) {
         ind->on[cmt] = 1;
         ind->cacheME = 0;
-        InfusionRate[cmt] -= getDoseIndexPlus1(ind, ind->idx);
+        ind->InfusionRate[cmt] -= getDoseIndexPlus1(ind, ind->idx);
         // if (ind->wh0 != EVID0_SS2 &&
         //     ind->wh0 != EVID0_SS) {
         //   int infEixds = ind->ixds;
@@ -579,7 +575,7 @@ static inline int handle_evid(int evid, int neq,
       // If cmt is off, don't remove rate....
       // Probably should throw an error if the infusion rate is on still.
       // ind->curDose and ind->curDoseS[cmt] are handled when the modeled item is turned on.
-      InfusionRate[cmt] += getDoseIndex(ind, ind->idx);
+      ind->InfusionRate[cmt] += getDoseIndex(ind, ind->idx);
       ind->cacheME=0;
       if (ind->wh0 == EVID0_SS2 &&
           getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
@@ -606,7 +602,7 @@ static inline int handle_evid(int evid, int neq,
         // }
       }
       tmp = getAmt(ind, id, cmt, tmp, xout, yp);
-      InfusionRate[cmt] += tmp;
+      ind->InfusionRate[cmt] += tmp;
       ind->cacheME=0;
       if (ind->wh0 == EVID0_SS2 && tmp != getDoseIndex(ind, ind->idx)) {
         if (!(ind->err & 4194304)){
@@ -633,7 +629,7 @@ static inline int handle_evid(int evid, int neq,
       // if (!ind->doSS) {
       //   REprintf("infusion dose at %f is %f ind->ixds: %d\n", xout, tmp, ind->ixds);
       // }
-      InfusionRate[cmt] += tmp;
+      ind->InfusionRate[cmt] += tmp;
       ind->cacheME=0;
       if (ind->wh0 == EVID0_SS2 && getDoseIndex(ind, ind->idx) > 0 &&
           getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
@@ -666,14 +662,11 @@ static inline int handle_evid(int evid, int neq,
 
 static inline int handleEvid1(int *i, rx_solve *rx, int *neq, double *yp, double *xout) {
   rx_solving_options_ind *ind = &(rx->subjects[neq[1]]);
-  rx_solving_options *op = rx->op;
   ind->idx = *i;
   if (!isObs(getEvid(ind, ind->ix[ind->idx]))) {
     syncIdx(ind);
   }
-  return handle_evid(getEvid(ind, ind->ix[ind->idx]), neq[0] + op->extraCmt,
-										 ind->BadDose, ind->InfusionRate, ind->dose, yp,
-										 *xout, neq[1], ind);
+  return handle_evid(getEvid(ind, ind->ix[ind->idx]), yp, *xout, ind);
 }
 
 // time   amt rate          ii  addl evid            ss
