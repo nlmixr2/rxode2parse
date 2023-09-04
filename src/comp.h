@@ -1,6 +1,6 @@
 typedef struct lin_context_c_t {
-  int cmt;
   double *rate;
+  int oral0;
   double ka;
   double k10;
   double k12;

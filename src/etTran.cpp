@@ -18,6 +18,10 @@
 #define _(String) (String)
 #endif
 
+#ifndef max2
+#define max2( a , b )  ( (a) > (b) ? (a) : (b) )
+#endif
+
 using namespace Rcpp;
 #define rxIsNumIntLgl rx2parseIsNumIntLgl
 #define rxIsFactor rx2parseIsFactor

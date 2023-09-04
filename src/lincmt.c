@@ -33,6 +33,12 @@ extern t_getDur _rxode2parse_getDur;
 #include "../inst/include/rxode2parseGetTime.h"
 #include "parTrans.h"
 
+#ifndef max2
+#define max2( a , b )  ( (a) > (b) ? (a) : (b) )
+#endif
+
+
+
 extern t_getTime _rxode2parse_getTime;
 
 extern t_locateTimeIndex _rxode2parse_locateTimeIndex;
