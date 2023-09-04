@@ -152,3 +152,41 @@ void handleSSbolus_lin(double *yp,
     *i = ind->n_all_times-1; // Get out of here!
   }
 }
+void solveSSinf_lin(double *yp,
+                    double *xout, double xp,
+                    int *i,
+                    int *istate,
+                    rx_solving_options *op,
+                    rx_solving_options_ind *ind,
+                    t_update_inis u_inis,
+                    void *ctx,
+                    double *xout2,
+                    double *xp2,
+                    int *infBixds,
+                    int *bi,
+                    int *infEixds,
+                    int *ei,
+                    double *curIi,
+                    double *dur,
+                    double *dur2,
+                    int *canBreak,
+                    solveWith1Pt_fn solveWith1Pt) {
+  lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
+  int linCmt = ind->linCmt;
+  rx_solve *rx=(&rx_global);
+  switch(rx->linNcmt) {
+  case 3:
+    comp3ssInf(yp + linCmt, dur, curIi, lin->rate,
+               &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
+               &(lin->k13), &(lin->k31));
+    break;
+  case 2:
+    comp2ssInf(yp + linCmt, dur, curIi, lin->rate,
+               &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
+    break;
+  case 1:
+    comp1ssInf(yp + linCmt, dur, curIi, lin->rate,
+               &(lin->ka), &(lin->k10));
+    break;
+  }
+}
