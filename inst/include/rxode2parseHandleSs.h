@@ -9,13 +9,9 @@
 #if defined(__cplusplus)
 #include "timsort.h"
 #define SORT gfx::timsort
-static inline int handleExtraDose(int *neq,
-                                  int *BadDose,
-                                  double *InfusionRate,
-                                  double *dose,
-                                  double *yp,
-                                  double xout, double xp, int id,
-                                  int *i, int nx,
+static inline int handleExtraDose(double *yp,
+                                  double xout, double xp,
+                                  int *i,
                                   int *istate,
                                   rx_solving_options *op,
                                   rx_solving_options_ind *ind,
