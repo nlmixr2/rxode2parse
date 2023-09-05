@@ -9,6 +9,7 @@
 #if defined(__cplusplus)
 #include "timsort.h"
 #define SORT gfx::timsort
+
 static inline int handleExtraDose(double *yp,
                                   double xout, double xp,
                                   int *i,
@@ -97,7 +98,7 @@ static inline int handleExtraDose(double *yp,
 extern "C" {
 #endif
 
-#define badSolveExit(i) for (int j = op->neq*(ind->n_all_times); j--;){ \
+#define badSolveExit(i) for (int j = (op->neq+ op->extraCmt)*(ind->n_all_times); j--;){ \
     ind->solve[j] = NA_REAL;                                            \
   }                                                                     \
   op->badSolve = 1;                                                     \
@@ -146,28 +147,6 @@ extern "C" {
                                 int *canBreak,
                                 solveWith1Pt_fn solveWith1Pt);
 
-  typedef void (*solveSSinfLargeDur_fn)(double *yp,
-                                        double *xout, double xp,
-                                        int *i,
-                                        int *istate,
-                                        rx_solving_options *op,
-                                        rx_solving_options_ind *ind,
-                                        t_update_inis u_inis,
-                                        void *ctx,
-                                        double *xout2,
-                                        double *xp2,
-                                        int *infBixds,
-                                        int *bi,
-                                        int *infEixds,
-                                        int *ei,
-                                        double *curIi,
-                                        double *dur,
-                                        int *numDoseInf,
-                                        double *offTime,
-                                        double *addTime,
-                                        int *canBreak,
-                                        solveWith1Pt_fn solveWith1Pt);
-
   typedef void (*handleSSinf8_fn)(double *yp,
                                   double *xout, double xp,
                                   int *i,
@@ -185,6 +164,124 @@ extern "C" {
                                   solveWith1Pt_fn solveWith1Pt);
 
   typedef void (*updateExtraDoseGlobals_fn)(rx_solving_options_ind* ind);
+
+  static inline void solveSSinfLargeDur_iter(double *yp,
+                                             double *xout, double xp,
+                                             int *i,
+                                             int *istate,
+                                             rx_solving_options *op,
+                                             rx_solving_options_ind *ind,
+                                             t_update_inis u_inis,
+                                             void *ctx,
+                                             double *xout2,
+                                             double *xp2,
+                                             int *infBixds,
+                                             int *bi,
+                                             int *infEixds,
+                                             int *ei,
+                                             double *curIi,
+                                             double *dur,
+                                             int *numDoseInf,
+                                             double *offTime,
+                                             double *addTime,
+                                             int *canBreak,
+                                             solveWith1Pt_fn solveWith1Pt) {
+    *numDoseInf = (int)(*dur / *curIi);
+    *offTime = *dur - (*numDoseInf)*(*curIi);
+    *addTime = *curIi - *offTime;
+    ind->ixds = *infBixds;
+    ind->idx = *bi;
+    for (int j = 0; j < *numDoseInf; j++) {
+      ind->ixds = *infBixds;
+      ind->idx = *bi;
+      *xout2 = *xp2 + *curIi;
+      // Use "real" xout for handle_evid functions.
+      handle_evid(getEvid(ind, ind->ix[*bi]), yp, *xout, ind);
+      // yp is last solve or y0
+      solveWith1Pt(yp, *xout2, *xp2, i, istate, op, ind, u_inis, ctx);
+    }
+    for (int j = 0; j < op->maxSS; j++) {
+      // Turn on Infusion, solve (0-dur)
+      *canBreak =1;
+      *xout2    = *xp2 + *offTime;
+      ind->idx  = *bi;
+      ind->ixds = *infBixds;
+      handle_evid(getEvid(ind, ind->idose[*infBixds]), yp, *xout, ind);
+      // yp is last solve or y0
+      *istate=1;
+      // yp is last solve or y0
+      solveWith1Pt(yp, *xout2, *xp2, i, istate, op, ind, u_inis, ctx);
+      *xp2 = *xout2;
+      // Turn off Infusion, solve (dur-ii)
+      *xout2 = *xp2 + *addTime;
+      ind->ixds = *infEixds;
+      ind->idx= *ei;
+      handle_evid(getEvid(ind, ind->idose[*infEixds]), yp, *xout + *dur, ind);
+      if (j <= op->minSS -1){
+        if (ind->rc[0]== -2019){
+          badSolveExit(*i);
+          break;
+        }
+        for (int k = op->neq + op->extraCmt; k--;) {
+          ind->solveLast[k] = yp[k];
+        }
+        *canBreak=0;
+      } else if (j >= op->minSS){
+        if (ind->rc[0]== -2019){
+          if (op->strictSS){
+            badSolveExit(*i);
+          } else {
+            for (int k = op->neq + op->extraCmt; k--;){
+              yp[k] = ind->solveLast[k];
+            }
+            ind->rc[0] = 2019;
+          }
+        }
+        for (int k = op->neq + op->extraCmt; k--;) {
+          ind->solveLast[k] = yp[k];
+          if (op->ssRtol[k]*fabs(yp[k]) + op->ssAtol[k] <= fabs(yp[k]-ind->solveLast[k])){
+            *canBreak=0;
+          }
+        }
+      }
+      // yp is last solve or y0
+      *istate=1;
+      solveWith1Pt(yp, *xout2, *xp2, i, istate, op, ind, u_inis, ctx);
+      if (j <= op->minSS -1){
+        if (ind->rc[0]== -2019){
+          badSolveExit(*i);
+          break;
+        }
+        for (int k = op->neq + op->extraCmt; k--;){
+          ind->solveLast2[k] = yp[k];
+        }
+        *canBreak=0;
+      } else if (j >= op->minSS){
+        if (ind->rc[0]== -2019){
+          if (op->strictSS){
+            badSolveExit(*i);
+          } else {
+            for (int k = op->neq + op->extraCmt; k--;){
+              yp[k] = ind->solveLast2[k];
+            }
+            ind->rc[0] = 2019;
+          }
+          break;
+        }
+        for (int k = op->neq + op->extraCmt; k--;){
+          if (op->ssRtol[k]*fabs(yp[k]) + op->ssAtol[k] <= fabs(yp[k]-ind->solveLast2[k])){
+            *canBreak=0;
+          }
+          ind->solveLast2[k] = yp[k];
+        }
+        if (canBreak){
+          break;
+        }
+      }
+      *xp2 = *xout2;
+    }
+  }
+
 
   static inline const char *getId(int id) {
     rx_solve *rx = &rx_global;
@@ -295,7 +392,6 @@ extern "C" {
                                  solveWith1Pt_fn solveWith1Pt,
                                  handleSSbolus_fn handleSSbolus,
                                  solveSSinf_fn solveSSinf,
-                                 solveSSinfLargeDur_fn solveSSinfLargeDur,
                                  handleSSinf8_fn handleSSinf8,
                                  updateExtraDoseGlobals_fn updateExtraDoseGlobalsI) {
     rx_solve *rx = &rx_global;
@@ -728,26 +824,26 @@ extern "C" {
           // number of doses before infusions turn off:
           int numDoseInf;
           double offTime, addTime;
-          solveSSinfLargeDur(yp,
-                             &xout, xp,
-                             i,
-                             istate,
-                             op,
-                             ind,
-                             u_inis,
-                             ctx,
-                             &xout2,
-                             &xp2,
-                             &infBixds,
-                             &bi,
-                             &infEixds,
-                             &ei,
-                             &curIi,
-                             &dur,
-                             &numDoseInf,
-                             &offTime,
-                             &addTime,
-                             &canBreak, solveWith1Pt);
+          solveSSinfLargeDur_iter(yp,
+                                  &xout, xp,
+                                  i,
+                                  istate,
+                                  op,
+                                  ind,
+                                  u_inis,
+                                  ctx,
+                                  &xout2,
+                                  &xp2,
+                                  &infBixds,
+                                  &bi,
+                                  &infEixds,
+                                  &ei,
+                                  &curIi,
+                                  &dur,
+                                  &numDoseInf,
+                                  &offTime,
+                                  &addTime,
+                                  &canBreak, solveWith1Pt);
           skipDosingEvent = true;
           // REprintf("Assign ind->ixds to %d (idx: %d) #1\n", indf->ixds, ind->idx);
           for (int cur = 0; cur < overIi; ++cur) {
