@@ -194,6 +194,11 @@ void solveSSinf_lin(double *yp,
 
 
 SEXP _rxode2parse_compC(SEXP in) {
+  rx_solve *rx=(&rx_global);
+  rx_solving_options *op = rx->op;
+  rx_solving_options_ind *oldInd = rx->subjects;
+  iniSolvingRx(rx);
+  iniSolvingOptions(op);
   int pro = 0;
   SEXP dat = PROTECT(VECTOR_ELT(in, 0)); pro++;
   SEXP par = PROTECT(VECTOR_ELT(in, 1)); pro++;
@@ -355,7 +360,6 @@ SEXP _rxode2parse_compC(SEXP in) {
   ind.extraDoseN[0] = 0;
   ind.extraDoseAllocN = ind.extraDoseN + 1;
   ind.extraDoseAllocN[0] = EVID_EXTRA_SIZE;
-
   tmpI = (int*)malloc(EVID_EXTRA_SIZE* sizeof(int));
   if (tmpI == NULL) {
     free(idose);
@@ -408,8 +412,11 @@ SEXP _rxode2parse_compC(SEXP in) {
   ind.idxExtra = 0;
   ind.extraSorted = 0;
 
-  //sortInd(ind);
+  //sortInd(&ind);
   ind.ixds = ind.idx=0;
+
+  rx->subjects =  &ind;
+
   /* if (op->badSolve) return 0; */
   /* if (ncmt) ind->pendingDosesN[0] = 0; */
   /* return 1; */
@@ -445,6 +452,7 @@ SEXP _rxode2parse_compC(SEXP in) {
   free(ind.extraDoseTimeIdx);
   free(ind.extraDoseTime);
   free(ind.extraDoseDose);
+  rx->subjects = oldInd;
   UNPROTECT(pro);
   return R_NilValue;
 }
