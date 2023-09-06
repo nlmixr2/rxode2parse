@@ -192,6 +192,7 @@ void solveSSinf_lin(double *yp,
   }
 }
 
+void rxode2parse_sortInd0(rx_solving_options_ind *ind);
 
 SEXP _rxode2parse_compC(SEXP in) {
   rx_solve *rx=(&rx_global);
@@ -412,7 +413,7 @@ SEXP _rxode2parse_compC(SEXP in) {
   ind.idxExtra = 0;
   ind.extraSorted = 0;
 
-  //sortInd(&ind);
+  rxode2parse_sortInd0(&ind);
   ind.ixds = ind.idx=0;
 
   rx->subjects =  &ind;
