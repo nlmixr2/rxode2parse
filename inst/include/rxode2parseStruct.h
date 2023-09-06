@@ -1,3 +1,10 @@
+#ifndef __RXODE2PARSESTRUCT_H__
+#define __RXODE2PARSESTRUCT_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct sbuf {
   char *s;        /* curr print buffer */
   int sN;
@@ -415,3 +422,27 @@ typedef double (*t_getTime)(int idx, rx_solving_options_ind *ind);
 typedef int (*t_locateTimeIndex)(double obs_time,  rx_solving_options_ind *ind);
 typedef int (*t_handle_evidL)(int evid, double *yp, double xout, rx_solving_options_ind *ind) ;
 typedef double (*t_getDur)(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);
+
+#ifdef _isrxode2parse_
+
+  extern rx_solving_options _rxode2parse_op_global;
+  extern rx_solve _rxode2parse_rx_global;
+  extern t_handle_evidL _rxode2parse_handle_evidL;
+  extern t_getDur _rxode2parse_getDur;
+  extern t_getTime _rxode2parse_getTime;
+#define op_global _rxode2parse_op_global
+#define rx_global _rxode2parse_rx_global
+#define AMT _rxode2parse_AMT
+#define LAG _rxode2parse_LAG
+#define RATE _rxode2parse_RATE
+#define DUR _rxode2parse_DUR
+#define calc_mtime _rxode2parse_calc_mtime
+#define getTime _rxode2parse_getTime
+#define _locateTimeIndex _rxode2parse_locateTimeIndex
+
+#endif
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

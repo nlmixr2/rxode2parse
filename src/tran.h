@@ -99,6 +99,8 @@ extern vLines centralLines;
 extern vLines sbPm, sbPmDt, sbNrmL;
 
 
+#undef RATE
+#undef DUR
 
 #define FBIO 1
 #define ALAG 2
@@ -338,3 +340,4 @@ void _rxode2parse_unprotect(void);
 char *getLine (char *src, int line, int *lloc);
 
 #endif // __TRAN_H__
+

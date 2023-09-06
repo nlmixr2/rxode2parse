@@ -25,36 +25,21 @@
 #define _(String) (String)
 #endif
 
-#define op_global _rxode2parse_op_global
-#define rx_global _rxode2parse_rx_global
-#define AMT _rxode2parse_AMT
-#define LAG _rxode2parse_LAG
-#define RATE _rxode2parse_RATE
-#define DUR _rxode2parse_DUR
-#define calc_mtime _rxode2parse_calc_mtime
-#define getTime_ _rxode2parse_getTime_
-#define getTime _rxode2parse_getTime
-#define _locateTimeIndex _rxode2parse_locateTimeIndex
-#define handle_evidL _rxode2parse_handle_evidL
-
-#include "../inst/include/rxode2parse.h"
-#define _calcDerived _rxode2parse_calcDerived
-
-extern rx_solving_options _rxode2parse_op_global;
-extern rx_solve _rxode2parse_rx_global;
-extern t_handle_evidL _rxode2parse_handle_evidL;
-extern t_getDur _rxode2parse_getDur;
-#define _getDur _rxode2parse_getDur
-
-#include "../inst/include/rxode2parseHandleEvid.h"
-#include "../inst/include/rxode2parseGetTime.h"
-#include "../inst/include/rxode2parseHandleSs.h"
 #ifndef max2
 #define max2( a , b )  ( (a) > (b) ? (a) : (b) )
 #endif
+
+#include "../inst/include/rxode2parseHandleSs.h"
+
+#ifndef max2
+#define max2( a , b )  ( (a) > (b) ? (a) : (b) )
+#endif
+
 #include "solComp.h"
 #include "compSSc.h"
 #include "comp.h"
+
+
 void solveWith1Pt_lin(double *yp,
                       double xout, double xp,
                       int *i,
