@@ -144,7 +144,6 @@ typedef struct {
   int *cens;
   int *idose;
   int *on;
-  int idosen;
   int id;
   int solveid;
   int idReal;
@@ -169,10 +168,7 @@ typedef struct {
   int _rxFlag;
   int err;
   int solved;
-  double *linCmtAdvan;
-  double *linCmtRate;
   int linCmt;
-  int linCmtAdvanSetup;
   int cacheME;
   int inLhs;
   // Cache alag

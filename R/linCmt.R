@@ -74,13 +74,12 @@
 #' @examples
 #'
 #' d <- nlmixr2data::nmtest
-#' names(d) <- names(d) %>%
-#'      sub("lagt", "lagcentral",.) %>%
-#'      sub("bioav", "fdepot", .)  %>%
-#'      sub("rat2", "ratecentral", .) %>%
-#'      sub("dur2", "durcentral", .)
+#' names(d) <- sub("lagt", "lagcentral",
+#'             sub("bioav", "fdepot",
+#'             sub("rat2", "ratecentral",
+#'             sub("dur2", "durcentral", names(d)))))
 #'
-#' linCmt(d, cl=1.1, v=20, ka=1.5)
+#' ret <- linCmt(d, cl=1.1, v=20, ka=1.5)
 #'
 linCmt <- function(data, ...,
                    fdepot=1, fcentral=1,

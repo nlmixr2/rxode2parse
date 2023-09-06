@@ -2132,7 +2132,7 @@ namespace stan {
       g = micros2macros(params, ncmt, trans);
       Eigen::Matrix<double, Eigen::Dynamic, 1> rate(oral0+1, 1);
       Eigen::Matrix<double, Eigen::Dynamic, 1> bolus(oral0+1, 1);
-      double *rateD = ind->linCmtRate;
+      double *rateD = ind->InfusionRate + op->neq;
       for (int i = oral0+1; i--; ){
 	bolus(i, 0) = 0.0;
 	rate(i, 0) = rateD[i];

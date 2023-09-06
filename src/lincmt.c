@@ -2203,7 +2203,9 @@ static inline void handleSSL(double *A,// Amounts
                              bool doDiff,
                              rx_solving_options_ind* ind) {
   // handle_evid has been called, so ind->wh0 and like have already been called
-  double *rate = ind->linCmtRate;
+  rx_solve *rx = &rx_global;
+  rx_solving_options *op = rx->op;
+  double *rate = ind->InfusionRate + op->neq;
   // note ind->ixds has already advanced
   double amt = getDoseNumber(ind, ind->ixds-1);
   switch(ind->wh0){
@@ -2383,7 +2385,7 @@ double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double rx_k21=0;
   double rx_k13=0;
   double rx_k31=0;
-  double *rate = ind->linCmtRate;
+  double *rate = ind->InfusionRate + op->neq;
   double b1=0, b2=0, r1 = 0, r2 = 0;
   double curTime = getTime(ind->ix[idx], ind);
   int sameTime = isSameTime(t, curTime);
@@ -2481,7 +2483,7 @@ double linCmtC(rx_solve *rx, unsigned int id, double _t, int linCmt,
   rx_solving_options_ind *ind = &(rx->subjects[id]);
   double t = _t - ind->curShift;
   rx_solving_options *op = rx->op;
-  double *rate = ind->linCmtRate;
+  double *rate = ind->InfusionRate + op->neq;
   int oldIdx = ind->idx;
   int oldIxds = ind->ixds;
   double or1 = 0.0, or2=0.0;
@@ -3102,7 +3104,7 @@ double linCmtF(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double rx_k21=0;
   double rx_k13=0;
   double rx_k31=0;
-  double *rate = ind->linCmtRate;
+  double *rate = ind->InfusionRate + op->neq;
   double b1=0, b2=0, r1 = 0, r2 = 0;
   A = Alast0;
   if (idx <= ind->solved){
