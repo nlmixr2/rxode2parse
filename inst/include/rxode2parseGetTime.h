@@ -2,6 +2,8 @@
 #ifndef __RXODE2PARSEGETTTIME_H__
 #define __RXODE2PARSEGETTTIME_H__
 #if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "rxode2parse.h"
 
@@ -220,7 +222,6 @@ static inline int handleInfusionStartRm(int *startIdx, int *endIdx,
                                         rx_solving_options_ind *ind) {
   if (ind->wh0 == EVID0_INFRM) {
     // This is a possible removal event.  Look at the next duration
-    int curEvid = getEvid(ind, ind->idose[*endIdx+1]);
     *startIdx = *endIdx+1;
     for (*endIdx = *startIdx; *endIdx < ind->ndoses; ++(*endIdx)) {
       if (getEvid(ind, ind->idose[*startIdx]) == getEvid(ind, ind->idose[*endIdx])) break;
@@ -459,17 +460,13 @@ static inline int cancelInfusionsThatHaveStarted(rx_solving_options_ind *ind, in
 #undef cancelOrPush
 #undef returnBadTime
 
-
-#endif
-
-extern "C" {
-#endif
-
 #ifndef _isrxode2parse_
   double getTime(int idx, rx_solving_options_ind *ind);
 #endif
 
 #if defined(__cplusplus)
 }
+#endif
+
 #endif
 #endif

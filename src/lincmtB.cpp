@@ -11,6 +11,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 
+extern "C" {
 #define op_global _rxode2parse_op_global
 #define rx_global _rxode2parse_rx_global
 #define AMT _rxode2parse_AMT
@@ -21,6 +22,7 @@
 #define getTime_ _rxode2parse_getTime_
 #define getTime _rxode2parse_getTime
 #define _locateTimeIndex _rxode2parse_locateTimeIndex
+}
 
 #include "../inst/include/rxode2parse.h"
 extern "C" void _rxode2parse_unprotect();

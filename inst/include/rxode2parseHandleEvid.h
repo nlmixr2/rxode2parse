@@ -1,6 +1,9 @@
 // -*- mode: c++; c-basic-offset: 2; tab-width: 2; indent-tabs-mode: nil; -*-
 #ifndef __RXODE2PARSEHANDLEVID_H___
 #define __RXODE2PARSEHANDLEVID_H___
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "rxode2parse.h"
 //#include "rxThreadData.h"
@@ -752,5 +755,9 @@ static inline int getEvidClassic(int cmt, double amt, double rate, double dur, d
 	flg = getEvidFlag(cmt, amt, rate, ii, evid, ss);
 	return cmt100*100000+rateI*10000+cmt99*100+flg;
 }
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

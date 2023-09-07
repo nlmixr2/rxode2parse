@@ -425,12 +425,11 @@ extern "C" {
       double dur = 0, dur2=0, rateOn=0.0, rateOff = 0.0;
       int infBixds =0, infBixds2=0, infEixds = 0, infFixds = 0,
         infSixds = 0,
-        ei=0, wh, cmt, wh100, whI, wh0, oldI,
+        ei=0, wh, cmt, wh100, whI, wh0,
         bi = *i, fi = *i;
       if (doSSinf){
       } else if (ind->whI == EVIDF_INF_RATE || ind->whI == EVIDF_INF_DUR) {
         if (getDose(ind, ind->idose[ind->ixds]) < 0) return;
-        oldI = ind->whI;
         isRateDose=true;
         infBixds = infBixds2 = infFixds = ind->ixds;
         // Find the next fixed length infusion that is turned off.

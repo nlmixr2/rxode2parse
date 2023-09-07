@@ -29,6 +29,18 @@
 #define max2( a , b )  ( (a) > (b) ? (a) : (b) )
 #endif
 
+#define op_global _rxode2parse_op_global
+#define rx_global _rxode2parse_rx_global
+#define AMT _rxode2parse_AMT
+#define LAG _rxode2parse_LAG
+#define RATE _rxode2parse_RATE
+#define DUR _rxode2parse_DUR
+#define calc_mtime _rxode2parse_calc_mtime
+#define getTime_ _rxode2parse_getTime_
+#define getTime _rxode2parse_getTime
+#define _locateTimeIndex _rxode2parse_locateTimeIndex
+
+
 #include "../inst/include/rxode2parseHandleSs.h"
 
 #ifndef max2
@@ -179,7 +191,7 @@ void solveSSinf_lin(double *yp,
 
 void rxode2parse_sortInd0(rx_solving_options_ind *ind);
 
-SEXP _rxode2parse_compC(SEXP in) {
+SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   rx_solve *rx=(&rx_global);
   rx_solving_options *op = rx->op;
   rx_solving_options_ind *oldInd = rx->subjects;
@@ -191,75 +203,127 @@ SEXP _rxode2parse_compC(SEXP in) {
   double rate[2];
   rate[0] = rate[1] = 0.0;
   int cnt = 0;
-  rx_solving_options_ind ind;
-  ind.bT = 0.0;
-  ind.slvr_counter = &cnt;
-  ind.dadt_counter = &cnt;
-  ind.jac_counter = &cnt;
-  ind.InfusionRate = &rate;
-  //ind.BadDose
-  // ind.nBadDose
-  ind.HMAX = 0.0; // Determined by diff
-  ind.curDose = NA_REAL;
-  ind.dosenum = 0;
+  rx_solving_options_ind indR;
+  indR.bT = 0.0;
+  indR.slvr_counter = &cnt;
+  indR.dadt_counter = &cnt;
+  indR.jac_counter = &cnt;
+  indR.InfusionRate = rate;
+  //indR.BadDose
+  // indR.nBadDose
+  indR.HMAX = 0.0; // Determined by diff
+  indR.curDose = NA_REAL;
+  indR.dosenum = 0;
   double tlast[2];
   tlast[0] = tlast[1] = NA_REAL;
-  ind.tlastS = tlast;
+  indR.tlastS = tlast;
   double curDoseS[2];
   curDoseS[0] = curDoseS[1] = NA_REAL;
-  ind.curDoseS = curDoseS;
+  indR.curDoseS = curDoseS;
   double tfirstS[2];
   tfirstS[0] = tfirstS[1] = NA_REAL;
-  ind.tfirstS = tfirstS;
-  ind.podo = 0.0;
+  indR.tfirstS = tfirstS;
+  indR.podo = 0.0;
   double podoS[2];
   podoS[0] = podoS[1] = 0.0;
-  ind.podoS = podoS;
+  indR.podoS = podoS;
   // double *par_ptr; // both time changing and time invariant
-  ind.par_ptr= NULL;
+  indR.par_ptr= NULL;
   // double *solve;
-  ind.solve = NULL;
+  indR.solve = NULL;
   // double *mtime;
-  ind.mtime = NULL;
+  indR.mtime = NULL;
   // double *lhs;
-  ind.lhs = NULL;
+  indR.lhs = NULL;
   // double *cov_ptr;
-  ind.cov_ptr = NULL;
+  indR.cov_ptr = NULL;
   // int *cov_sample;
-  ind.cov_sample=NULL;
+  indR.cov_sample=NULL;
   // double *dv;
-  ind.dv = NULL;
+  indR.dv = NULL;
   //double *limit;
-  ind.limit = NULL;
+  indR.limit = NULL;
   //int *cens;
-  ind.cens = NULL;
+  indR.cens = NULL;
 
 
   // ..$ TIME: num [1:135] 0 0 1 2 3 4 5 6 7 8 ...
-  ind.all_times  = REAL(VECTOR_ELT(dat, 1));
-  ind.n_all_times = Rf_length(VECTOR_ELT(dat, 1));
+  indR.all_times  = REAL(VECTOR_ELT(dat, 1));
+  indR.n_all_times = Rf_length(VECTOR_ELT(dat, 1));
   // ..$ EVID: int [1:135] 101 0 0 0 0 0 0 0 0 0 ...
-  ind.evid = INTEGER(VECTOR_ELT(dat, 1)); // $EVID;
+  indR.evid = INTEGER(VECTOR_ELT(dat, 1)); // $EVID;
+  rx->nall = Rf_length(VECTOR_ELT(dat, 1));
+  rx->nobs = 0;
+  rx->nobs2 = 0;
+  rx->nevid9 = 0;
+  for (int j = 0; j < rx->nall; ++j) {
+    if (isObs(indR.evid[j])) rx->nobs++;
+    if (indR.evid[j] == 0) rx->nobs2++;
+    if (indR.evid[j] == 9) rx->nevid9++;
+  }
+  rx->nKeepF     = 0;
+  rx->nCov0      = 0;
+  rx->neps       = 0;
+  rx->neps       = 0;
+  rx->neta       = 0;
+  rx->hasFactors = 0;
+  rx->nsub       = 1;
+  rx->nsim       = 1;
+
+  op->ncoresRV = 0;
+  op->do_par_cov=0;
+  op->cores = 0;
+  op->neq = 0; // no states by default
+  op->nLlik = 0; // no likelihoods by default
+  op->badSolve = 0;
+  op->naTime = 0;
+  op->abort = 0;
+  op->ATOL = NA_REAL;
+  op->RTOL = NA_REAL;
+  op->indLinPhiTol = NA_REAL;
+  op->indLinMatExpType = NA_REAL;
+  op->indLinPhiM = NA_REAL;
+  op->indLinMatExpOrder=0;
+  op->doIndLin=0;
+  op->H0 = NA_REAL;
+  op->HMIN = NA_REAL;
+  op->mxstep = -1;
+  op->MXORDN = 0;
+  op->MXORDS = 0;
+  op->nlhs = 0;
+  op->is_locf = 1;
+  op->f2 = 0.0;
+  op->f1 = 1.0;
+  op->kind = 0;
+  op->extraCmt= INTEGER(VECTOR_ELT(mv, RxMv_extraCmt))[0];
+  op->nDisplayProgress = 0;
+  SEXP flagsS  = VECTOR_ELT(mv, RxMv_flags);
+  int *flags   = INTEGER(flagsS);
+  rx->linKa    = flags[RxMvFlag_ka];
+  // RxMvFlag_linB
+  op->linBflag = flags[RxMvFlag_linCmtFlg];
+  rx->linNcmt  = flags[RxMvFlag_ncmt];
+
   // ..$ AMT : num [1:135] 100 NA NA NA NA NA NA NA NA NA ...
-  ind.dose = REAL(VECTOR_ELT(dat, 2)); // $AMT
+  indR.dose = REAL(VECTOR_ELT(dat, 2)); // $AMT
   // ..$ II  : num [1:135] 0 0 0 0 0 0 0 0 0 0 ...
-  ind.ii = REAL(VECTOR_ELT(dat, 3)); // $II
+  indR.ii = REAL(VECTOR_ELT(dat, 3)); // $II
 
   double solveSave[2];
   solveSave[0]   = solveSave[1] = 0.0;
-  ind.solveSave  = solveSave;
+  indR.solveSave  = solveSave;
   double solveLast[2];
   solveLast[0]   = solveLast[1] =0.0;
-  ind.solveLast  = solveLast;
+  indR.solveLast  = solveLast;
   double solveLast2[2];
   solveLast2[0]  = solveLast2[1] = 0.0;
-  ind.solveLast2 = solveLast2;
+  indR.solveLast2 = solveLast2;
   /* int ixds; */
-  ind.ixds=0;
+  indR.ixds=0;
   /* int ndoses; */
-  ind.ndoses=0;
+  indR.ndoses=0;
   /* int nevid2; */
-  ind.nevid2 = 0;
+  indR.nevid2 = 0;
   /* int id; */
   /* int solveid; */
   /* int idReal; */
@@ -286,40 +350,39 @@ SEXP _rxode2parse_compC(SEXP in) {
   /* int cacheME; */
   /* int inLhs; */
 
-  ind.id = ind.solveid = ind.idReal = ind.sim = ind.idx = ind.yj =
-    ind.wh = ind.wh100 = ind.cmt = ind.whI = ind.wh0 = ind.allCovWarn =
-    ind.wrongSSDur = ind._newind = ind._rxFlag = ind.err =
-    ind._update_par_ptr_in = ind.cacheME = ind.inLhs =
-    ind.isIni =  ind.linCmt = 0;
+  indR.id = indR.solveid = indR.idReal = indR.sim = indR.idx = indR.yj =
+    indR.wh = indR.wh100 = indR.cmt = indR.whI = indR.wh0 = indR.allCovWarn =
+    indR.wrongSSDur = indR._newind = indR._rxFlag = indR.err =
+    indR._update_par_ptr_in = indR.cacheME = indR.inLhs =
+    indR.isIni =  indR.linCmt = 0;
 
-  ind.solved = -1;
+  indR.solved = -1;
 
-  ind.curShift = 0.0;
+  indR.curShift = 0.0;
   /* bool lastIsSs2; */
-  ind.lastIsSs2 = false;
+  indR.lastIsSs2 = false;
   int on[2];
   on[0] = on[1] = 1;
-  ind.on = on;
-  
+  indR.on = on;
+
   /* double solveTime; */
   /* double curShift; */
 
-  int *idose = malloc(2*ind.n_all_times*sizeof(int));
+  int *idose = malloc(2*indR.n_all_times*sizeof(int));
   if (idose == NULL) {
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
   /* int *ix; */
-  ind.ix = idose + ind.n_all_times;
+  indR.ix = idose + indR.n_all_times;
   /* int *idose; */
-  ind.idose = idose;
-
-  for (int i = 0; i < ind.n_all_times; ++i) {
-    ind.ix[i] = i;
-    if (ind.evid[i] == 2) {
-      ind.nevid2++;
-    } else if (!isObs(ind.evid[i])) {
-      ind.idose[ind.ndoses] = i;
-      ind.ndoses++;
+  indR.idose = idose;
+  for (int i = 0; i < indR.n_all_times; ++i) {
+    indR.ix[i] = i;
+    if (indR.evid[i] == 2) {
+      indR.nevid2++;
+    } else if (!isObs(indR.evid[i])) {
+      indR.idose[indR.ndoses] = i;
+      indR.ndoses++;
     }
   }
   int *tmpI = (int*)malloc(EVID_EXTRA_SIZE* sizeof(int));
@@ -327,81 +390,118 @@ SEXP _rxode2parse_compC(SEXP in) {
     free(idose);
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
-  ind.ignoredDoses = tmpI;
+  indR.ignoredDoses = tmpI;
   tmpI = (int*)malloc(6*sizeof(int));
   if (tmpI == NULL) {
     free(idose);
-    free(ind.ignoredDoses);
+    free(indR.ignoredDoses);
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
-  ind.ignoredDosesN = tmpI;
-  ind.ignoredDosesN[0] = 0;
-  ind.ignoredDosesAllocN = ind.ignoredDosesN + 1;
-  ind.ignoredDosesAllocN[0] = EVID_EXTRA_SIZE;
-  ind.pendingDosesN = ind.ignoredDosesAllocN + 1;
-  ind.pendingDosesN[0] = 0;
-  ind.pendingDosesAllocN = ind.pendingDosesN + 1;
-  ind.pendingDosesAllocN[0] =EVID_EXTRA_SIZE;
-  ind.extraDoseN = ind.pendingDosesAllocN + 1;
-  ind.extraDoseN[0] = 0;
-  ind.extraDoseAllocN = ind.extraDoseN + 1;
-  ind.extraDoseAllocN[0] = EVID_EXTRA_SIZE;
+  indR.ignoredDosesN = tmpI;
+  indR.ignoredDosesN[0] = 0;
+  indR.ignoredDosesAllocN = indR.ignoredDosesN + 1;
+  indR.ignoredDosesAllocN[0] = EVID_EXTRA_SIZE;
+  indR.pendingDosesN = indR.ignoredDosesAllocN + 1;
+  indR.pendingDosesN[0] = 0;
+  indR.pendingDosesAllocN = indR.pendingDosesN + 1;
+  indR.pendingDosesAllocN[0] =EVID_EXTRA_SIZE;
+  indR.extraDoseN = indR.pendingDosesAllocN + 1;
+  indR.extraDoseN[0] = 0;
+  indR.extraDoseAllocN = indR.extraDoseN + 1;
+  indR.extraDoseAllocN[0] = EVID_EXTRA_SIZE;
   tmpI = (int*)malloc(EVID_EXTRA_SIZE* sizeof(int));
   if (tmpI == NULL) {
     free(idose);
-    free(ind.ignoredDoses);
-    free(ind.ignoredDosesN);
+    free(indR.ignoredDoses);
+    free(indR.ignoredDosesN);
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
-  ind.pendingDoses = tmpI;
+  indR.pendingDoses = tmpI;
   tmpI = (int*)malloc(EVID_EXTRA_SIZE* sizeof(int));
   if (tmpI == NULL) {
     free(idose);
-    free(ind.ignoredDoses);
-    free(ind.ignoredDosesN);
-    free(ind.pendingDoses);
+    free(indR.ignoredDoses);
+    free(indR.ignoredDosesN);
+    free(indR.pendingDoses);
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
-  ind.extraDoseTimeIdx = tmpI;
+  indR.extraDoseTimeIdx = tmpI;
   tmpI = (int*)malloc(EVID_EXTRA_SIZE* sizeof(int));
   if (tmpI == NULL) {
     free(idose);
-    free(ind.ignoredDoses);
-    free(ind.ignoredDosesN);
-    free(ind.pendingDoses);
-    free(ind.extraDoseTimeIdx);
+    free(indR.ignoredDoses);
+    free(indR.ignoredDosesN);
+    free(indR.pendingDoses);
+    free(indR.extraDoseTimeIdx);
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
-  ind.extraDoseEvid = tmpI;
+  indR.extraDoseEvid = tmpI;
   double *tmpD = (double*)malloc(EVID_EXTRA_SIZE* sizeof(double));
   if (tmpD == NULL) {
     free(idose);
-    free(ind.ignoredDoses);
-    free(ind.ignoredDosesN);
-    free(ind.pendingDoses);
-    free(ind.extraDoseTimeIdx);
+    free(indR.ignoredDoses);
+    free(indR.ignoredDosesN);
+    free(indR.pendingDoses);
+    free(indR.extraDoseTimeIdx);
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
-  ind.extraDoseTime = tmpD;
+  indR.extraDoseTime = tmpD;
   if (tmpD == NULL) {
     free(idose);
-    free(ind.ignoredDoses);
-    free(ind.ignoredDosesN);
-    free(ind.pendingDoses);
-    free(ind.extraDoseTimeIdx);
-    free(ind.extraDoseTime);
+    free(indR.ignoredDoses);
+    free(indR.ignoredDosesN);
+    free(indR.pendingDoses);
+    free(indR.extraDoseTimeIdx);
+    free(indR.extraDoseTime);
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
-  ind.extraDoseDose = tmpD;
+  indR.extraDoseDose = tmpD;
   // extra doses
-  ind.extraDoseNewXout = NA_REAL;
-  ind.idxExtra = 0;
-  ind.extraSorted = 0;
+  indR.extraDoseNewXout = NA_REAL;
+  indR.idxExtra = 0;
+  indR.extraSorted = 0;
+  tmpD = (double*)calloc(indR.n_all_times*(rx->linNcmt+rx->linKa), sizeof(double));
+  if (tmpD == NULL) {
+    free(idose);
+    free(indR.ignoredDoses);
+    free(indR.ignoredDosesN);
+    free(indR.pendingDoses);
+    free(indR.extraDoseTimeIdx);
+    free(indR.extraDoseTime);
+    free(indR.extraDoseDose);
+    Rf_errorcall(R_NilValue, _("ran out of memory"));
+  }
+  indR.solve = tmpD;
 
-  rxode2parse_sortInd0(&ind);
-  ind.ixds = ind.idx=0;
+  indR.ixds = indR.idx=0;
+  rx_solving_options_ind* ind = &indR;
+  rx->subjects =  ind;
+  rxode2parse_sortInd0(ind);
+  double *yp;
+  SEXP CcSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
 
-  rx->subjects =  &ind;
+  double *Cc = REAL(CcSxp);
+  double *p1 = REAL(VECTOR_ELT(par, 0));
+  double *v1 = REAL(VECTOR_ELT(par, 1));
+  double *p2 = REAL(VECTOR_ELT(par, 2));
+  double *p3 = REAL(VECTOR_ELT(par, 3));
+  double *p4 = REAL(VECTOR_ELT(par, 4));
+  double *p5 = REAL(VECTOR_ELT(par, 5));
+  double *lagdepot = REAL(VECTOR_ELT(par, 6));
+  double *fdepot   = REAL(VECTOR_ELT(par, 7));
+  double *ratedepot = REAL(VECTOR_ELT(par, 8));
+  double *durdepot = REAL(VECTOR_ELT(par, 9));
+  double *ka = REAL(VECTOR_ELT(par, 10));
+  double *lagcentral = REAL(VECTOR_ELT(par, 11));
+  double *fcentral = REAL(VECTOR_ELT(par, 12));
+  double *ratecentral = REAL(VECTOR_ELT(par, 13));
+  double *durcentral = REAL(VECTOR_ELT(par, 14));
+  double xout = 0.0, xp= 0.0;
+  for(int i=0; i < indR.n_all_times; ++i) {
+    ind->idx=i;
+    yp = getSolve(i);
+    xout = getTime_(ind->ix[i], ind);
+  }
 
   /* if (op->badSolve) return 0; */
   /* if (ncmt) ind->pendingDosesN[0] = 0; */
@@ -432,12 +532,13 @@ SEXP _rxode2parse_compC(SEXP in) {
   /* //double *extraDoseIi; // ii doses unsupported */
   /* double *timeThread; */
   free(idose);
-  free(ind.ignoredDoses);
-  free(ind.ignoredDosesN);
-  free(ind.pendingDoses);
-  free(ind.extraDoseTimeIdx);
-  free(ind.extraDoseTime);
-  free(ind.extraDoseDose);
+  free(indR.ignoredDoses);
+  free(indR.ignoredDosesN);
+  free(indR.pendingDoses);
+  free(indR.extraDoseTimeIdx);
+  free(indR.extraDoseTime);
+  free(indR.extraDoseDose);
+  free(indR.solve);
   rx->subjects = oldInd;
   UNPROTECT(pro);
   return R_NilValue;

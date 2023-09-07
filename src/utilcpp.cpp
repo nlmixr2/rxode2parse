@@ -3,10 +3,10 @@
 
 #include <Rcpp.h>
 #include <algorithm>
-#include "../inst/include/rxode2parse.h"
 #include "../inst/include/timsort.h"
 #include "needSortDefines.h"
-
+#include "../inst/include/rxode2parseHandleSs.h"
+#include "../inst/include/rxode2parseSortInd.h"
 
 #ifdef ENABLE_NLS
 #include <libintl.h>
@@ -22,10 +22,6 @@
 
 using namespace Rcpp;
 
-#include "../inst/include/rxode2parseHandleEvid.h"
-#include "../inst/include/rxode2parseGetTime.h"
-#include "../inst/include/rxode2parseHandleSs.h"
-#include "../inst/include/rxode2parseSortInd.h"
 
 extern "C" void rxode2parse_sortInd0(rx_solving_options_ind *ind) {
   rxode2parse_sortInd(ind);
