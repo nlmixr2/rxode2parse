@@ -40,7 +40,6 @@
 #define getTime _rxode2parse_getTime
 #define _locateTimeIndex _rxode2parse_locateTimeIndex
 
-
 #include "../inst/include/rxode2parseHandleSs.h"
 
 #ifndef max2
@@ -190,6 +189,7 @@ void solveSSinf_lin(double *yp,
 }
 
 void rxode2parse_sortInd0(rx_solving_options_ind *ind);
+int rxode2parse_handleExtraDose0(double *yp, double xout, double xp, int *i, rx_solving_options *op, rx_solving_options_ind *ind);
 
 SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   rx_solve *rx=(&rx_global);
@@ -497,10 +497,48 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   double *ratecentral = REAL(VECTOR_ELT(par, 13));
   double *durcentral = REAL(VECTOR_ELT(par, 14));
   double xout = 0.0, xp= 0.0;
+  int istate = 1;
+  void *ctx = NULL;
   for(int i=0; i < indR.n_all_times; ++i) {
     ind->idx=i;
     yp = getSolve(i);
     xout = getTime_(ind->ix[i], ind);
+    if (getEvid(ind, ind->ix[i]) != 3) {
+      if (ind->err){
+        //*rc = -1000;
+        // Bad Solve => NA
+        //badSolveExit(i);
+      } else {
+        if (rxode2parse_handleExtraDose0(yp, xout, xp, &i, op, ind)) {
+          if (!isSameTime(ind->extraDoseNewXout, xp)) {
+            /* F77_CALL(dlsoda)(dydt_lsoda, neq, yp, &xp, &ind->extraDoseNewXout, &gitol, &(op->RTOL), &(op->ATOL), &gitask, */
+            /*                  &istate, &giopt, rwork, &lrw, iwork, &liw, jdum, &jt); */
+            /* postSolve(&istate, ind->rc, &i, yp, err_msg_ls, 7, true, ind, op, rx); */
+          }
+          int idx = ind->idx;
+          int ixds = ind->ixds;
+          int trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
+          ind->idx = -1-trueIdx;
+          handle_evid(ind->extraDoseEvid[trueIdx], yp, xout, ind);
+          istate = 1;
+          ind->ixds = ixds; // This is a fake dose, real dose stays in place
+          ind->idx = idx;
+          ind->idxExtra++;
+          if (!isSameTime(xout, ind->extraDoseNewXout)) {
+            /* F77_CALL(dlsoda)(dydt_lsoda, neq, yp, &ind->extraDoseNewXout, &xout, &gitol, &(op->RTOL), &(op->ATOL), &gitask, */
+            /*                  &istate, &giopt, rwork, &lrw, iwork, &liw, jdum, &jt); */
+            /* postSolve(&istate, ind->rc, &i, yp, err_msg_ls, 7, true, ind, op, rx); */
+          }
+          xp =  ind->extraDoseNewXout;
+        }
+        if (!isSameTime(xout, xp)) {
+          /* F77_CALL(dlsoda)(dydt_lsoda, neq, yp, &xp, &xout, &gitol, &(op->RTOL), &(op->ATOL), &gitask, */
+          /*                  &istate, &giopt, rwork, &lrw, iwork, &liw, jdum, &jt); */
+          /* postSolve(&istate, ind->rc, &i, yp, err_msg_ls, 7, true, ind, op, rx); */
+        }
+        xp = xout;
+      }
+    }
   }
 
   /* if (op->badSolve) return 0; */

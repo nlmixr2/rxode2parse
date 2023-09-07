@@ -26,3 +26,12 @@ using namespace Rcpp;
 extern "C" void rxode2parse_sortInd0(rx_solving_options_ind *ind) {
   rxode2parse_sortInd(ind);
 }
+
+extern "C" int rxode2parse_handleExtraDose0(double *yp,
+                                           double xout, double xp,
+                                           int *i,
+                                           rx_solving_options *op,
+                                           rx_solving_options_ind *ind) {
+
+  return handleExtraDose(yp, xout, xp, i, op, ind);
+}

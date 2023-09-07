@@ -13,11 +13,8 @@
 static inline int handleExtraDose(double *yp,
                                   double xout, double xp,
                                   int *i,
-                                  int *istate,
                                   rx_solving_options *op,
-                                  rx_solving_options_ind *ind,
-                                  t_update_inis u_inis,
-                                  void *ctx) {
+                                  rx_solving_options_ind *ind) {
     if (ind->extraDoseN[0] > ind->idxExtra) {
       if (ind->extraSorted == 0) {
         // do sort
