@@ -156,7 +156,7 @@ linCmt <- function(data, ...,
                     .trans$str[7],
                     c("lagdepot"=NA_character_,"fdepot"=NA_character_,
                       "ratedepot"=NA_character_,"durdepot"=NA_character_))
-    .w <- which(grepl(.rxLinInfoKaReg, .linNamesData), .linNamePar, ignore.case=TRUE)
+    .w <- which(grepl(.rxLinInfoKaReg, .linNamesData, ignore.case=TRUE), .linNamePar)
     if (length(.w) > 0) {
       .linNameExtra <- .linNamesData[.w]
       for (.n in .linNameExtra) {
