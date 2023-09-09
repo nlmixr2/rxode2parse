@@ -142,7 +142,7 @@ linCmt <- function(data, ...,
   if (length(.w) > 0) {
     .linNamePar <- .linNamePar[.w]
     for (.i in .linNamePar) {
-      data[[.i]] <- .lst[[.i]]
+      data[[tolower(.i)]] <- .lst[[.i]]
     }
   } else {
     .linNamePar <- character(0)
@@ -160,15 +160,16 @@ linCmt <- function(data, ...,
     if (length(.w) > 0) {
       .linNameExtra <- .linNamesData[.w]
       for (.n in .linNameExtra) {
-        data[[tolower(.n)]] <- .lst[[]]
+        data[[tolower(.n)]] <- .lst[[.n]]
       }
     }
   } else {
     .trans$str <- c(.trans$str[1:6],
-                    c("lagdepot"="lagdepot","fdepot"="fdepot","ratedepot"="ratedepot","durdepot"="durdepot"),
+                    c("lagdepot"="lagdepot","fdepot"="fdepot",
+                      "ratedepot"="ratedepot","durdepot"="durdepot"),
                     .trans$str[7],
-                    c("lagcentral"="lagcentral","fcentral"="fcentral","ratecentral"="ratecentral",
-                      "durcentral"="durcentral"))
+                    c("lagcentral"="lagcentral","fcentral"="fcentral",
+                      "ratecentral"="ratecentral", "durcentral"="durcentral"))
   }
 
   if (is.na(.trans$str["ka"])) {
