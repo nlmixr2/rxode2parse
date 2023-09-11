@@ -488,7 +488,6 @@ static inline int pushUniqueDosingEvent(double time, double amt, int evid,
 
 static inline int handle_evid(int evid, double *yp, double xout, rx_solving_options_ind *ind) {
   rx_solving_options *op = &op_global;
-  int neq = op->neq + op->extraCmt;
   int id  = ind->solveid;
   if (isObs(evid)) return 0;
   if (isIgnoredDose(ind, ind->ixds)) {
@@ -519,7 +518,7 @@ static inline int handle_evid(int evid, double *yp, double xout, rx_solving_opti
     }
     return 0;
   }
-  if (cmt >= neq) {
+  if (cmt >= op->neq + op->extraCmt) {
     foundBad = 0;
     for (j = 0; j < ind->nBadDose; j++) {
       if (ind->BadDose[j] == cmt+1) {
@@ -540,9 +539,9 @@ static inline int handle_evid(int evid, double *yp, double xout, rx_solving_opti
       ind->on[cmt] = 0;
       return 1;
     }
-    if (!ind->doSS && (ind->wh0 == EVID0_SS2 || ind->wh0 == EVID0_SS20) && cmt < op->neq) {
+    if (!ind->doSS && (ind->wh0 == EVID0_SS2 || ind->wh0 == EVID0_SS20)) {
       // Save for adding at the end; Only for ODE systems
-      memcpy(ind->solveSave, yp, op->neq*sizeof(double));
+      memcpy(ind->solveSave, yp, (op->neq+op->extraCmt)*sizeof(double));
     }
     switch(ind->whI) {
     case EVIDF_MODEL_RATE_ON: // modeled rate.
