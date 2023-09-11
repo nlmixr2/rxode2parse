@@ -160,8 +160,6 @@ extern "C" {
                                   int *canBreak,
                                   solveWith1Pt_fn solveWith1Pt);
 
-  typedef void (*updateExtraDoseGlobals_fn)(rx_solving_options_ind* ind);
-
   static inline void solveSSinfLargeDur_iter(double *yp,
                                              double *xout, double xp,
                                              int *i,
@@ -389,8 +387,7 @@ extern "C" {
                                  solveWith1Pt_fn solveWith1Pt,
                                  handleSSbolus_fn handleSSbolus,
                                  solveSSinf_fn solveSSinf,
-                                 handleSSinf8_fn handleSSinf8,
-                                 updateExtraDoseGlobals_fn updateExtraDoseGlobalsI) {
+                                 handleSSinf8_fn handleSSinf8) {
     rx_solve *rx = &rx_global;
     int j;
     int doSS2=0;
@@ -778,7 +775,6 @@ extern "C" {
           for (j = neq[0];j--;) yp[j]+=ind->solveSave[j];
         }
         ind->doSS=0;
-        updateExtraDoseGlobalsI(ind);
         return;
       } else if (dur == 0) {
         // Bolus
@@ -1066,7 +1062,6 @@ extern "C" {
       ind->doSS=0;
       ind->ixds=oldIxds; ind->idx=oldIdx;
     }
-    updateExtraDoseGlobalsI(ind);
   }
 
 #undef max2
