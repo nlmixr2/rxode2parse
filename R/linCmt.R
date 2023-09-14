@@ -195,7 +195,6 @@ linCmt <- function(data, ...,
                                       addlKeepsCov=addlKeepsCov, addlDropSs=addlDropSs,
                                       ssAtDoseTime=ssAtDoseTime,
                                       keep = c("rxRowNum", keep)))
-
   .ret <- lapply(unique(.data$ID), function(i) {
     .dati <- .data[.data$ID==i,]
     .l <- length(.dati$TIME)
@@ -215,7 +214,8 @@ linCmt <- function(data, ...,
     }), names(.trans$str)))
     .pars <-
       list(.dati[, c("TIME", "EVID", "AMT", "II")],
-           .extra)
+           .extra,
+           .trans$trans)
   })
   .ret
 }

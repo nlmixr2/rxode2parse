@@ -49,7 +49,20 @@
 #include "solComp.h"
 #include "compSSc.h"
 #include "comp.h"
+#include "parTrans.h"
 
+
+// both these functions require sorting from C++, these are interfaces
+void rxode2parse_sortInd0(rx_solving_options_ind *ind);
+int rxode2parse_handleExtraDose0(double *yp, double xout, double xp, int *i, rx_solving_options *op, rx_solving_options_ind *ind);
+
+
+// dummy function for ini reset
+void lincmt_ini_dummy0(int cSub, double *x){
+  return;
+}
+
+t_update_inis u_inis_lincmt = lincmt_ini_dummy0;
 
 void solveWith1Pt_lin(double *yp,
                       double xout, double xp,
@@ -188,8 +201,169 @@ void solveSSinf_lin(double *yp,
   }
 }
 
-void rxode2parse_sortInd0(rx_solving_options_ind *ind);
-int rxode2parse_handleExtraDose0(double *yp, double xout, double xp, int *i, rx_solving_options *op, rx_solving_options_ind *ind);
+void solveSSinf8_lin(double *yp,
+                     double *xout, double xp,
+                     int *i,
+                     int *istate,
+                     rx_solving_options *op,
+                     rx_solving_options_ind *ind,
+                     t_update_inis u_inis,
+                     void *ctx,
+                     int *infBixds,
+                     int *bi,
+                     double *rateOn,
+                     double *xout2,
+                     double *xp2,
+                     int *canBreak,
+                     solveWith1Pt_fn solveWith1Pt) {
+  lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
+  int linCmt = ind->linCmt;
+  rx_solve *rx=(&rx_global);
+  switch(rx->linNcmt) {
+  case 3:
+    comp3ssInf8(yp + linCmt, lin->rate,
+               &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
+               &(lin->k13), &(lin->k31));
+    break;
+  case 2:
+    comp2ssInf8(yp + linCmt,lin->rate, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
+    break;
+  case 1:
+    comp1ssInf8(yp + linCmt, lin->rate, &(lin->ka), &(lin->k10));
+    break;
+  }
+}
+
+#define handleSS(neq, BadDose, InfusionRate, dose, yp, xout, xp, id, i, nx, istate, op, ind, u_inis, ctx) handleSSGen(neq, BadDose, InfusionRate, dose, yp, xout, xp, id, i, nx, istate, op, ind, u_inis, ctx, solveWith1Pt_lin, handleSSbolus_lin, solveSSinf_lin, solveSSinf8_lin)
+
+
+#define badSolveExit(i) for (int j = (op->neq + op->extraCmt)*(ind->n_all_times); j--;){ \
+    ind->solve[j] = NA_REAL;                                            \
+  }                                                                     \
+  op->badSolve = 1;                                                     \
+  i = ind->n_all_times-1; // Get out of here!
+
+double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
+                   int i_cmt, int trans,
+                   double p1, double v1,
+                   double p2, double p3,
+                   double p4, double p5,
+                   double d_tlag, double d_F, double d_rate1, double d_dur1,
+                   // Oral parameters
+                   double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2) {
+  lin_context_c_t lin;
+  rx_solving_options_ind *ind = &(rx->subjects[id]);
+  rx_solving_options *op = rx->op;
+  double t = _t - ind->curShift;
+  unsigned int ncmt=0;
+  int neq[2];
+  neq[0] = op->neq;
+  neq[1] = ind->solveid;
+  int istate=0; // dummy variable for consistent interface with lsoda
+  if (!parTrans(&trans, &p1, &v1, &p2, &p3, &p4, &p5,
+                &ncmt, &(lin.k10), &(lin.v), &(lin.k12),
+                &(lin.k21), &(lin.k13), &(lin.k31))){
+    return NA_REAL;
+  }
+  lin.ka = d_ka;
+  lin.rate = ind->InfusionRate + op->neq;
+  double xp, xout;
+  double *ypLast, *yp;
+  double Alast0[4] = {0, 0, 0, 0};
+  int oral0 = (d_ka > 0) ? 1 : 0;
+  void *ctx = &(lin);
+  if (ind->idx == 0) {
+    // initialization
+    xp = xout = getTime(ind->ix[ind->idx], ind);
+    yp = ypLast = Alast0;
+  } else {
+    xp = (ind->idx == 0 ? 0.0 : getTime(ind->ix[ind->idx-1], ind));
+    xout = getTime(ind->ix[ind->idx], ind);
+    ypLast=getAdvan(ind->idx-1);
+  }
+  yp = getAdvan(ind->idx);
+  if (ind->idx <= ind->solved) {
+    // Pull from last solved value (cached)
+    if (yp[oral0] == 0.0) {
+      // it is zero, perhaps it wasn't solved, double check
+      ind->solved = max2(ind->idx-1, 0);
+    } else {
+      if (trans == 10) {
+        return(yp[oral0]*(v1+p3+p5));
+      } else {
+        return(yp[oral0]/v1);
+      }
+    }
+  } else if (ind->idx != 0) {
+    for (int i = 0; i < ncmt+oral0; ++i) {
+      yp[i] = ypLast[0];
+    }
+  }
+  int i = ind->idx;
+  if (getEvid(ind, ind->ix[i]) != 3) {
+    if (ind->err){
+      printErr(ind->err, ind->id);
+      // Bad Solve => NA
+      badSolveExit(i);
+      return NA_REAL;
+    } else {
+      if (rxode2parse_handleExtraDose0(yp, xout, xp, &i, op, ind)) {
+        if (!isSameTimeOp(ind->extraDoseNewXout, xp)) {
+          solveWith1Pt_lin(yp, xout, xp, &(ind->idx),
+                           &istate, op, ind, u_inis_lincmt, (void *)(&lin));
+          /* postSolve(&idid, rc, &i, yp, err_msg, 4, true, ind, op, rx); */
+        }
+        int idx = ind->idx;
+        int ixds = ind->ixds;
+        int trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
+        ind->idx = -1-trueIdx;
+        handle_evid(ind->extraDoseEvid[trueIdx], yp, xout, ind);
+        ind->idx = idx;
+        ind->ixds = ixds;
+        ind->idxExtra++;
+        if (!isSameTimeOp(xout, ind->extraDoseNewXout)) {
+          solveWith1Pt_lin(yp, ind->extraDoseNewXout, xout, &(ind->idx),
+                           &istate, op, ind, u_inis_lincmt, (void *)(&lin));
+          /* postSolve(&idid, rc, &i, yp, err_msg, 4, true, ind, op, rx); */
+        }
+        xp = ind->extraDoseNewXout;
+      }
+      if (!isSameTimeOp(xout, xp)) {
+        solveWith1Pt_lin(yp, xout, xp, &(ind->idx),
+                         &istate, op, ind, u_inis_lincmt, (void *)(&lin));
+        /* postSolve(&idid, rc, &i, yp, err_msg, 4, true, ind, op, rx); */
+        xp = xout;
+      }
+      //dadt_counter = 0;
+    }
+  }
+  if (!op->badSolve){
+    ind->idx = i;
+    if (getEvid(ind, ind->ix[i]) == 3){
+      ind->curShift -= rx->maxShift;
+      for (int j = op->neq + op->extraCmt; j--;) {
+        ind->InfusionRate[j] = 0;
+        ind->on[j] = 1;
+        ind->cacheME=0;
+      }
+      cancelInfusionsThatHaveStarted(ind, ind->solveid, xout);
+      cancelPendingDoses(ind, neq[1]);
+      /* memcpy(yp, op->inits, neq[0]*sizeof(double)); */
+      u_inis_lincmt(neq[1], yp); // Update initial conditions @ current time */
+      ind->ixds++;
+      xp=xout;
+    } else if (handleEvid1(&i, rx, neq, yp, &xout)){
+      handleSS(neq, ind->BadDose, ind->InfusionRate, ind->dose, yp, xout,
+               xp, ind->id, &i, ind->n_all_times, &istate, op, ind, u_inis_lincmt, ctx);
+      if (ind->wh0 == EVID0_OFF){
+        yp[ind->cmt] = op->inits[ind->cmt];
+      }
+      xp = xout;
+    }
+  }
+  return(yp[oral0]/lin.v);
+}
+
 
 SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   rx_solve *rx=(&rx_global);
@@ -200,6 +374,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   int pro = 0;
   SEXP dat = PROTECT(VECTOR_ELT(in, 0)); pro++;
   SEXP par = PROTECT(VECTOR_ELT(in, 1)); pro++;
+  int trans = INTEGER(VECTOR_ELT(in, 2));
   double rate[2];
   rate[0] = rate[1] = 0.0;
   int cnt = 0;
@@ -499,76 +674,23 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   double xout = 0.0, xp= 0.0;
   int istate = 1;
   void *ctx = NULL;
+  bool isOral  = ka[0] == 0.0;
+  int linCmt = 0; // states before linCmt model, in this case 0
   for(int i=0; i < indR.n_all_times; ++i) {
     ind->idx=i;
-    yp = getSolve(i);
     xout = getTime_(ind->ix[i], ind);
-    if (getEvid(ind, ind->ix[i]) != 3) {
-      if (ind->err){
-        //*rc = -1000;
-        // Bad Solve => NA
-        //badSolveExit(i);
-      } else {
-        if (rxode2parse_handleExtraDose0(yp, xout, xp, &i, op, ind)) {
-          if (!isSameTime(ind->extraDoseNewXout, xp)) {
-            /* F77_CALL(dlsoda)(dydt_lsoda, neq, yp, &xp, &ind->extraDoseNewXout, &gitol, &(op->RTOL), &(op->ATOL), &gitask, */
-            /*                  &istate, &giopt, rwork, &lrw, iwork, &liw, jdum, &jt); */
-            /* postSolve(&istate, ind->rc, &i, yp, err_msg_ls, 7, true, ind, op, rx); */
-          }
-          int idx = ind->idx;
-          int ixds = ind->ixds;
-          int trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
-          ind->idx = -1-trueIdx;
-          handle_evid(ind->extraDoseEvid[trueIdx], yp, xout, ind);
-          istate = 1;
-          ind->ixds = ixds; // This is a fake dose, real dose stays in place
-          ind->idx = idx;
-          ind->idxExtra++;
-          if (!isSameTime(xout, ind->extraDoseNewXout)) {
-            /* F77_CALL(dlsoda)(dydt_lsoda, neq, yp, &ind->extraDoseNewXout, &xout, &gitol, &(op->RTOL), &(op->ATOL), &gitask, */
-            /*                  &istate, &giopt, rwork, &lrw, iwork, &liw, jdum, &jt); */
-            /* postSolve(&istate, ind->rc, &i, yp, err_msg_ls, 7, true, ind, op, rx); */
-          }
-          xp =  ind->extraDoseNewXout;
-        }
-        if (!isSameTime(xout, xp)) {
-          /* F77_CALL(dlsoda)(dydt_lsoda, neq, yp, &xp, &xout, &gitol, &(op->RTOL), &(op->ATOL), &gitask, */
-          /*                  &istate, &giopt, rwork, &lrw, iwork, &liw, jdum, &jt); */
-          /* postSolve(&istate, ind->rc, &i, yp, err_msg_ls, 7, true, ind, op, rx); */
-        }
-        xp = xout;
-      }
+    if (isOral) {
+      Cc[i] = linCmtCompA(rx, 0, xout, linCmt, rx->linNcmt, trans,
+                          p1[i], v1[i], p2[i], p3[i], p4[i], p5[i],
+                          lagdepot[i], fdepot[i], ratedepot[i], durdepot[i],
+                          ka[i], lagcentral[i], fcentral[i],  ratecentral[i], durcentral[i]);
+    } else {
+      Cc[i] = linCmtCompA(rx, 0, xout, linCmt, rx->linNcmt, trans,
+                          p1[i], v1[i], p2[i], p3[i], p4[i], p5[i],
+                          lagcentral[i], fcentral[i], ratecentral[i], durcentral[i],
+                          0.0, 0.0, 1.0,  0.0, 0.0);
     }
   }
-
-  /* if (op->badSolve) return 0; */
-  /* if (ncmt) ind->pendingDosesN[0] = 0; */
-  /* return 1; */
-
-  /* int *rc; */
-  /* // a b */
-  /* // 1 4 */
-  /* // 2 5 */
-  /* // 3 6 */
-  /* // Cache alag */
-  /* double *alag; */
-  /* // Cache F */
-  /* double *cF; */
-  /* // Cache rate; */
-  /* double *cRate; */
-  /* // Cache duration */
-  /* double *cDur; */
-  /* double *simIni; */
-  /* int badIni; */
-  /* double *llikSave; */
-  /* // Add pointers for drifting atol/rtol values during optimization */
-  /* double *rtol2; */
-  /* double *atol2; */
-  /* double *ssRtol; */
-  /* double *ssAtol; */
-  /* // ignored and pending doses */
-  /* //double *extraDoseIi; // ii doses unsupported */
-  /* double *timeThread; */
   free(idose);
   free(indR.ignoredDoses);
   free(indR.ignoredDosesN);

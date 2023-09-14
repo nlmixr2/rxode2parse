@@ -7,6 +7,7 @@ typedef struct lin_context_c_t {
   double k21;
   double k13;
   double k31;
+  double v;
 } lin_context_c_t;
 
 // Handle single point solve
@@ -34,7 +35,6 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
   }
   return 1;
 }
-
 
 static inline int comp1solve2(double *yp, // prior solving information, will be updated with new information (like lsoda and the like)
                  double *xout, // time to solve to
