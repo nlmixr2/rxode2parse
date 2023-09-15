@@ -32,30 +32,6 @@ extern "C" {
 #define rxErrModeledFss2n3    4194304
 #define rxErrRate02           8388608
 
-#define linCmt_tlag  0
-#define linCmt_F     1
-#define linCmt_rate1 2
-#define linCmt_dur1  3
-#define linCmt_tlag2 4
-#define linCmt_F2    5
-#define linCmt_rate2 6
-#define linCmt_dur2  7
-
-  static inline void updateLinCmtVars(rx_solving_options_ind *ind,
-                                      double *d_tlag, double *d_F, double *d_rate1, double *d_dur1,
-                                      // Oral parameters
-                                      double *d_tlag2, double *d_F2, double *d_rate2, double *d_dur2) {
-    double *l=ind->linCmtConstants;
-    l[linCmt_tlag]  = *d_tlag;
-    l[linCmt_tlag]  = *d_tlag2;
-    l[linCmt_F]     = *d_F;
-    l[linCmt_F2]    = *d_F2;
-    l[linCmt_rate1] = *d_rate1;
-    l[linCmt_dur1]  = *d_dur1;
-    l[linCmt_rate2] = *d_rate2;
-    l[linCmt_dur2]  = *d_dur2;
-  }
-
 #if defined(__cplusplus)
 #define FLOOR(x) std::floor(x)
 extern "C" {
@@ -344,15 +320,7 @@ extern t_F AMT;
 
 
 static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double dose, double t, double *y) {
-  double ret = NA_REAL;
-  rx_solving_options *op = &op_global;
-  if (ind->cmt < op->neq) {
-    ret = AMT(id, cmt, dose, t, y);
-  } else if (ind->cmt == op->neq) {
-    ret = ind->linCmtConstants[linCmt_F]*dose;
-  } else if (ind->cmt == op->neq+1) {
-    ret = ind->linCmtConstants[linCmt_F2]*dose;
-  }
+  double ret = AMT(id, cmt, dose, t, y);
   if (ISNA(ret)){
     rx_solving_options *op = &op_global;
     op->badSolve=1;

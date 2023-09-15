@@ -290,7 +290,6 @@ typedef struct {
   //double *extraDoseIi; // ii doses unsupported
   bool lastIsSs2;
   double *timeThread;
-  double *linCmtConstants;
 } rx_solving_options_ind;
 
 typedef struct {

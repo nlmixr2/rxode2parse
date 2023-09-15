@@ -20,8 +20,7 @@ linCmt(
   ssAtDoseTime = TRUE,
   scale = 1,
   gradient = FALSE,
-  keep = NULL,
-  covsInterpolation = c("locf", "linear", "nocb", "midpoint")
+  keep = NULL
 )
 }
 \arguments{
@@ -103,12 +102,13 @@ having to compile any \code{rxode2} models
 \examples{
 
 d <- nlmixr2data::nmtest
-names(d) <- sub("lagt", "lagcentral",
-            sub("bioav", "fdepot",
-            sub("rat2", "ratecentral",
-            sub("dur2", "durcentral", names(d)))))
+names(d) <- names(d) \%>\%
+     sub("lagt", "lagcentral",.) \%>\%
+     sub("bioav", "fdepot", .)  \%>\%
+     sub("rat2", "ratecentral", .) \%>\%
+     sub("dur2", "durcentral", .)
 
-ret <- linCmt(d, cl=1.1, v=20, ka=1.5)
+linCmt(d, cl=1.1, v=20, ka=1.5)
 
 }
 \author{
