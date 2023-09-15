@@ -52,10 +52,10 @@ static inline CharacterVector asCv(SEXP in, const char *what) {
 #ifdef asError
     REprintf(_("'%s' needs to be a vector of strings"), what);
     abort();
-#else 
+#else
     Rcpp::stop(_("'%s' needs to be a vector of strings"), what);
 #endif
-  } 
+  }
   return as<CharacterVector>(in);
 }
 
@@ -489,7 +489,7 @@ bool rxode2parseIsIntegerish(SEXP in) {
 //' @param ssAtDoseTime Boolean that when `TRUE` back calculates the
 //'   steady concentration at the actual time of dose, otherwise when
 //'   `FALSE` the doses are shifted
-//' 
+//'
 //' @return Object for solving in rxode2
 //'
 //' @keywords internal
@@ -1899,7 +1899,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     if (!_ini0) Rf_warningcall(R_NilValue, idWarn.c_str());
   }
   if (warnCensNA) Rf_warningcall(R_NilValue, _("censoring missing 'DV' values do not make sense"));
-  if (warnNaTime) Rf_warningcall(R_NilValue, _("missing 'TIME' values do not make sense (ignored)"));
+  if (warnNaTime) Rf_warningcall(R_NilValue, _("missing 'TIME' values do not make sense (removed rows where time is NA)"));
 #ifdef rxSolveT
   REprintf("  Time7: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
@@ -2466,22 +2466,22 @@ List rxEtTransAsDataFrame_(List inData1) {
   List e = cls.attr(".rxode2.lst");
   double maxShift = as<double>(e[RxTrans_maxShift]);
   if (maxShift > 0) {
-  IntegerVector id = as<IntegerVector>(inData[0]);
-  NumericVector time = as<NumericVector>(inData[1]);
-  IntegerVector evid = as<IntegerVector>(inData[2]);
-  int lastId = NA_INTEGER;
-  double curShift = 0.0;
-  for (int j = 0; j < (int)evid.size(); ++j) {
-    if (lastId != id[j]) {
-      lastId = id[j];
-      curShift = 0.0;
+    IntegerVector id = as<IntegerVector>(inData[0]);
+    NumericVector time = as<NumericVector>(inData[1]);
+    IntegerVector evid = as<IntegerVector>(inData[2]);
+    int lastId = NA_INTEGER;
+    double curShift = 0.0;
+    for (int j = 0; j < (int)evid.size(); ++j) {
+      if (lastId != id[j]) {
+        lastId = id[j];
+        curShift = 0.0;
+        //lastTime = time[j];
+      }
+      if (evid[j] == 3) {
+        curShift -= maxShift;
+      }
+      time[j] += curShift;
       //lastTime = time[j];
-    }
-    if (evid[j] == 3) {
-      curShift -= maxShift;
-    }
-    time[j] += curShift;
-    //lastTime = time[j];
     }
   }
   cls = CharacterVector::create("data.frame");
