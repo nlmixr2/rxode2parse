@@ -29,14 +29,21 @@ extern t_calc_mtime calc_mtime;
     }                                               \
   }
 
-
 static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time) {
   rx_solving_options *op = &op_global;
   returnBadTime(time);
   if (ind->wh0 == EVID0_SS0 || ind->wh0 == EVID0_SS20) {
     return time;
   }
-  double ret = LAG(id, cmt, time);
+  double ret = NA_REAL;
+  if (ind->cmt < 0) {
+  } else if (ind->cmt < op->neq) {
+    ret = LAG(id, cmt, time);
+  } else if (ind->cmt == op->neq) {
+    ret = ind->linCmtConstants[linCmt_tlag];
+  } else if (ind->cmt == op->neq+1) {
+    ret = ind->linCmtConstants[linCmt_tlag2];
+  }
   if (ISNA(ret)) {
     op->badSolve=1;
     op->naTime = 1;
@@ -47,7 +54,15 @@ static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double
 static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
   rx_solving_options *op = &op_global;
   returnBadTime(t);
-  double ret = RATE(id, cmt, dose, t);
+  double ret = NA_REAL;
+  if (ind->cmt < 0) {
+  } else if (ind->cmt < op->neq) {
+    ret = RATE(id, cmt, dose, t);
+  } else if (ind->cmt == op->neq) {
+    ret = ind->linCmtConstants[linCmt_rate1];
+  } else if (ind->cmt == op->neq+1) {
+    ret = ind->linCmtConstants[linCmt_rate2];
+  }
   if (ISNA(ret)){
     op->badSolve=1;
     op->naTime = 1;
@@ -59,7 +74,15 @@ static inline double getDur(rx_solving_options_ind *ind, int id, int cmt, double
   rx_solving_options *op = &op_global;
   returnBadTime(t);
   if (ISNA(t)) return t;
-  double ret = DUR(id, cmt, dose, t);
+  double ret = NA_REAL;
+  if (ind->cmt < 0) {
+  } else if (ind->cmt < op->neq) {
+    ret = DUR(id, cmt, dose, t);
+  } else if (ind->cmt == op->neq) {
+    ret = ind->linCmtConstants[linCmt_dur1];
+  } else if (ind->cmt == op->neq+1) {
+    ret = ind->linCmtConstants[linCmt_dur2];
+  }
   if (ISNA(ret)){
     op->badSolve=1;
     op->naTime = 1;

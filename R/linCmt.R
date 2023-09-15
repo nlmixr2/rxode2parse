@@ -88,7 +88,8 @@ linCmt <- function(data, ...,
                    lagdepot=0, lagcentral=0,
                    addlKeepsCov=FALSE, addlDropSs=TRUE, ssAtDoseTime=TRUE, scale=1,
                    gradient=FALSE,
-                   keep=NULL) {
+                   keep=NULL,
+                   covsInterpolation = c("locf", "linear", "nocb", "midpoint")) {
   checkmate::assertNumeric(fdepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
   checkmate::assertNumeric(fcentral, len=1, lower=0, finite=TRUE, any.missing=FALSE)
   checkmate::assertNumeric(ratedepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
@@ -102,8 +103,8 @@ linCmt <- function(data, ...,
   checkmate::assertLogical(addlDropSs, len=1, any.missing=FALSE)
   checkmate::assertLogical(ssAtDoseTime, len=1, any.missing=FALSE)
   checkmate::assertLogical(gradient, len=1, any.missing=FALSE)
+  covsInterpolation <- match.arg(covsInterpolation)
   # First take care of the possible inputs to lag time
-
   .linNamesData <- names(data)
   .w <- grepl(.rxLinInfoKaReg, .linNamesData, ignore.case=TRUE)
   if (length(.w) > 0L) {
@@ -188,7 +189,6 @@ linCmt <- function(data, ...,
                               "dur(central)=durcentral\n",
                               "alag(depot)=lagdepot\n",
                               "alag(central)=lagcentral\n"), linear=TRUE)
-
   }
   data$rxRowNum <- seq_along(data[,1])
   .data <- as.data.frame(etTransParse(data, .mv, dropUnits=TRUE, allTimeVar = TRUE,
@@ -210,14 +210,33 @@ linCmt <- function(data, ...,
           return(rep(0.0, .l))
         }
       }
-      .dati[,.t]
+      .i <- seq_along(.dati[,.t])
+      .v <- .dati[,.t]
+      .w <- which(!is.na(.v))
+      .yleft <- .v[.w[1]]
+      .yright <- .v[.w[length(.w)]]
+      if (covsInterpolation == "locf") {
+        fun <- approxfun(.i[.w], .v[.w], method="constant",
+                         yleft = .yleft, yright = .yright)
+      } else if (covsInterpolation == "nocb") {
+        fun <- approxfun(.i[.w], .v[.w], method="constant",
+                         yleft = .yleft, yright = .yright,  f = 1)
+      } else if (covsInterpolation == "midpoint") {
+        fun <- approxfun(.i[.w], .v[.w], method="constant",
+                         yleft = .yleft, yright = .yright,  f = 0.5)
+      } else if (covsInterpolation == "linear") {
+        fun <- approxfun(.i[.w], .v[.w], yleft = .yleft, yright = .yright)
+      } else {
+        stop("unknown covsInterpolation", call.=FALSE)
+      }
+      fun(.i)
     }), names(.trans$str)))
-    .pars <-
-      list(.dati[, c("TIME", "EVID", "AMT", "II")],
-           .extra,
-           .trans$trans)
+    .ret <- .Call(`_rxode2parse_compC`,
+                  list(.dati[, c("TIME", "EVID", "AMT", "II")], .extra, .trans$trans), .mv)
+    .ret$ID <- i
+    .ret
   })
-  .ret
+  dplyr::as_tibble(do.call(`rbind`, .ret))
 }
 #' Calculate the lambdas and coefficients of the two compartment model
 #'
