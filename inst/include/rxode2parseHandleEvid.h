@@ -260,6 +260,7 @@ extern "C" {
   }
 
   static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind *ind, double *curDose, double *tinf) {
+    unsigned int p;
     switch (ind->whI) {
     case EVIDF_MODEL_RATE_ON: // modeled rate.
     case EVIDF_MODEL_DUR_ON: // modeled duration.
@@ -278,13 +279,8 @@ extern "C" {
         return 0;
       } else {
         // The amt in rxode2 is the infusion rate, but we need the amt
-        int startIdx, endIdx, idx;
-        startIdx=endIdx=ind->ixds;
-        idx=ind->idx;
-        double amt = getDoseNumber(ind, idx);
-        handleInfusionStartDefault(&startIdx, &endIdx, &amt, &idx,
-                                   &rx_global, &op_global,ind);
-        tinf[0] = getAllTimes(ind, ind->idose[endIdx]) - getAllTimes(ind, ind->idose[startIdx]);
+
+        tinf[0] = _getDur(ind->ixds, ind, 2, &p);
         if (!ISNA(tinf[0])) {
           curDose[0] = tinf[0] * curDose[0];
           return 1;
