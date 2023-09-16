@@ -1,6 +1,6 @@
 #define USE_FC_LEN_T
 #define STRICT_R_HEADERS
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +64,7 @@ extern void RSprintf(const char *format, ...) {
       va_start(args, format);
       Rvprintf(format, args);
       va_end(args);
-    } 
+    }
   }
 }
 

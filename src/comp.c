@@ -222,8 +222,8 @@ void solveSSinf8_lin(double *yp,
   switch(rx->linNcmt) {
   case 3:
     comp3ssInf8(yp + linCmt, lin->rate,
-               &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
-               &(lin->k13), &(lin->k31));
+                &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
+                &(lin->k13), &(lin->k31));
     break;
   case 2:
     comp2ssInf8(yp + linCmt,lin->rate, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
@@ -273,12 +273,13 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   int oral0 = (d_ka > 0) ? 1 : 0;
   void *ctx = &(lin);
   if (ind->idx == 0) {
-    // initialization
-    xp = xout = getTime(ind->ix[ind->idx], ind);
+    // initializationu
+
+    xp = xout = getTime_(ind->ix[ind->idx], ind);
     yp = ypLast = Alast0;
   } else {
-    xp = (ind->idx == 0 ? 0.0 : getTime(ind->ix[ind->idx-1], ind));
-    xout = getTime(ind->ix[ind->idx], ind);
+    xp = (ind->idx == 0 ? 0.0 : getTime_(ind->ix[ind->idx-1], ind));
+    xout = getTime_(ind->ix[ind->idx], ind);
     ypLast=getAdvan(ind->idx-1);
   }
   yp = getAdvan(ind->idx);

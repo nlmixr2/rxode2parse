@@ -96,7 +96,7 @@ static inline void oneCmtKaRateSStr1(double *A,
 }
 
 static inline void oneCmtKaRateSStr2(double *A,
-                                     double *tinf, double *tau, double *r2, 
+                                     double *tinf, double *tau, double *r2,
                                      double *ka, double *k20){
   double eiK = exp(-(*k20)*(*tinf));
   double eK = exp(-(*k20)*((*tau)-(*tinf)))/(1.0-exp(-(*k20)*(*tau)));
@@ -119,7 +119,7 @@ static inline void oneCmtKaRate(double *A, double *Alast, double *t,
 */
 
 static inline void twoCmtKaRateSSr1(double *A, double *r1,
-                                    double *ka,  double *k20, 
+                                    double *ka,  double *k20,
                                     double *k23, double *k32) {
   double s = (*k23)+(*k32)+(*k20);
   double beta  = 0.5*(s - sqrt(s*s - 4*(*k32)*(*k20)));
@@ -130,7 +130,7 @@ static inline void twoCmtKaRateSSr1(double *A, double *r1,
 }
 
 static inline void twoCmtKaRateSSr2(double *A, double *r2,
-                                    double *ka,  double *k20, 
+                                    double *ka,  double *k20,
                                     double *k23, double *k32) {
   double s = (*k23)+(*k32)+(*k20);
   double beta  = 0.5*(s - sqrt(s*s - 4*(*k32)*(*k20)));
@@ -140,8 +140,8 @@ static inline void twoCmtKaRateSSr2(double *A, double *r2,
   A3=(*r2)*(*k23)/(beta*alpha);
 }
 
-static inline void twoCmtKaRateSStr1(double *A, double *tinf, double *tau, double *r1, 
-                                     double *ka,  double *k20, 
+static inline void twoCmtKaRateSStr1(double *A, double *tinf, double *tau, double *r1,
+                                     double *ka,  double *k20,
                                      double *k23, double *k32){
   double s = (*k23)+(*k32)+(*k20);
   double beta  = 0.5*(s - sqrt(s*s - 4*(*k32)*(*k20)));
@@ -170,7 +170,7 @@ static inline void twoCmtKaRateSStr1(double *A, double *tinf, double *tau, doubl
 }
 
 static inline void twoCmtKaRateSStr2(double *A, double *tinf, double *tau, double *r2,
-                                     double *ka,  double *k20, 
+                                     double *ka,  double *k20,
                                      double *k23, double *k32) {
   double E2 = (*k20)+(*k23);
   double E3 = (*k32);
@@ -197,7 +197,7 @@ static inline void twoCmtKaRateSStr2(double *A, double *tinf, double *tau, doubl
 static inline void twoCmtKaRate(double *A, double *Alast,
                                 double *t, double *b1, double *b2,
                                 double *r1, double *r2,
-                                double *ka,  double *k20, 
+                                double *ka,  double *k20,
                                 double *k23, double *k32) {
   double E2 =  (*k20)+ (*k23);
   double s = (*k23)+(*k32)+(*k20);
@@ -209,13 +209,13 @@ static inline void twoCmtKaRate(double *A, double *Alast,
   double eB = exp(-beta*(*t));
 
   double ka2 = (*ka)*(*ka);
-  
+
   double alpha2 = alpha*alpha;
   double alpha3 = alpha2*alpha;
-  
+
   double beta2 = beta*beta;
   double beta3 = beta2*beta;
-  
+
   A1 = (*r1)/(*ka)-(((*r1)-A1last*(*ka))*eKa)/(*ka);
   A2 = ((((*ka)-(*k32))*(*r1)-A1last*ka2+A1last*(*k32)*(*ka))*eKa)/(ka2+(-beta-alpha)*(*ka)+alpha*beta)+(((((*k32)-beta)*(*ka)-beta*(*k32)+beta2)*(*r2)+((*k32)-beta)*(*ka)*(*r1)+((-A3last-A2last-A1last)*beta*(*k32)+(A2last+A1last)*beta2)*(*ka)+(A3last+A2last)*beta2*(*k32)-A2last*beta3)*eB)/((beta2-alpha*beta)*(*ka)-beta3+alpha*beta2)-(((((*k32)-alpha)*(*ka)-alpha*(*k32)+alpha2)*(*r2)+((*k32)-alpha)*(*ka)*(*r1)+((-A3last-A2last-A1last)*alpha*(*k32)+(A2last+A1last)*alpha2)*(*ka)+(A3last+A2last)*alpha2*(*k32)-A2last*alpha3)*eA)/((alpha*beta-alpha2)*(*ka)-alpha2*beta+alpha3)+((*k32)*(*r2)+(*k32)*(*r1))/(alpha*beta);
   A3 = -(((*k23)*(*r1)-A1last*(*k23)*(*ka))*eKa)/(ka2+(-beta-alpha)*(*ka)+alpha*beta)+((((*k23)*(*ka)-beta*(*k23))*(*r2)+(*k23)*(*ka)*(*r1)+((-A2last-A1last)*beta*(*k23)+A3last*beta2-A3last*E2*beta)*(*ka)+A2last*beta2*(*k23)-A3last*beta3+A3last*E2*beta2)*eB)/((beta2-alpha*beta)*(*ka)-beta3+alpha*beta2)-((((*k23)*(*ka)-alpha*(*k23))*(*r2)+(*k23)*(*ka)*(*r1)+((-A2last-A1last)*alpha*(*k23)+A3last*alpha2-A3last*E2*alpha)*(*ka)+A2last*alpha2*(*k23)-A3last*alpha3+A3last*E2*alpha2)*eA)/((alpha*beta-alpha2)*(*ka)-alpha2*beta+alpha3)+((*k23)*(*r2)+(*k23)*(*r1))/(alpha*beta);
@@ -251,7 +251,7 @@ static inline void threeCmtKaRateSSr1(double *A, double *r1,
   A4=(*r1)*(*k24)*(*k32)*l123;
 }
 
-static inline void threeCmtKaRateSSr2(double *A, double *r2, 
+static inline void threeCmtKaRateSSr2(double *A, double *r2,
                                       double *ka, double *k20,
                                       double *k23, double *k32,
                                       double *k24, double *k42){
@@ -281,7 +281,7 @@ static inline void threeCmtKaRateSSr2(double *A, double *r2,
   A4=(*r2)*(*k24)*(*k32)*l123;
 }
 
-static inline void threeCmtKaRateSStr1(double *A, double *tinf, double *tau, double *r1, 
+static inline void threeCmtKaRateSStr1(double *A, double *tinf, double *tau, double *r1,
                                        double *ka, double *k20,
                                        double *k23, double *k32,
                                        double *k24, double *k42){
@@ -307,7 +307,7 @@ static inline void threeCmtKaRateSStr1(double *A, double *tinf, double *tau, dou
   double lam1 = j3  + rho3*(ct3 + st3);
   double lam2 = j3 + rho3*(ct3 - st3);
   double lam3 = j3 -(2.0*rho3*ct3);
-  
+
   double eKa = exp(-(*ka)*((*tau)-(*tinf)))/(1.0-exp(-(*ka)*(*tau)));
   double eiKa = exp(-(*ka)*(*tinf));
 
@@ -340,7 +340,7 @@ static inline void threeCmtKaRateSStr1(double *A, double *tinf, double *tau, dou
   A4=(eL1*(E3 - lam1)*(E2 - lam1)/((-lam1 + lam3)*(-lam1 + lam2)) + eL2*(E2 - lam2)*(E3 - lam2)/((-lam2 + lam3)*(lam1 - lam2)) + eL3*(E2 - lam3)*(E3 - lam3)/((lam2 - lam3)*(lam1 - lam3)))*(eiKa*(*r1)*(-(*k24)*(*k32) + (*ka)*(*k24))/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) + eiL1*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) - eiL2*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) + eiL3*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k24)*(*k32)/(lam2*lam1*lam3)) + (*ka)*(*k24)*(eL1*(E3 - lam1)/((-lam1 + lam3)*(-lam1 + lam2)*((*ka) - lam1)) + eL2*(E3 - lam2)/((-lam2 + lam3)*(lam1 - lam2)*((*ka) - lam2)) + eL3*(E3 - lam3)/((lam2 - lam3)*(lam1 - lam3)*((*ka) - lam3)) + eKa*(E3 - (*ka))/((-(*ka) + lam1)*(-(*ka) + lam2)*(-(*ka) + lam3)))*((*r1)/(*ka) - eiKa*(*r1)/(*ka)) + eL1*(E3*(*k24)*(-eiKa*(*r1)*((*k42)*(*k32) + (-(*k32) - (*k42))*(*ka) + ka2)/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) - eiL1*(*r1)*(-(*ka)*lam12 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) + eiL2*(*r1)*(-(*ka)*lam22 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) - eiL3*(*r1)*(-(*ka)*lam32 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k32)/(lam2*lam1*lam3)) - (*k23)*(*k32)*(eiKa*(*r1)*(-(*k24)*(*k32) + (*ka)*(*k24))/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) + eiL1*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) - eiL2*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) + eiL3*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k24)*(*k32)/(lam2*lam1*lam3)) + (*k24)*(*k32)*(eiKa*(*r1)*(-(*k42)*(*k23) + (*ka)*(*k23))/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) + eiL1*(*r1)*(-(*ka)*(*k23)*lam1 + (*ka)*(*k42)*(*k23))/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) - eiL2*(*r1)*(-(*ka)*(*k23)*lam2 + (*ka)*(*k42)*(*k23))/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) + eiL3*(*r1)*(-(*ka)*(*k23)*lam3 + (*ka)*(*k42)*(*k23))/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k23)/(lam2*lam1*lam3)) - (*k24)*lam1*(-eiKa*(*r1)*((*k42)*(*k32) + (-(*k32) - (*k42))*(*ka) + ka2)/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) - eiL1*(*r1)*(-(*ka)*lam12 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) + eiL2*(*r1)*(-(*ka)*lam22 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) - eiL3*(*r1)*(-(*ka)*lam32 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k32)/(lam2*lam1*lam3)))/((lam1 - lam3)*(lam1 - lam2)) + eL3*((*k24)*lam3*(-eiKa*(*r1)*((*k42)*(*k32) + (-(*k32) - (*k42))*(*ka) + ka2)/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) - eiL1*(*r1)*(-(*ka)*lam12 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) + eiL2*(*r1)*(-(*ka)*lam22 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) - eiL3*(*r1)*(-(*ka)*lam32 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k32)/(lam2*lam1*lam3)) - (E3*(*k24)*(-eiKa*(*r1)*((*k42)*(*k32) + (-(*k32) - (*k42))*(*ka) + ka2)/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) - eiL1*(*r1)*(-(*ka)*lam12 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) + eiL2*(*r1)*(-(*ka)*lam22 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) - eiL3*(*r1)*(-(*ka)*lam32 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k32)/(lam2*lam1*lam3)) - (*k23)*(*k32)*(eiKa*(*r1)*(-(*k24)*(*k32) + (*ka)*(*k24))/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) + eiL1*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) - eiL2*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) + eiL3*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k24)*(*k32)/(lam2*lam1*lam3)) + (*k24)*(*k32)*(eiKa*(*r1)*(-(*k42)*(*k23) + (*ka)*(*k23))/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) + eiL1*(*r1)*(-(*ka)*(*k23)*lam1 + (*ka)*(*k42)*(*k23))/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) - eiL2*(*r1)*(-(*ka)*(*k23)*lam2 + (*ka)*(*k42)*(*k23))/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) + eiL3*(*r1)*(-(*ka)*(*k23)*lam3 + (*ka)*(*k42)*(*k23))/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k23)/(lam2*lam1*lam3))))/((-lam2 + lam3)*(lam1 - lam3)) + eL2*((*k24)*lam2*(-eiKa*(*r1)*((*k42)*(*k32) + (-(*k32) - (*k42))*(*ka) + ka2)/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) - eiL1*(*r1)*(-(*ka)*lam12 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) + eiL2*(*r1)*(-(*ka)*lam22 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) - eiL3*(*r1)*(-(*ka)*lam32 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k32)/(lam2*lam1*lam3)) - (E3*(*k24)*(-eiKa*(*r1)*((*k42)*(*k32) + (-(*k32) - (*k42))*(*ka) + ka2)/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) - eiL1*(*r1)*(-(*ka)*lam12 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) + eiL2*(*r1)*(-(*ka)*lam22 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) - eiL3*(*r1)*(-(*ka)*lam32 - (*ka)*(*k42)*(*k32) + ((*k32) + (*k42))*(*ka)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k32)/(lam2*lam1*lam3)) - (*k23)*(*k32)*(eiKa*(*r1)*(-(*k24)*(*k32) + (*ka)*(*k24))/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) + eiL1*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam1)/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) - eiL2*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam2)/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) + eiL3*(*r1)*((*ka)*(*k24)*(*k32) - (*ka)*(*k24)*lam3)/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k24)*(*k32)/(lam2*lam1*lam3)) + (*k24)*(*k32)*(eiKa*(*r1)*(-(*k42)*(*k23) + (*ka)*(*k23))/(ka2*lam1 + lam2*(-(*ka)*lam1 + ka2) + lam3*(-(*ka)*lam1 + lam2*(-(*ka) + lam1) + ka2) - ka3) + eiL1*(*r1)*(-(*ka)*(*k23)*lam1 + (*ka)*(*k42)*(*k23))/(-(*ka)*lam13 + lam2*((*ka)*lam12 - lam13) + lam3*((*ka)*lam12 + lam2*(-(*ka)*lam1 + lam12) - lam13) + lam14) - eiL2*(*r1)*(-(*ka)*(*k23)*lam2 + (*ka)*(*k42)*(*k23))/(lam23*((*ka) + lam1) + lam3*(lam22*(-(*ka) - lam1) + (*ka)*lam2*lam1 + lam23) - (*ka)*lam22*lam1 - lam24) + eiL3*(*r1)*(-(*ka)*(*k23)*lam3 + (*ka)*(*k42)*(*k23))/(lam32*((*ka)*lam1 + lam2*((*ka) + lam1)) + (-(*ka) - lam1 - lam2)*lam33 - (*ka)*lam2*lam1*lam3 + lam34) + (*r1)*(*k42)*(*k23)/(lam2*lam1*lam3))))/((lam2 - lam3)*(lam1 - lam2));
 }
 
-static inline void threeCmtKaRateSStr2(double *A, double *tinf, double *tau, double *r2, 
+static inline void threeCmtKaRateSStr2(double *A, double *tinf, double *tau, double *r2,
                                        double *ka, double *k20,
                                        double *k23, double *k32,
                                        double *k24, double *k42) {
@@ -422,22 +422,22 @@ static inline void threeCmtKaRate(double *A, double *Alast,
   double lam3 = j3 -(2.0*rho3*ct3);
   double eKa = exp(-(*ka)*(*t));
   A1 = (*r1)/(*ka)-(((*r1)-A1last*(*ka))*eKa)/(*ka);
-  
+
   double lam12 = lam1*lam1;
   double lam13 = lam12*lam1;
   double lam14 = lam13*lam1;
-  
+
   double lam22 = lam2*lam2;
   double lam23 = lam22*lam2;
   double lam24 = lam23*lam2;
-  
+
   double lam32 = lam3*lam3;
   double lam33 = lam32*lam3;
   double lam34 = lam33*lam3;
 
   double ka2 = (*ka)*(*ka);
   double ka3 = ka2*(*ka);
-  
+
   double a21 = (((lam33+(-(*ka)-(*k42)-(*k32))*lam32+(((*k42)+(*k32))*(*ka)+(*k32)*(*k42))*lam3-(*k32)*(*k42)*(*ka))*(*r2)+(-(*ka)*lam32+((*k42)+(*k32))*(*ka)*lam3-(*k32)*(*k42)*(*ka))*(*r1)-A2last*lam34+((A2last+A1last)*(*ka)+(A4last+A2last)*(*k42)+(A3last+A2last)*(*k32))*lam33+(((-A4last-A2last-A1last)*(*k42)+(-A3last-A2last-A1last)*(*k32))*(*ka)+(-A4last-A3last-A2last)*(*k32)*(*k42))*lam32+(A4last+A3last+A2last+A1last)*(*k32)*(*k42)*(*ka)*lam3)*exp(-lam3*(*t)))/(lam34+(-lam2-lam1-(*ka))*lam33+((lam1+(*ka))*lam2+(*ka)*lam1)*lam32-(*ka)*lam1*lam2*lam3);
   double a22 = (((lam23+(-(*ka)-(*k42)-(*k32))*lam22+(((*k42)+(*k32))*(*ka)+(*k32)*(*k42))*lam2-(*k32)*(*k42)*(*ka))*(*r2)+(-(*ka)*lam22+((*k42)+(*k32))*(*ka)*lam2-(*k32)*(*k42)*(*ka))*(*r1)-A2last*lam24+((A2last+A1last)*(*ka)+(A4last+A2last)*(*k42)+(A3last+A2last)*(*k32))*lam23+(((-A4last-A2last-A1last)*(*k42)+(-A3last-A2last-A1last)*(*k32))*(*ka)+(-A4last-A3last-A2last)*(*k32)*(*k42))*lam22+(A4last+A3last+A2last+A1last)*(*k32)*(*k42)*(*ka)*lam2)*exp(-lam2*(*t)))/((lam23+(-lam1-(*ka))*lam22+(*ka)*lam1*lam2)*lam3-lam24+(lam1+(*ka))*lam23-(*ka)*lam1*lam22);
   double a23 = (((lam13+(-(*ka)-(*k42)-(*k32))*lam12+(((*k42)+(*k32))*(*ka)+(*k32)*(*k42))*lam1-(*k32)*(*k42)*(*ka))*(*r2)+(-(*ka)*lam12+((*k42)+(*k32))*(*ka)*lam1-(*k32)*(*k42)*(*ka))*(*r1)-A2last*lam14+((A2last+A1last)*(*ka)+(A4last+A2last)*(*k42)+(A3last+A2last)*(*k32))*lam13+(((-A4last-A2last-A1last)*(*k42)+(-A3last-A2last-A1last)*(*k32))*(*ka)+(-A4last-A3last-A2last)*(*k32)*(*k42))*lam12+(A4last+A3last+A2last+A1last)*(*k32)*(*k42)*(*ka)*lam1)*exp(-lam1*(*t)))/(((lam12-(*ka)*lam1)*lam2-lam13+(*ka)*lam12)*lam3+((*ka)*lam12-lam13)*lam2+lam14-(*ka)*lam13);
@@ -546,7 +546,7 @@ static inline void twoCmtKa(double *A, double *Alast, double *t,
 }
 
 
-static inline void threeCmtKaSSb1(double *A, double *tau, double *b1, 
+static inline void threeCmtKaSSb1(double *A, double *tau, double *b1,
                                   double *ka, double *k20,
                                   double *k23, double *k32,
                                   double *k24, double *k42){
@@ -571,7 +571,7 @@ static inline void threeCmtKaSSb1(double *A, double *tau, double *b1,
   double ctheta3 = cos(theta3);
   double stheta3 = 1.7320508075688771932*sin(theta3);
   double gamma3 = R_pow(gamma,0.333333333333333);
-  
+
   double lambda1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
   double lambda2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
   double lambda3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
@@ -580,14 +580,14 @@ static inline void threeCmtKaSSb1(double *A, double *tau, double *b1,
   double eL1 = 1.0/(1.0-exp(-(*tau)*lambda1));
   double eL2 = 1.0/(1.0-exp(-(*tau)*lambda2));
   double eL3 = 1.0/(1.0-exp(-(*tau)*lambda3));
-  
+
   A1=eKa*(*b1);
   A2=(*ka)*(*b1)*(eL1*(E3 - lambda1)*(E4 - lambda1)/((-lambda1 + lambda3)*(-lambda1 + lambda2)*((*ka) - lambda1)) + eL2*(E3 - lambda2)*(E4 - lambda2)/((lambda1 - lambda2)*(-lambda2 + lambda3)*((*ka) - lambda2)) + eL3*(E3 - lambda3)*(E4 - lambda3)/((lambda1 - lambda3)*(lambda2 - lambda3)*((*ka) - lambda3)) + eKa*(E3 - (*ka))*(E4 - (*ka))/((-(*ka) + lambda1)*(-(*ka) + lambda3)*(-(*ka) + lambda2)));
   A3=(*ka)*(*b1)*(*k23)*(eL1*(E4 - lambda1)/((-lambda1 + lambda3)*(-lambda1 + lambda2)*((*ka) - lambda1)) + eL2*(E4 - lambda2)/((lambda1 - lambda2)*(-lambda2 + lambda3)*((*ka) - lambda2)) + eL3*(E4 - lambda3)/((lambda1 - lambda3)*(lambda2 - lambda3)*((*ka) - lambda3)) + eKa*(E4 - (*ka))/((-(*ka) + lambda1)*(-(*ka) + lambda3)*(-(*ka) + lambda2)));
   A4=(*ka)*(*b1)*(*k24)*(eL1*(E3 - lambda1)/((-lambda1 + lambda3)*(-lambda1 + lambda2)*((*ka) - lambda1)) + eL2*(E3 - lambda2)/((lambda1 - lambda2)*(-lambda2 + lambda3)*((*ka) - lambda2)) + eL3*(E3 - lambda3)/((lambda1 - lambda3)*(lambda2 - lambda3)*((*ka) - lambda3)) + eKa*(E3 - (*ka))/((-(*ka) + lambda1)*(-(*ka) + lambda3)*(-(*ka) + lambda2)));
 }
 
-static inline void threeCmtKaSSb2(double *A, double *tau, double *b2, 
+static inline void threeCmtKaSSb2(double *A, double *tau, double *b2,
                                   double *ka, double *k20,
                                   double *k23, double *k32,
                                   double *k24, double *k42) {
@@ -612,7 +612,7 @@ static inline void threeCmtKaSSb2(double *A, double *tau, double *b2,
   double ctheta3 = cos(theta3);
   double stheta3 = 1.7320508075688771932*sin(theta3);
   double gamma3 = R_pow(gamma,0.333333333333333);
-  
+
   double lambda1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
   double lambda2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
   double lambda3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
@@ -652,7 +652,7 @@ static inline void threeCmtKa(double *A, double *Alast, double *t,
   double ctheta3 = cos(theta3);
   double stheta3 = 1.7320508075688771932*sin(theta3);
   double gamma3 = R_pow(gamma,0.333333333333333);
-  
+
   double lambda1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
   double lambda2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
   double lambda3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
@@ -682,27 +682,27 @@ static inline void threeCmtKa(double *A, double *Alast, double *t,
   double e4l1 = (E4-lambda1);
   double e4l2 = (E4-lambda2);
   double e4l3 = (E4-lambda3);
-  
+
   double A2term1 = A2last*(eL1*e3l1*e4l1/(l21*l31)+eL2*e3l2*e4l2/(l12*l32)+eL3*e3l3*e4l3/(l13*l23));
-  
+
   double A2term2 = eL1*(C-B*lambda1)/(l12*l13)+eL2*(B*lambda2-C)/(l12*l23)+eL3*(B*lambda3-C)/(l13*l32);
-  
+
   double A2term3 = A1last*(*ka)*(eL1*e3l1*e4l1/(l21*l31*((*ka)-lambda1))+eL2*e3l2*e4l2/(l12*l32*((*ka)-lambda2))+eL3*e3l3*e4l3/(l13*l23*((*ka)-lambda3))+eka*(E3-(*ka))*(E4-(*ka))/((lambda1-(*ka))*(lambda2-(*ka))*(lambda3-(*ka))));
-  
+
   A2 = A2term1+A2term2+A2term3;
 
   double A3term1 = A3last*(eL1*e2l1*e4l1/(l21*l31)+eL2*e2l2*e4l2/(l12*l32)+eL3*(E2-lambda3)*e4l3/(l13*l23));
-  
+
   double A3term2 = eL1*(I-A2last*(*k23)*lambda1)/(l12*l13)+eL2*(A2last*(*k23)*lambda2-I)/(l12*l23)+eL3*(A2last*(*k23)*lambda3-I)/(l13*l32);
-  
+
   double A3term3 = A1last*(*ka)*(*k23)*(eL1*e4l1/(l21*l31*((*ka)-lambda1))+eL2*e4l2/(l12*l32*((*ka)-lambda2))+eL3*e4l3/(l13*l23*((*ka)-lambda3))+eka*(E4-(*ka))/((lambda1-(*ka))*(lambda2-(*ka))*(lambda3-(*ka))));
-  
+
   A3 = A3term1+A3term2+A3term3;
 
   double A4term1 = A4last*(eL1*e2l1*e3l1/(l21*l31)+eL2*e2l2*e3l2/(l12*l32)+eL3*(E2-lambda3)*e3l3/(l13*l23));
-  
+
   double A4term2 = eL1*(J-A2last*(*k24)*lambda1)/(l12*l13)+eL2*(A2last*(*k24)*lambda2-J)/(l12*l23)+eL3*(A2last*(*k24)*lambda3-J)/(l13*l32);
-  
+
   double A4term3 = A1last*(*ka)*(*k24)*(eL1*e3l1/(l21*l31*((*ka)-lambda1))+eL2*e3l2/(l12*l32*((*ka)-lambda2))+eL3*e3l3/(l13*l23*((*ka)-lambda3))+eka*(E3-(*ka))/((lambda1-(*ka))*(lambda2-(*ka))*(lambda3-(*ka))));
   A4 = A4term1+A4term2+A4term3;
 
@@ -722,7 +722,7 @@ static inline void oneCmtRateSS(double *A, double *tinf, double *tau, double *r1
   A1=(*r1)*(1-eiK)*eK/((*k10));
 }
 
-static inline void oneCmtRate(double *A, double *Alast, 
+static inline void oneCmtRate(double *A, double *Alast,
                               double *t,
                               double *b1, double *r1,
                               double *k10) {
@@ -741,7 +741,7 @@ static inline void twoCmtRateSSr1(double *A, double *r1, double *k10, double *k1
   A2=(*r1)*(*k12)*l12;
 }
 
-static inline void twoCmtRateSS(double *A, double *tinf, double *tau, double *r1, 
+static inline void twoCmtRateSS(double *A, double *tinf, double *tau, double *r1,
                                 double *k10, double *k12, double *k21) {
   double E1 = (*k10)+(*k12);
   double E2 = (*k21);
@@ -815,7 +815,7 @@ static inline void threeCmtRateSSr1(double *A, double *r1,
   double ctheta3 = cos(theta3);
   double stheta3 = 1.7320508075688771932*sin(theta3);
   double gamma3 = R_pow(gamma,0.333333333333333);
-  
+
   double lambda1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
   double lambda2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
   double lambda3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
@@ -826,7 +826,7 @@ static inline void threeCmtRateSSr1(double *A, double *r1,
 }
 
 static inline void threeCmtRateSS(double *A,
-                                  double *tinf, double *tau, double *r1, 
+                                  double *tinf, double *tau, double *r1,
                                   double *k10, double *k12, double *k21,
                                   double *k13, double *k31){
   double E1 = (*k10)+(*k12)+(*k13);
@@ -850,7 +850,7 @@ static inline void threeCmtRateSS(double *A,
   double ctheta3 = cos(theta3);
   double stheta3 = 1.7320508075688771932*sin(theta3);
   double gamma3 = R_pow(gamma,0.333333333333333);
-  
+
   double lambda1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
   double lambda2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
   double lambda3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
@@ -890,7 +890,7 @@ static inline void threeCmtRate(double *A, double *Alast,
   double ctheta3 = cos(theta3);
   double stheta3 = 1.7320508075688771932*sin(theta3);
   double gamma3 = R_pow(gamma,0.333333333333333);
-  
+
   double lambda1 = 0.333333333333333*a + gamma3*(ctheta3 + stheta3);
   double lambda2 = 0.333333333333333*a + gamma3*(ctheta3 -stheta3);
   double lambda3 = 0.333333333333333*a -(2.0*gamma3*ctheta3);
@@ -910,7 +910,7 @@ static inline void threeCmtRate(double *A, double *Alast,
   double l23 = (lambda2-lambda3);
   double l31 = (lambda3-lambda1);
   double l32 = (lambda3-lambda2);
-  
+
   double e1l1 = (E1-lambda1);
   double e1l2 = (E1-lambda2);
   double e1l3 = (E1-lambda3);
@@ -949,7 +949,7 @@ static inline void oneCmtBolusSS(double *A, double *tau,
   A1 = (*b1)*eT;
 }
 
-static inline void oneCmtBolus(double *A, double *Alast, 
+static inline void oneCmtBolus(double *A, double *Alast,
                                double *t, double *b1, double *k10) {
   A1 = A1last*exp(-(*k10)*(*t));
 }
@@ -966,7 +966,7 @@ static inline void twoCmtBolusSS(double *A,
 
   double eL1 = 1.0/(1.0-exp(-(*tau)*lambda1));
   double eL2 = 1.0/(1.0-exp(-(*tau)*lambda2));
-  
+
   A1=(eL1*((*b1)*E2 - (*b1)*lambda1) - eL2*((*b1)*E2 - (*b1)*lambda2))/(-lambda1 + lambda2);
   A2=(eL1*(*b1)*(*k12) - eL2*(*b1)*(*k12))/(-lambda1 + lambda2);
 }
@@ -1072,7 +1072,7 @@ static inline void threeCmtBolus(double *A, double *Alast,
   double l23 = (lambda2-lambda3);
   double l31 = (lambda3-lambda1);
   double l32 = (lambda3-lambda2);
-  
+
   double e1l1 = (E1-lambda1);
   double e1l2 = (E1-lambda2);
   double e1l3 = (E1-lambda3);
@@ -1105,8 +1105,8 @@ static inline void ssRateTau(double *A,
                              double *tau,
                              double *r1,
                              double *r2,
-                             double *ka, 
-                             double *kel,  
+                             double *ka,
+                             double *kel,
                              double *k12, double *k21,
                              double *k13, double *k31){
   if (oral0){
@@ -1340,7 +1340,7 @@ static inline void doAdvan(double *A,// Amounts
     if (oral0){
       switch (ncmt){
       case 1: {
-        oneCmtKa(A, Alast, 
+        oneCmtKa(A, Alast,
                  &t, b1, b2, ka, kel);
         return;
       } break;
@@ -1349,7 +1349,7 @@ static inline void doAdvan(double *A,// Amounts
         return;
       } break;
       case 3: {
-        threeCmtKa(A, Alast, 
+        threeCmtKa(A, Alast,
                    &t, b1, b2, ka, kel,
                    k12,  k21, k13,  k31);
         return;
@@ -1375,7 +1375,7 @@ static inline void doAdvan(double *A,// Amounts
   }
 }
 
-void linCmtPar1(double *v, double *k, 
+void linCmtPar1(double *v, double *k,
                 double *vss,
                 double *cl,
                 double *A,
@@ -1511,37 +1511,37 @@ SEXP derived1(int trans, SEXP inp, double dig) {
   SEXP vcS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vc = REAL(vcS);
   SET_VECTOR_ELT(ret, 0, vcS);
-  
+
   SET_STRING_ELT(retN,1,mkChar("kel"));
   SEXP kelS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *kel = REAL(kelS);
   SET_VECTOR_ELT(ret, 1, kelS);
-  
+
   SET_STRING_ELT(retN,2,mkChar("vss"));
   SEXP vssS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vss = REAL(vssS);
   SET_VECTOR_ELT(ret, 2, vssS);
-  
+
   SET_STRING_ELT(retN,3,mkChar("cl"));
   SEXP clS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *cl = REAL(clS);
   SET_VECTOR_ELT(ret, 3, clS);
-  
+
   SET_STRING_ELT(retN,4,mkChar("t12alpha"));
   SEXP thalfS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *thalf = REAL(thalfS);
   SET_VECTOR_ELT(ret, 4, thalfS);
-  
+
   SET_STRING_ELT(retN,5,mkChar("alpha"));
   SEXP alphaS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *alpha = REAL(alphaS);
   SET_VECTOR_ELT(ret, 5, alphaS);
-  
+
   SET_STRING_ELT(retN,6,mkChar("A"));
   SEXP AS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *A = REAL(AS);
   SET_VECTOR_ELT(ret, 6, AS);
-  
+
   SET_STRING_ELT(retN,7,mkChar("fracA"));
   SEXP fracAS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *fracA = REAL(fracAS);
@@ -1600,7 +1600,7 @@ SEXP derived2(int trans, SEXP inp, double dig) {
   tmp = PROTECT(toReal(VECTOR_ELT(inp, 3))); pro++;
   int lenP3 = Rf_length(tmp);
   double *p3 = REAL(tmp);
-  
+
   int lenOut = max2(lenV, lenP1);
   lenOut = max2(lenOut, lenP2);
   lenOut = max2(lenOut, lenP3);
@@ -1623,7 +1623,7 @@ SEXP derived2(int trans, SEXP inp, double dig) {
   SEXP vcS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vc = REAL(vcS);
   SET_VECTOR_ELT(ret, 0, vcS);
-  
+
   SET_STRING_ELT(retN,1,mkChar("kel"));
   SEXP kelS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *kel = REAL(kelS);
@@ -1769,7 +1769,7 @@ SEXP derived3(int trans, SEXP inp, double dig) {
   tmp = PROTECT(toReal(VECTOR_ELT(inp, 5))); pro++;
   int lenP5 = Rf_length(tmp);
   double *p5 = REAL(tmp);
-  
+
   int lenOut = max2(lenV, lenP1);
   lenOut = max2(lenOut, lenP2);
   lenOut = max2(lenOut, lenP3);
@@ -1796,7 +1796,7 @@ SEXP derived3(int trans, SEXP inp, double dig) {
   SEXP vcS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *vc = REAL(vcS);
   SET_VECTOR_ELT(ret, 0, vcS);
-  
+
   SET_STRING_ELT(retN,1,mkChar("kel"));
   SEXP kelS = PROTECT(allocVector(REALSXP, lenOut)); pro++;
   double *kel = REAL(kelS);
@@ -2387,7 +2387,7 @@ double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double rx_k31=0;
   double *rate = ind->InfusionRate + op->neq;
   double b1=0, b2=0, r1 = 0, r2 = 0;
-  double curTime = getTime(ind->ix[idx], ind);
+  double curTime = getTime_(ind->ix[idx], ind);
   int sameTime = isSameTime(t, curTime);
   if (sameTime && idx <= ind->solved){
     // Pull from last solved value (cached)
@@ -2407,7 +2407,7 @@ double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     if (idx < 0) {
       return NA_REAL;
     }
-    curTime = getTime(ind->ix[idx], ind);
+    curTime = getTime_(ind->ix[idx], ind);
   }
   A = getAdvan(idx);
   if (!parTrans(&trans, &p1, &v1, &p2, &p3, &p4, &p5,
@@ -2419,9 +2419,9 @@ double linCmtA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     // Not saved, solve
     if (idx == 0) {
       Alast = Alast0;
-      tlast = getTime(ind->ix[0], ind);
+      tlast = getTime_(ind->ix[0], ind);
     } else {
-      tlast = getTime(ind->ix[idx-1], ind);
+      tlast = getTime_(ind->ix[idx-1], ind);
       Alast = getAdvan(idx-1);
     }
     evid = getEvid(ind, ind->ix[idx]);
@@ -2499,13 +2499,13 @@ double linCmtC(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double A[4]     = {0, 0, 0, 0};
   int oral0;
   oral0 = (d_ka > 0) ? 1 : 0;
-  double it = getTime(ind->ix[idxF], ind);
+  double it = getTime_(ind->ix[idxF], ind);
   double curTime, tlast;
-  curTime = tlast = getTime(ind->ix[0], ind); // t0
+  curTime = tlast = getTime_(ind->ix[0], ind); // t0
   if (t != it) {
     // Try to get another idx by bisection
     idxF = _locateTimeIndex(t, ind);
-    it = getTime(ind->ix[idxF], ind);
+    it = getTime_(ind->ix[idxF], ind);
   }
   unsigned int ncmt = 1;
   double rx_k=0, rx_v=0;
@@ -2529,7 +2529,7 @@ double linCmtC(rx_solve *rx, unsigned int id, double _t, int linCmt,
     }
     for (int idx = 0; idx <= idxF; idx++) {
       ind->idx = idx;
-      curTime = getTime(ind->ix[idx], ind);
+      curTime = getTime_(ind->ix[idx], ind);
       evid = getEvid(ind, ind->ix[idx]);
       if (op->nlinR == 2){
         r1 = rate[0];
@@ -2557,7 +2557,7 @@ double linCmtC(rx_solve *rx, unsigned int id, double _t, int linCmt,
         aSave[i] = A[i];
       }
       if (handle_evidL(evid, A, curTime, ind)){
-        handleSSL(A, Alast, tlast, curTime, ncmt, oral0, 
+        handleSSL(A, Alast, tlast, curTime, ncmt, oral0,
                   &b1, &b2, &r1, &r2, &d_ka, &rx_k,
                   &rx_k12, &rx_k21, &rx_k13, &rx_k31,
                   &linCmt, &d_F, &d_F2, &d_rate1, &d_rate2,
@@ -2591,7 +2591,7 @@ double linCmtD(rx_solve *rx, unsigned int id, double t, int linCmt,
                double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2) {
   // Forward difference
   double v0 = linCmtA(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                      p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                      p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                       d_ka, d_tlag2, d_F2,  d_rate2, d_dur2);
 #define h 1.4901161193847656e-08
 #define h2 67108864
@@ -2600,43 +2600,43 @@ double linCmtD(rx_solve *rx, unsigned int id, double t, int linCmt,
     return v0;
   case 1:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1 + h, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2)- v0);
   case 2:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1 + h,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 3:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2 + h, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2 + h, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 4:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3 + h, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3 + h, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 5:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4 + h, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4 + h, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 6:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5 + h, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5 + h, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 7:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag + h, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag + h, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 8:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F + h, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F + h, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 9:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1 + h, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1 + h, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 10:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1 + h, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1 + h,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) - v0);
   case 11:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
@@ -2680,77 +2680,77 @@ double linCmtE(rx_solve *rx, unsigned int id, double t, int linCmt,
   switch (val){
   case 0:
     return linCmtA(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                   p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                   p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                    d_ka, d_tlag2, d_F2,  d_rate2, d_dur2);
   case 1:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1 + h, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1 - h, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 2:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1 + h,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1 - h,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 3:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2 + h, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2 + h, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2 - h, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2 - h, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 4:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3 + h, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3 + h, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3 - h, p4, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3 - h, p4, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 5:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4 + h, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4 + h, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4 - h, p5, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4 - h, p5, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 6:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5 + h, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5 + h, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5 - h, d_tlag, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5 - h, d_tlag, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 7:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag + h, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag + h, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag - h, d_F, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag - h, d_F, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 8:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F + h, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F + h, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F - h, d_rate1, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F - h, d_rate1, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 9:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1 + h, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1 + h, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1 - h, d_dur1, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1 - h, d_dur1,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 10:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1 + h, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1 + h,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2) -
                linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
-                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1 - h, 
+                       p2, p3, p4, p5, d_tlag, d_F, d_rate1, d_dur1 - h,
                        d_ka, d_tlag2, d_F2,  d_rate2, d_dur2));
   case 11:
     return h2*(linCmtC(rx, id, t, linCmt, i_cmt, trans, p1, v1,
@@ -3080,11 +3080,11 @@ double linCmtF(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double *Alast;
   /* A = Alast0; Alast=Alast0; */
   double tlast;
-  double curTime= getTime(ind->ix[idx], ind); // t0
+  double curTime= getTime_(ind->ix[idx], ind); // t0
   while (t < curTime) {
     idx--;
     if (idx < 0) return NA_REAL;
-    curTime = getTime(ind->ix[idx], ind);
+    curTime = getTime_(ind->ix[idx], ind);
   }
   int sameTime = isSameTime(t, curTime);
   if (idx <= ind->solved && sameTime){
@@ -3117,12 +3117,12 @@ double linCmtF(rx_solve *rx, unsigned int id, double _t, int linCmt,
     A = getAdvan(idx);
     if (idx == 0) {
       Alast = Alast0;
-      tlast = getTime(ind->ix[0], ind);
+      tlast = getTime_(ind->ix[0], ind);
     } else {
-      tlast = getTime(ind->ix[idx-1], ind);
+      tlast = getTime_(ind->ix[idx-1], ind);
       Alast = getAdvan(idx-1);
     }
-    curTime = getTime(ind->ix[idx], ind);
+    curTime = getTime_(ind->ix[idx], ind);
     if (!parTrans(&trans, &p1, &v1, &p2, &p3, &p4, &p5,
                   &ncmt, &rx_k, &rx_v, &rx_k12,
                   &rx_k21, &rx_k13, &rx_k31)){
@@ -3149,7 +3149,7 @@ double linCmtF(rx_solve *rx, unsigned int id, double _t, int linCmt,
         aSave[i] = A[i];
       }
       if (handle_evidL(evid, A, curTime, ind)){
-        handleSSL(A, Alast, tlast, curTime, ncmt, oral0, 
+        handleSSL(A, Alast, tlast, curTime, ncmt, oral0,
                   &b1, &b2, &r1, &r2, &d_ka, &rx_k,
                   &rx_k12, &rx_k21, &rx_k13, &rx_k31,
                   &linCmt, &d_F, &d_F2, &d_rate1, &d_rate2,

@@ -15,81 +15,81 @@ static inline int handleExtraDose(double *yp,
                                   int *i,
                                   rx_solving_options *op,
                                   rx_solving_options_ind *ind) {
-    if (ind->extraDoseN[0] > ind->idxExtra) {
-      if (ind->extraSorted == 0) {
-        // do sort
-        SORT(ind->extraDoseTimeIdx + ind->idxExtra, ind->extraDoseTimeIdx + ind->extraDoseN[0],
-             [ind](int a, int b){
-               double timea = ind->extraDoseTime[a],
-                 timeb = ind->extraDoseTime[b];
-               if (timea == timeb) {
-                 int evida = ind->extraDoseEvid[a],
-                   evidb = ind->extraDoseEvid[b];
-                 if (evida == evidb){
-                   return a < b;
-                 }
-                 return evida < evidb;
+  if (ind->extraDoseN[0] > ind->idxExtra) {
+    if (ind->extraSorted == 0) {
+      // do sort
+      SORT(ind->extraDoseTimeIdx + ind->idxExtra, ind->extraDoseTimeIdx + ind->extraDoseN[0],
+           [ind](int a, int b){
+             double timea = ind->extraDoseTime[a],
+               timeb = ind->extraDoseTime[b];
+             if (timea == timeb) {
+               int evida = ind->extraDoseEvid[a],
+                 evidb = ind->extraDoseEvid[b];
+               if (evida == evidb){
+                 return a < b;
                }
-               return timea < timeb;
-             });
-        ind->extraSorted=1;
-        ind->idxExtra=0;
-      }
-      // Use "real" xout for handle_evid functions.
-      int idx = ind->idx;
-      int ixds = ind->ixds;
-      int trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
+               return evida < evidb;
+             }
+             return timea < timeb;
+           });
+      ind->extraSorted=1;
+      ind->idxExtra=0;
+    }
+    // Use "real" xout for handle_evid functions.
+    int idx = ind->idx;
+    int ixds = ind->ixds;
+    int trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
+    ind->idx = -1-trueIdx;
+    double time = getAllTimes(ind, ind->idx);
+    while (!isSameTimeOp(time, xp) && time < xp && ind->idxExtra < ind->extraDoseN[0]) {
+      ind->idxExtra++;
+      trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
       ind->idx = -1-trueIdx;
-      double time = getAllTimes(ind, ind->idx);
-      while (!isSameTimeOp(time, xp) && time < xp && ind->idxExtra < ind->extraDoseN[0]) {
-        ind->idxExtra++;
-        trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
-        ind->idx = -1-trueIdx;
-        time = getAllTimes(ind, ind->idx);
-      }
-      if ((isSameTimeOp(time, xp) || time > xp) && (isSameTimeOp(time, xout) || time <= xout)) {
-        bool ignore = true;
-        while (ignore && time <= xout) {
-          ignore=false;
-          for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
-            int curIdx = ind->ignoredDoses[i];
-            if (curIdx < 0 && -1-curIdx == trueIdx) {
-              ignore = true;
-              break;
-            }
-          }
-          if (ignore) {
-            ind->idxExtra++;
-            if (ind->idxExtra < ind->extraDoseN[0]) {
-              trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
-              ind->idx = -1-trueIdx;
-              time = getAllTimes(ind, ind->idx);
-            } else {
-              ind->idxExtra--;
-              break;
-            }
-          } else {
+      time = getAllTimes(ind, ind->idx);
+    }
+    if ((isSameTimeOp(time, xp) || time > xp) && (isSameTimeOp(time, xout) || time <= xout)) {
+      bool ignore = true;
+      while (ignore && time <= xout) {
+        ignore=false;
+        for (int i = 0; i < ind->ignoredDosesN[0]; ++i) {
+          int curIdx = ind->ignoredDoses[i];
+          if (curIdx < 0 && -1-curIdx == trueIdx) {
+            ignore = true;
             break;
           }
         }
         if (ignore) {
-          ind->idx = idx;
-          ind->ixds = ixds;
-          return 0;
+          ind->idxExtra++;
+          if (ind->idxExtra < ind->extraDoseN[0]) {
+            trueIdx = ind->extraDoseTimeIdx[ind->idxExtra];
+            ind->idx = -1-trueIdx;
+            time = getAllTimes(ind, ind->idx);
+          } else {
+            ind->idxExtra--;
+            break;
+          }
         } else {
-          ind->extraDoseNewXout = time;
-          ind->idx = idx;
-          ind->ixds = ixds;
-          // REprintf("time: %f; xp: %f; xout: %f; handleExtra\n", time, xp, xout);
-          return 1;
+          break;
         }
       }
-      ind->idx = idx;
-      ind->ixds = ixds;
-      return 0;
+      if (ignore) {
+        ind->idx = idx;
+        ind->ixds = ixds;
+        return 0;
+      } else {
+        ind->extraDoseNewXout = time;
+        ind->idx = idx;
+        ind->ixds = ixds;
+        // REprintf("time: %f; xp: %f; xout: %f; handleExtra\n", time, xp, xout);
+        return 1;
+      }
     }
+    ind->idx = idx;
+    ind->ixds = ixds;
     return 0;
   }
+  return 0;
+}
 #undef SORT
 
 extern "C" {
@@ -914,7 +914,7 @@ extern "C" {
           dur2 = curIi-dur;
           if (isModeled && isSsLag) {
             // adjust start time for modeled w/ssLag
-            startTimeD = getTime(ind->idose[infFixds],ind);
+            startTimeD = getTime_(ind->idose[infFixds],ind);
           }
           solveSSinf(yp,
                      &xout, xp,
