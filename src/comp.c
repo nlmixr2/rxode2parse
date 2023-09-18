@@ -375,7 +375,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   int pro = 0;
   SEXP dat = PROTECT(VECTOR_ELT(in, 0)); pro++;
   SEXP par = PROTECT(VECTOR_ELT(in, 1)); pro++;
-  int trans = INTEGER(VECTOR_ELT(in, 2));
+  int trans = INTEGER(VECTOR_ELT(in, 2))[0];
   double rate[2];
   rate[0] = rate[1] = 0.0;
   int cnt = 0;
@@ -385,8 +385,10 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   indR.dadt_counter = &cnt;
   indR.jac_counter = &cnt;
   indR.InfusionRate = rate;
-  //indR.BadDose
-  // indR.nBadDose
+  int BadDose[2];
+  BadDose[0] = BadDose[1] = 0;
+  indR.BadDose = BadDose;
+  indR.nBadDose = 0;
   indR.HMAX = 0.0; // Determined by diff
   indR.curDose = NA_REAL;
   indR.dosenum = 0;
@@ -424,8 +426,8 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
 
 
   // ..$ TIME: num [1:135] 0 0 1 2 3 4 5 6 7 8 ...
-  indR.all_times  = REAL(VECTOR_ELT(dat, 1));
-  indR.n_all_times = Rf_length(VECTOR_ELT(dat, 1));
+  indR.all_times  = REAL(VECTOR_ELT(dat, 0));
+  indR.n_all_times = Rf_length(VECTOR_ELT(dat, 0));
   // ..$ EVID: int [1:135] 101 0 0 0 0 0 0 0 0 0 ...
   indR.evid = INTEGER(VECTOR_ELT(dat, 1)); // $EVID;
   rx->nall = Rf_length(VECTOR_ELT(dat, 1));
@@ -473,6 +475,12 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   op->kind = 0;
   op->extraCmt= INTEGER(VECTOR_ELT(mv, RxMv_extraCmt))[0];
   op->nDisplayProgress = 0;
+  double ssAtol[2];
+  ssAtol[0] = ssAtol[1] = 1.0e-8;
+  double ssRtol[2];
+  ssRtol[0] = ssRtol[1] = 1.0e-6;
+  op->ssAtol=ssAtol;
+  op->ssRtol=ssRtol;
   SEXP flagsS  = VECTOR_ELT(mv, RxMv_flags);
   int *flags   = INTEGER(flagsS);
   rx->linKa    = flags[RxMvFlag_ka];
@@ -636,7 +644,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   indR.extraDoseNewXout = NA_REAL;
   indR.idxExtra = 0;
   indR.extraSorted = 0;
-  tmpD = (double*)calloc(indR.n_all_times*(rx->linNcmt+rx->linKa), sizeof(double));
+  tmpD = (double*)calloc(indR.n_all_times*(rx->linNcmt+rx->linKa+1), sizeof(double));
   if (tmpD == NULL) {
     free(idose);
     free(indR.ignoredDoses);
@@ -648,7 +656,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
     Rf_errorcall(R_NilValue, _("ran out of memory"));
   }
   indR.solve = tmpD;
-
+  indR.timeThread = tmpD + indR.n_all_times*(rx->linNcmt+rx->linKa);
   indR.ixds = indR.idx=0;
   rx_solving_options_ind* ind = &indR;
   rx->subjects =  ind;
@@ -692,6 +700,85 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
                           0.0, 0.0, 1.0,  0.0, 0.0);
     }
   }
+  SEXP dfNames = PROTECT(Rf_allocVector(STRSXP, 19)); pro++;
+  SEXP dfVals = PROTECT(Rf_allocVector(VECSXP, 19)); pro++;
+  SEXP rnVals = PROTECT(Rf_allocVector(INTSXP, 2)); pro++;
+  int *rnI = INTEGER(rnVals);
+
+  rnI[0] = NA_INTEGER;
+  rnI[1] = -indR.n_all_times;
+
+  //"TIME"
+  SET_STRING_ELT(dfNames, 0, Rf_mkChar("TIME"));
+  SET_VECTOR_ELT(dfVals, 0, VECTOR_ELT(dat, 0));
+
+  // "EVID"
+  SET_STRING_ELT(dfNames, 1, Rf_mkChar("EVID"));
+  SET_VECTOR_ELT(dfVals,  1, VECTOR_ELT(dat, 1));
+
+  // "AMT"
+  SET_STRING_ELT(dfNames, 2, Rf_mkChar("AMT"));
+  SET_VECTOR_ELT(dfVals,  2, VECTOR_ELT(dat, 2));
+
+  // "II"
+  SET_STRING_ELT(dfNames, 3, Rf_mkChar("II"));
+  SET_VECTOR_ELT(dfVals,  3, VECTOR_ELT(dat, 3));
+
+  // "Cc"
+  SET_STRING_ELT(dfNames, 3, Rf_mkChar("Cc"));
+  SET_VECTOR_ELT(dfVals,  3, CcSxp);
+
+  SET_STRING_ELT(dfNames, 4, Rf_mkChar("p1"));
+  SET_VECTOR_ELT(dfVals,  4, VECTOR_ELT(par, 0));
+
+  SET_STRING_ELT(dfNames, 5, Rf_mkChar("v1"));
+  SET_VECTOR_ELT(dfVals,  5, VECTOR_ELT(par, 1));
+
+  SET_STRING_ELT(dfNames, 6, Rf_mkChar("p2"));
+  SET_VECTOR_ELT(dfVals,  6, VECTOR_ELT(par, 2));
+
+  SET_STRING_ELT(dfNames, 7, Rf_mkChar("p3"));
+  SET_VECTOR_ELT(dfVals,  7, VECTOR_ELT(par, 3));
+
+  SET_STRING_ELT(dfNames, 8, Rf_mkChar("p4"));
+  SET_VECTOR_ELT(dfVals,  8, VECTOR_ELT(par, 4));
+
+  SET_STRING_ELT(dfNames, 9, Rf_mkChar("p5"));
+  SET_VECTOR_ELT(dfVals,  9, VECTOR_ELT(par, 5));
+
+  SET_STRING_ELT(dfNames, 10, Rf_mkChar("lagdepot"));
+  SET_VECTOR_ELT(dfVals,  10, VECTOR_ELT(par, 6));
+
+  SET_STRING_ELT(dfNames, 11, Rf_mkChar("fdepot"));
+  SET_VECTOR_ELT(dfVals,  11, VECTOR_ELT(par, 7));
+
+  SET_STRING_ELT(dfNames, 12, Rf_mkChar("ratedepot"));
+  SET_VECTOR_ELT(dfVals,  12, VECTOR_ELT(par, 8));
+
+  SET_STRING_ELT(dfNames, 13, Rf_mkChar("durdepot"));
+  SET_VECTOR_ELT(dfVals,  13, VECTOR_ELT(par, 9));
+
+  SET_STRING_ELT(dfNames, 14, Rf_mkChar("ka"));
+  SET_VECTOR_ELT(dfVals,  14, VECTOR_ELT(par, 10));
+
+  SET_STRING_ELT(dfNames, 15, Rf_mkChar("lagcentral"));
+  SET_VECTOR_ELT(dfVals,  15, VECTOR_ELT(par, 11));
+
+  SET_STRING_ELT(dfNames, 16, Rf_mkChar("fcentral"));
+  SET_VECTOR_ELT(dfVals,  16, VECTOR_ELT(par, 12));
+
+  SET_STRING_ELT(dfNames, 17, Rf_mkChar("ratecentral"));
+  SET_VECTOR_ELT(dfVals,  17, VECTOR_ELT(par, 13));
+
+  SET_STRING_ELT(dfNames, 18, Rf_mkChar("durcentral"));
+  SET_VECTOR_ELT(dfVals,  18, VECTOR_ELT(par, 14));
+
+  // R_NameSymbol
+  SEXP cls = PROTECT(Rf_allocVector(STRSXP, 1)); pro++;
+  SET_STRING_ELT(cls, 0, Rf_mkChar("data.frame"));
+  Rf_setAttrib(dfVals, R_NamesSymbol, dfNames);
+  Rf_setAttrib(dfVals, R_RowNamesSymbol, rnVals);
+  Rf_setAttrib(dfVals, R_ClassSymbol, cls);
   free(idose);
   free(indR.ignoredDoses);
   free(indR.ignoredDosesN);
@@ -702,5 +789,5 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   free(indR.solve);
   rx->subjects = oldInd;
   UNPROTECT(pro);
-  return R_NilValue;
+  return dfVals;
 }
