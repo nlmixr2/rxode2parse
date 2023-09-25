@@ -34,7 +34,6 @@
 #include "../inst/include/rxode2parse.h"
 extern rx_solve _rxode2parse_rx_global;
 extern t_handle_evidL _rxode2parse_handle_evidL;
-extern t_getDur _rxode2parse_getDur;
 
 #include "../inst/include/rxode2parseHandleEvid.h"
 

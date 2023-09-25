@@ -179,7 +179,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,"    static rxode2_assignFuns2 %s_assignFuns2 = NULL;\n", cur);
         sAppend(&sbOut,"    if (%s_assignFuns2 == NULL) %s_assignFuns2 = (rxode2_assignFuns2)(R_GetCCallable(\"%s\", \"_%s_assignFuns2\"));\n",
                 cur, cur, cur, cur);
-        sAppend(&sbOut,"    %s_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid, getdur);\n",
+        sAppend(&sbOut,"    %s_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid);\n",
                 cur);
       }
       writeBody3();

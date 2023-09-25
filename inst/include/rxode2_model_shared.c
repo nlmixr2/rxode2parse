@@ -266,7 +266,7 @@ void _assignFuns0(void) {
   linCmtA=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtA");
   linCmtB=(linCmtB_p)R_GetCCallable("rxode2parse", "linCmtB");
   linCmtC=(linCmtA_p)R_GetCCallable("rxode2parse", "linCmtC");
-    
+
   rxnorm = (rxode2i_fn2)R_GetCCallable("rxode2random", "rxnorm");
   rxbinom = (rxode2i_rxbinom)R_GetCCallable("rxode2random","rxbinom");
   rxnbinom = (rxode2i_rxbinom)R_GetCCallable("rxode2random","rxnbinom");
@@ -298,7 +298,7 @@ void _assignFuns0(void) {
   riunif = (rxode2i2_fn2)R_GetCCallable("rxode2random","riunif");
   riweibull = (rxode2i2_fn2)R_GetCCallable("rxode2random","riweibull");
   phi = (rxode2_fn)R_GetCCallable("rxode2random","phi");
-  
+
   gammap = (rxode2_fn2) R_GetCCallable("rxode2","gammap");
   gammaq = (rxode2_fn2) R_GetCCallable("rxode2","gammaq");
   gammapInv = (rxode2_fn2) R_GetCCallable("rxode2","gammapInv");
@@ -312,11 +312,11 @@ void _assignFuns0(void) {
   expit = (rxode2_fn3) R_GetCCallable("rxode2", "expit");
   simeta =(_simfun) R_GetCCallable("rxode2random", "simeta");
   simeps =(_simfun) R_GetCCallable("rxode2random", "simeps");
-  
+
   _llikNorm=(rxode2_llikNormFun) R_GetCCallable("rxode2ll","rxLlikNorm");
   _llikNormDmean=(rxode2_llikNormFun) R_GetCCallable("rxode2ll","rxLlikNormDmean");
   _llikNormDsd=(rxode2_llikNormFun) R_GetCCallable("rxode2ll","rxLlikNormDsd");
-  
+
   _llikPois        = (rxode2_llikPoisFun) R_GetCCallable("rxode2ll","rxLlikPois");
   _llikPoisDlambda = (rxode2_llikPoisFun) R_GetCCallable("rxode2ll","rxLlikPoisDlambda");
 
@@ -325,7 +325,7 @@ void _assignFuns0(void) {
 
   _llikNbinom = (rxode2_llikBinomFun) R_GetCCallable("rxode2ll", "rxLlikNbinom");
   _llikNbinomDprob = (rxode2_llikBinomFun) R_GetCCallable("rxode2ll", "rxLlikNbinomDprob");
-  
+
   _llikNbinomMu = (rxode2_llikBinomFun) R_GetCCallable("rxode2ll", "rxLlikNbinomMu");
   _llikNbinomMuDmu = (rxode2_llikBinomFun) R_GetCCallable("rxode2ll", "rxLlikNbinomMuDmu");
 
@@ -386,11 +386,10 @@ void __assignFuns2(rx_solve rx,
                    t_IndF indf,
                    t_getTime gettime,
                    t_locateTimeIndex timeindex,
-                   t_handle_evidL handleEvid,
-                   t_getDur getdur) {
+                   t_handle_evidL handleEvid) {
   // assign start
   static rxode2_assignFuns2 rxode2parse_assignFuns2 = NULL;
   if (rxode2parse_assignFuns2 == NULL) rxode2parse_assignFuns2 = (rxode2_assignFuns2)(R_GetCCallable("rxode2parse", "_rxode2parse_assignFuns2"));
-  rxode2parse_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid, getdur);
+  rxode2parse_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid);
   // assign stop
 }

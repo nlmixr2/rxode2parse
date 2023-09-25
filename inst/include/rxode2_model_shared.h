@@ -39,7 +39,7 @@
 #define rxTBSd(x, lm, yj, hi, low) _powerDD(x, lm, (int)(yj), hi, low)
 #define rxTBSd2(x, lm, yj, hi, low) _powerDDD(x, lm, (int)(yj), hi, low)
 #define normcdf(x) phi(x)
-#define _getIndSim(id, val) (_solveData->subjects[_cSub].isIni == 1 ? \
+#define _getIndSim(id, val) (_solveData->subjects[_cSub].isIni == 1 ?   \
                              (_solveData->subjects[_cSub].simIni[id] = (val)) : \
                              _solveData->subjects[_cSub].simIni[id])
 #undef rbeta
@@ -55,8 +55,8 @@
 // FIXME: need to use same scheme here
 #define rnormV(ind, x,y) rxnormV(ind,x,y)
 #define rnormV1(ind, id, x) rxnormV(ind, id, x, 1.0)
-  
-#undef rcauchy 
+
+#undef rcauchy
 #define rcauchy(ind, x, y) rxcauchy(ind,x,y)
 #define rxcauchy1(x) rxcauchy(&_solveData->subjects[_cSub],x, 1.0)
 #define ricauchy1(id, x) ricauchy(&_solveData->subjects[_cSub], id, x, 1.0)
@@ -247,24 +247,24 @@ typedef double(*_rxProdType)(double*, double*, int, int);
 
 
 typedef double (*linCmtA_p) (rx_solve *rx, unsigned int id, double t, int linCmt,
-			     int ncmt, int trans, double d_ka,
-			     double p1, double v1,
-			     double p2, double p3,
-			     double p4, double p5,
-			     double d_tlag, double d_tlag2, double d_F, double d_F2,
-			     double d_rate, double d_dur,
-			     double d_rate2, double d_dur2);
+                             int ncmt, int trans, double d_ka,
+                             double p1, double v1,
+                             double p2, double p3,
+                             double p4, double p5,
+                             double d_tlag, double d_tlag2, double d_F, double d_F2,
+                             double d_rate, double d_dur,
+                             double d_rate2, double d_dur2);
 
 typedef double (*linCmtB_p) (rx_solve *rx, unsigned int id, double t, int linCmt,
-			     int i_cmt, int trans, int val,
-			     double dd_p1, double dd_v1,
-			     double dd_p2, double dd_p3,
-			     double dd_p4, double dd_p5,
-			     double dd_ka,
-			     double dd_tlag, double dd_tlag2,
-			     double dd_F, double dd_F2,
-			     double dd_rate, double dd_dur,
-			     double dd_rate2, double dd_dur2);
+                             int i_cmt, int trans, int val,
+                             double dd_p1, double dd_v1,
+                             double dd_p2, double dd_p3,
+                             double dd_p4, double dd_p5,
+                             double dd_ka,
+                             double dd_tlag, double dd_tlag2,
+                             double dd_F, double dd_F2,
+                             double dd_rate, double dd_dur,
+                             double dd_rate2, double dd_dur2);
 
 
 typedef void (*_update_par_ptr_p)(double t, unsigned int id, rx_solve *rx, int idx);
@@ -292,6 +292,6 @@ typedef double (*rxode2_llikGammaFun) (double *in, double x, double shape, doubl
 typedef double (*rxode2_llikCauchyFun) (double *in, double x, double location, double scale);
 
 
-typedef void (*rxode2_assignFuns2)(rx_solve, rx_solving_options, t_F, t_LAG, t_RATE, t_DUR,t_calc_mtime, t_ME, t_IndF, t_getTime, t_locateTimeIndex, t_handle_evidL,t_getDur);
+typedef void (*rxode2_assignFuns2)(rx_solve, rx_solving_options, t_F, t_LAG, t_RATE, t_DUR,t_calc_mtime, t_ME, t_IndF, t_getTime, t_locateTimeIndex, t_handle_evidL);
 
 #endif // __rxode2_model_shared_H__

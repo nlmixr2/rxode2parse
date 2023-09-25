@@ -25,8 +25,6 @@
 extern rx_solving_options _rxode2parse_op_global;
 extern rx_solve _rxode2parse_rx_global;
 extern t_handle_evidL _rxode2parse_handle_evidL;
-extern t_getDur _rxode2parse_getDur;
-#define _getDur _rxode2parse_getDur
 
 #include "../inst/include/rxode2parse.h"
 #include "../inst/include/rxode2parseHandleEvid.h"
@@ -37,6 +35,37 @@ extern t_getDur _rxode2parse_getDur;
 #define max2( a , b )  ( (a) > (b) ? (a) : (b) )
 #endif
 
+// Linear compartment models/functions
+double _getDur(int l, rx_solving_options_ind *ind, int backward, unsigned int *p) {
+  double dose = getDoseNumber(ind, l);
+  if (backward==1 && l != 0){
+    if (l <= 0) {
+      Rf_errorcall(R_NilValue, "could not find a start to the infusion #1");
+    }
+    p[0] = l-1;
+    while (p[0] > 0 && getDoseNumber(ind, p[0]) != -dose){
+      p[0]--;
+    }
+    if (getDoseNumber(ind, p[0]) != -dose){
+      Rf_errorcall(R_NilValue, "could not find a start to the infusion #2");
+    }
+    return getAllTimes(ind, ind->idose[l]) - getAllTimes(ind, ind->idose[p[0]]);
+  } else {
+    if (l >= ind->ndoses) {
+      if (backward==2) return(NA_REAL);
+      Rf_errorcall(R_NilValue, "could not find an end to the infusion");
+    }
+    p[0] = l+1;
+    while (p[0] < ind->ndoses && getDoseNumber(ind, p[0]) != -dose){
+      p[0]++;
+    }
+    if (getDoseNumber(ind, p[0]) != -dose){
+      if (backward==2) return(NA_REAL);
+      Rf_errorcall(R_NilValue, "could not find an end to the infusion");
+    }
+    return getAllTimes(ind, ind->idose[p[0]]) - getAllTimes(ind, ind->idose[l]);
+  }
+}
 
 
 extern t_getTime _rxode2parse_getTime;

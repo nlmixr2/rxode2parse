@@ -63,18 +63,17 @@ double linCmtB(rx_solve *rx, unsigned int id, double t, int linCmt,
                double dd_rate2, double dd_dur2);
 
 void _rxode2parse_assignFuns2(rx_solve rx,
-                            rx_solving_options op,
-                            t_F f,
-                            t_LAG lag,
-                            t_RATE rate,
-                            t_DUR dur,
-                            t_calc_mtime mtime,
-                            t_ME me,
-                            t_IndF indf,
-                            t_getTime gettime,
-                            t_locateTimeIndex timeindex,
-                            t_handle_evidL handleEvid,
-                            t_getDur getdur);
+                              rx_solving_options op,
+                              t_F f,
+                              t_LAG lag,
+                              t_RATE rate,
+                              t_DUR dur,
+                              t_calc_mtime mtime,
+                              t_ME me,
+                              t_IndF indf,
+                              t_getTime gettime,
+                              t_locateTimeIndex timeindex,
+                              t_handle_evidL handleEvid);
 
 SEXP _rxode2_parse_strncmpci(void);
 SEXP _rxode2parse_getWh(SEXP in);
@@ -101,7 +100,7 @@ int _rxode2parse_useForder(void);
 
 int get_sexp_uniqueL( SEXP s );
 
- SEXP _rxode2parse_funPtrs(void) {
+SEXP _rxode2parse_funPtrs(void) {
   int pro = 0;
   SEXP ret = PROTECT(allocVector(VECSXP, 7)); pro++;
   SET_VECTOR_ELT(ret, 0, R_MakeExternalPtrFn((DL_FUNC) &_rxode2parse_convertId_,
@@ -125,7 +124,7 @@ int get_sexp_uniqueL( SEXP s );
   SET_VECTOR_ELT(ret, 6, R_MakeExternalPtrFn((DL_FUNC) &get_sexp_uniqueL,
                                              Rf_install("get_sexp_uniqueL"),
                                              R_NilValue));
-  
+
   SEXP cls = PROTECT(Rf_allocVector(STRSXP, 1)); pro++;
   SET_STRING_ELT(cls, 0, Rf_mkChar("rxode2parseFunPtrs"));
   Rf_setAttrib(ret,R_ClassSymbol, cls);
@@ -164,7 +163,7 @@ void R_init_rxode2parse(DllInfo *info){
     {"_rxode2parse_rxParseSetSilentErr", (DL_FUNC) _rxode2parse_rxParseSetSilentErr, 1},
     {"_rxode2parse_rxode2parseSetRstudio", (DL_FUNC) _rxode2parse_rxode2parseSetRstudio, 1},
     {"_rxode2parse_rxUpdateTrans_", (DL_FUNC) _rxode2parse_rxUpdateTrans_, 3},
-    {NULL, NULL, 0} 
+    {NULL, NULL, 0}
   };
   // C callable to assign environments.
   R_RegisterCCallable("rxode2parse", "_rxode2parse_calcDerived", (DL_FUNC) &_rxode2parse_calcDerived);
