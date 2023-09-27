@@ -271,6 +271,15 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double *ypLast, *yp;
   double Alast0[4] = {0, 0, 0, 0};
   int oral0 = (d_ka > 0) ? 1 : 0;
+  if (oral0) {
+    /* double d_tlag, double d_F, double d_rate1, double d_dur1, */
+    /*   // Oral parameters */
+    /*   double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2 */
+    ind->linCmtLag[0] = d_tlag; // depot
+    ind->linCmtLag[1] = d_tlag2; // central
+  } else {
+    ind->linCmtLag[0] = d_tlag;
+  }
   void *ctx = &(lin);
   if (ind->idx == 0) {
     // initializationu
@@ -368,7 +377,8 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
 
 SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   rx_solve *rx=(&rx_global);
-  rx_solving_options *op = rx->op;
+  rx_solving_options *op = &(op_global);
+  rx->op = op;
   rx_solving_options_ind *oldInd = rx->subjects;
   iniSolvingRx(rx);
   iniSolvingOptions(op);
@@ -388,6 +398,9 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   int BadDose[2];
   BadDose[0] = BadDose[1] = 0;
   indR.BadDose = BadDose;
+  double linCmtLag[2];
+  linCmtLag[0] = linCmtLag[1] = 0.0;
+  indR.linCmtLag = linCmtLag;
   indR.nBadDose = 0;
   indR.HMAX = 0.0; // Determined by diff
   indR.curDose = NA_REAL;

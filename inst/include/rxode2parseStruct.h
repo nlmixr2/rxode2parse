@@ -176,7 +176,6 @@ extern "C" {
     op->nLlik = 0;
   }
 
-
   typedef struct {
     double bT;
     int *slvr_counter;
@@ -290,6 +289,8 @@ extern "C" {
     //double *extraDoseIi; // ii doses unsupported
     bool lastIsSs2;
     double *timeThread;
+    // linear compartmental solve
+    double *linCmtLag;
   } rx_solving_options_ind;
 
   typedef struct {
@@ -387,8 +388,6 @@ extern "C" {
     rx->maxwhile = 100000;
     rx->whileexit= 0;
   }
-
-
 
   static inline void sNull(sbuf *sbb) {
     sbb->s = NULL;

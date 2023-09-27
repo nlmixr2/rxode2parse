@@ -74,6 +74,7 @@
 #' @examples
 #'
 #' d <- nlmixr2data::nmtest
+#'
 #' names(d) <- sub("lagt", "lagcentral",
 #'             sub("bioav", "fdepot",
 #'             sub("rat2", "ratecentral",

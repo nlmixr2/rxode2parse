@@ -36,10 +36,13 @@ extern "C" {
     if (ind->wh0 == EVID0_SS0 || ind->wh0 == EVID0_SS20) {
       return time;
     }
+    if (ind->cmt >= op->neq) {
+      return ind->linCmtLag[ind->cmt - op->neq];
+    }
     double ret = LAG(id, cmt, time);
     if (ISNA(ret)) {
-      op->badSolve=1;
-      op->naTime = 1;
+      op->badSolve = 1;
+      op->naTime   = 1;
     }
     return ret;
   }
