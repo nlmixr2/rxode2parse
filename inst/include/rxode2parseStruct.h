@@ -291,6 +291,7 @@ extern "C" {
     double *timeThread;
     // linear compartmental solve
     double *linCmtLag;
+    double *linCmtF;
   } rx_solving_options_ind;
 
   typedef struct {

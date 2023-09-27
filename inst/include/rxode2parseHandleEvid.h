@@ -354,6 +354,8 @@ extern "C" {
 
   static inline int syncIdx(rx_solving_options_ind *ind) {
     if (ind->idx < 0) return 1; // additional dose; technically the idx doesn't relate to idose/ix
+    if (ind->ixds >= ind->ndoses) ind->ixds=ind->ndoses-1;
+    else if (ind->ixds < 0) ind->ixds=0;
     if (ind->ix[ind->idx] != ind->idose[ind->ixds]) {
       // bisection https://en.wikipedia.org/wiki/Binary_search_algorithm
       int m = getDoseNumberFromIndex(ind, ind->ix[ind->idx]);

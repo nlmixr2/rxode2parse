@@ -277,8 +277,11 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     /*   double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2 */
     ind->linCmtLag[0] = d_tlag; // depot
     ind->linCmtLag[1] = d_tlag2; // central
+    ind->linCmtF[0] = d_F;
+    ind->linCmtF[1] = d_F2;
   } else {
     ind->linCmtLag[0] = d_tlag;
+    ind->linCmtF[0]   = d_F;
   }
   void *ctx = &(lin);
   if (ind->idx == 0) {
@@ -401,6 +404,9 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   double linCmtLag[2];
   linCmtLag[0] = linCmtLag[1] = 0.0;
   indR.linCmtLag = linCmtLag;
+  double linCmtF[2];
+  linCmtF[0] = linCmtF[1] = 1.0;
+  indR.linCmtF = linCmtF;
   indR.nBadDose = 0;
   indR.HMAX = 0.0; // Determined by diff
   indR.curDose = NA_REAL;
@@ -581,6 +587,9 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
       indR.idose[indR.ndoses] = i;
       indR.ndoses++;
     }
+  }
+  for (int i = indR.ndoses; i< indR.n_all_times; ++i) {
+    indR.idose[i] = -NA_INTEGER;
   }
   int *tmpI = (int*)malloc(EVID_EXTRA_SIZE* sizeof(int));
   if (tmpI == NULL) {
