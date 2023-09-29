@@ -51,6 +51,10 @@
 #include "comp.h"
 #include "parTrans.h"
 
+#include "../inst/include/rxode2parseIniSubject.h"
+
+// does nothing since linCmt test is single threaded
+void rxode2parse_setIndPointersByThread(rx_solving_options_ind *ind) {}
 
 // both these functions require sorting from C++, these are interfaces
 void rxode2parse_sortInd0(rx_solving_options_ind *ind);
@@ -444,6 +448,8 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   indR.cens = NULL;
 
 
+
+
   // ..$ TIME: num [1:135] 0 0 1 2 3 4 5 6 7 8 ...
   indR.all_times  = REAL(VECTOR_ELT(dat, 0));
   indR.n_all_times = Rf_length(VECTOR_ELT(dat, 0));
@@ -682,7 +688,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   indR.ixds = indR.idx=0;
   rx_solving_options_ind* ind = &indR;
   rx->subjects =  ind;
-  rxode2parse_sortInd0(ind);
+  iniSubject(0, 0, ind, op, rx, u_inis_lincmt);
   double *yp;
   SEXP CcSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
 

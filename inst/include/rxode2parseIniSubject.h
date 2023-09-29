@@ -3,7 +3,9 @@ extern "C" {
 #endif
 
 #ifdef _isrxode2parse_
+#define setIndPointersByThread rxode2parse_setIndPointersByThread
   void setIndPointersByThread(rx_solving_options_ind *ind);
+#define sortInd rxode2parse_sortInd0
   void sortInd(rx_solving_options_ind *ind);
 #endif
 
