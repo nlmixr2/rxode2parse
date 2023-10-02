@@ -21,6 +21,7 @@ extern "C" {
     ind->id=solveid;
     ind->cacheME=0;
     ind->curShift=0.0;
+    ind->doSS = 0;
     ind->lastIsSs2 = false;
     // neq[0] = op->neq
     int ncmt = (op->neq + op->extraCmt);
