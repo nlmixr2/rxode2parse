@@ -234,8 +234,7 @@ linCmt <- function(data, ...,
     }), names(.trans$str)))
     .ret <- .Call(`_rxode2parse_compC`,
                   list(.dati[, c("TIME", "EVID", "AMT", "II")], .extra, .trans$trans), .mv)
-    .ret$ID <- i
-    .ret
+    data.frame(ID=i, .ret)
   })
   dplyr::as_tibble(do.call(`rbind`, .ret))
 

@@ -29,16 +29,16 @@ extern "C" {
     }                                               \
   }
 
-
   static inline double getLag(rx_solving_options_ind *ind, int id, int cmt, double time) {
     rx_solving_options *op = &op_global;
     returnBadTime(time);
     if (ind->wh0 == EVID0_SS0 || ind->wh0 == EVID0_SS20) {
       return time;
     }
-    // if (ind->cmt >= op->neq) {
-    //   return ind->linCmtLag[ind->cmt - op->neq];
-    // }
+    if (cmt < 0) return time;
+    if (ind->cmt >= op->neq) {
+      return ind->linCmtLag[cmt - op->neq];
+    }
     double ret = LAG(id, cmt, time);
     if (ISNA(ret)) {
       op->badSolve = 1;
@@ -62,6 +62,9 @@ extern "C" {
     rx_solving_options *op = &op_global;
     returnBadTime(t);
     if (ISNA(t)) return t;
+    if (cmt >= op->neq) {
+      return ind->linCmtDur[cmt - op->neq];
+    }
     double ret = DUR(id, cmt, dose, t);
     if (ISNA(ret)){
       op->badSolve=1;

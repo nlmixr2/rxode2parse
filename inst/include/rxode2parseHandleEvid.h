@@ -401,6 +401,11 @@ extern "C" {
 
 
   static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double dose, double t, double *y) {
+    // AMT handles the bioavailibility
+    rx_solving_options *op = &op_global;
+    if (cmt >= op->neq) {
+      return dose * ind->linCmtF[cmt - op->neq];
+    }
     double ret = AMT(id, cmt, dose, t, y);
     if (ISNA(ret)){
       rx_solving_options *op = &op_global;

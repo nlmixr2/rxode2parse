@@ -292,6 +292,7 @@ extern "C" {
     // linear compartmental solve
     double *linCmtLag;
     double *linCmtF;
+    double *linCmtDur;
   } rx_solving_options_ind;
 
   typedef struct {
