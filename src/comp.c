@@ -381,8 +381,8 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
       xp = xout;
     }
   }
-  REprintf("%f: yp[oral0:%d]: %f, lin.v: %f; cp: %f\n",
-          xout, oral0, yp[oral0], lin.v, yp[oral0]/lin.v);
+  /* REprintf("%f: yp[oral0:%d]: %f, lin.v: %f; cp: %f\n", */
+  /*         xout, oral0, yp[oral0], lin.v, yp[oral0]/lin.v); */
   return(yp[oral0]/lin.v);
 }
 

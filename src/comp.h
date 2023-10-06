@@ -20,7 +20,8 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
   double dt = (*xout)-(*xp);
   double E  = exp(-(*kel)*dt);
   double Ea = E;
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   if (hasDepot == 1) {
     Ea = exp(-(*ka)*dt);
   }
@@ -45,11 +46,12 @@ static inline int comp1solve2(double *yp, // prior solving information, will be 
                  double *k12,
                  double *k21) {
   double L[2], C1[4], C2[4], E[2], Ea[2], Xo[2], Rm[2];
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double dT = (*xout)-(*xp);
   if (solComp2C(k10, k12, k21, L, C1, C2) == 0) {
     return 0;
-  } 
+  }
   E[0] = Ea[0] = exp(-L[0]*dT);
   E[1] = Ea[1] = exp(-L[1]*dT);
   const double one = 1.0, zero = 0.0;
@@ -89,11 +91,12 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
                 double *k13,
                 double *k31) {
   double L[3], C1[9], C2[9], C3[9], E[3], Ea[3], Xo[3], Rm[3];
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double dT = (*xout)-(*xp);
   if (solComp3C(k10, k12, k21, k13, k31, L, C1, C2, C3) == 0) {
     return 0;
-  } 
+  }
   E[0] = Ea[0] = exp(-L[0]*dT);
   E[1] = Ea[1] = exp(-L[1]*dT);
   E[2] = Ea[2] = exp(-L[2]*dT);

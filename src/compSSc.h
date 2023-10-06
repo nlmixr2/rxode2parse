@@ -3,7 +3,8 @@
 //////////////////////////////////////////////////
 // Infinite infusion
 static inline void comp1ssInf8(double *yp, double *rate, double *ka, double *kel) {
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   yp[hasDepot] = (*rate)/(*kel);
 }
 
@@ -11,13 +12,15 @@ static inline void comp1ssInf(double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *kel) {
   double eiK = exp(-(*kel)*(*dur));
   double eK = exp(-(*kel)*((*ii)-(*dur)))/(1.0-exp(-(*kel)*(*ii)));
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   yp[hasDepot]=eK*((*rate)/(*kel) - eiK*(*rate)*(-(*kel) + (*ka))/((*ka)*(*kel) - (*kel)*(*kel)));
 }
 
 // Steady state central dosing
 static inline void comp1ssBolusCentral(double *yp, double *ii, double *dose, double *ka, double *kel) {
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double eT = 1.0/(1.0-exp(-(*kel)*(*ii)));
   yp[hasDepot] = (*dose)*eT;
 }
@@ -36,8 +39,8 @@ static inline void comp1ssBolusDepot(double *yp, double *ii, double *dose, doubl
 // Infinite infusion
 static inline void comp2ssInf8(double *yp, double *rate, double *ka, double *k10,
                                double *k12, double *k21) {
-  int hasDepot = (*ka) != 0.0;
-
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double E1 = (*k10)+(*k12);
   double s = E1+(*k21);
   double sqr = sqrt(s*s-4*(E1*(*k21)-(*k12)*(*k21)));
@@ -50,7 +53,8 @@ static inline void comp2ssInf8(double *yp, double *rate, double *ka, double *k10
 
 static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *k10, double *k12, double *k21) {
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double E1 = (*k10)+(*k12);
   double E2 = (*k21);
 
@@ -70,7 +74,8 @@ static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
 // Steady state central dosing
 static inline void comp2ssBolusCentral(double *yp, double *ii, double *dose,
                                        double *ka, double *k10, double *k12, double *k21) {
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double E2 = (*k21);
 
   double s = (*k12)+(*k21)+(*k10);
@@ -111,7 +116,9 @@ static inline void comp3ssInf8(double *yp, double *rate,
                                double *ka, double *k10,
                                double *k12, double *k21,
                                double *k13, double *k31) {
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
+
   double E1 = (*k10)+(*k12)+(*k13);
   double E2 = (*k21);
   double E3 = (*k31);
@@ -147,7 +154,8 @@ static inline void comp3ssInf(double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *k10,
                               double *k12, double *k21,
                               double *k13, double *k31) {
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double E1 = (*k10)+(*k12)+(*k13);
   double E2 = (*k21);
   double E3 = (*k31);
@@ -189,7 +197,8 @@ static inline void comp3ssBolusCentral(double *yp, double *ii, double *dose,
                                        double *ka, double *k10,
                                        double *k12, double *k21,
                                        double *k13, double *k31) {
-  int hasDepot = (*ka) != 0.0;
+  rx_solve *rx=(&rx_global);
+  int hasDepot = rx->linKa;
   double E2 = (*k10)+(*k12)+(*k13);
   double E3 = (*k21);
   double E4 = (*k31);
