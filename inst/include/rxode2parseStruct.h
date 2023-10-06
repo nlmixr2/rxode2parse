@@ -293,6 +293,7 @@ extern "C" {
     double *linCmtLag;
     double *linCmtF;
     double *linCmtDur;
+    double *linCmtRate;
   } rx_solving_options_ind;
 
   typedef struct {

@@ -285,10 +285,13 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     ind->linCmtF[1] = d_F2;
     ind->linCmtDur[0] = d_dur1;
     ind->linCmtDur[1] = d_dur2;
+    ind->linCmtRate[0] = d_rate1;
+    ind->linCmtRate[1] = d_rate2;
   } else {
     ind->linCmtLag[0] = d_tlag;
     ind->linCmtF[0]   = d_F;
     ind->linCmtDur[0] = d_dur1;
+    ind->linCmtRate[0] = d_rate1;
   }
   void *ctx = &(lin);
   if (ind->idx == 0) {
@@ -417,11 +420,15 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   linCmtF[0] = linCmtF[1] = 1.0;
   indR.linCmtF = linCmtF;
   double linCmtDur[2];
+  linCmtDur[0] = linCmtDur[1] = 0.0;
+  indR.linCmtDur = linCmtDur;
+
+  double linCmtRate[2];
+  linCmtRate[0] = linCmtRate[1] = 0.0;
+  indR.linCmtRate = linCmtRate;
   int rc[1];
   rc[0] = 0;
   indR.rc=rc;
-  linCmtDur[0] = linCmtDur[1] = 0.0;
-  indR.linCmtDur = linCmtDur;
   indR.nBadDose = 0;
   indR.HMAX = 0.0; // Determined by diff
   indR.curDose = NA_REAL;

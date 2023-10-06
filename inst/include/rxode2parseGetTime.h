@@ -50,6 +50,9 @@ extern "C" {
   static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
     rx_solving_options *op = &op_global;
     returnBadTime(t);
+    if (cmt >= op->neq) {
+      return ind->linCmtRate[cmt - op->neq];
+    }
     double ret = RATE(id, cmt, dose, t);
     if (ISNA(ret)){
       op->badSolve=1;
