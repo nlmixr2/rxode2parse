@@ -126,13 +126,13 @@ void handleSSbolus_lin(double *yp,
                        int *canBreak,
                        solveWith1Pt_fn solveWith1Pt) {
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
+  rx_solve *rx=(&rx_global);
   double ii = getIi(ind, ind->ix[*i]);
   double dose = getDose(ind, ind->ix[*i]);
-  int oral0 = lin->oral0;
+  int oral0 = rx->linKa;
   int linCmt = ind->linCmt;
   int cmtOff = ind->cmt- ind->linCmt;
   int ret = 1;
-  rx_solve *rx=(&rx_global);
   switch(rx->linNcmt) {
   case 3:
     if (cmtOff == 0 && oral0 == 1) {
@@ -274,7 +274,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double xp, xout;
   double *ypLast, *yp;
   double Alast0[4] = {0, 0, 0, 0};
-  int oral0 = (d_ka > 0) ? 1 : 0;
+  int oral0 = rx->linKa;
   if (oral0) {
     /* double d_tlag, double d_F, double d_rate1, double d_dur1, */
     /*   // Oral parameters */
@@ -381,6 +381,8 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
       xp = xout;
     }
   }
+  REprintf("%f: yp[oral0:%d]: %f, lin.v: %f; cp: %f\n",
+          xout, oral0, yp[oral0], lin.v, yp[oral0]/lin.v);
   return(yp[oral0]/lin.v);
 }
 
