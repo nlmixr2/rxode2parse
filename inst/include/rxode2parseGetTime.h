@@ -37,7 +37,7 @@ extern "C" {
     }
     if (cmt < 0) return time;
     if (ind->cmt >= op->neq) {
-      return ind->linCmtLag[cmt - op->neq];
+      return ind->linCmtLag[cmt - op->neq]+time;
     }
     double ret = LAG(id, cmt, time);
     if (ISNA(ret)) {
