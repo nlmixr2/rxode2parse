@@ -14,15 +14,17 @@ static inline void rxode2parse_sortInd(rx_solving_options_ind *ind) {
   for (int i = 0; i < ind->n_all_times; i++) {
     ind->ix[i] = i;
     ind->idx = i;
-    if (!isObs(getEvid(ind, i))) {
+    int evid = getEvid(ind, i);
+    if (!isObs(evid)) {
       time[i] = getTime__(ind->ix[i], ind, 1);
       ind->ixds++;
     } else {
-      if (getEvid(ind, i) == 3) {
+      if (evid == 3) {
         ind->curShift -= rx->maxShift;
       }
       time[i] = getTime__(ind->ix[i], ind, 1);
     }
+    /* REprintf("i: %d; evid: %d; %f -> %f\n", i, evid, getAllTimes(ind, i), time[i]); */
     if (op->naTime == 1){
       doSort=0;
       break;
