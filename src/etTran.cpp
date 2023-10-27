@@ -48,10 +48,10 @@ static inline CharacterVector asCv(SEXP in, const char *what) {
 #ifdef asError
     REprintf(_("'%s' needs to be a vector of strings"), what);
     abort();
-#else 
+#else
     Rcpp::stop(_("'%s' needs to be a vector of strings"), what);
 #endif
-  } 
+  }
   return as<CharacterVector>(in);
 }
 
@@ -485,7 +485,7 @@ bool rxode2parseIsIntegerish(SEXP in) {
 //' @param ssAtDoseTime Boolean that when `TRUE` back calculates the
 //'   steady concentration at the actual time of dose, otherwise when
 //'   `FALSE` the doses are shifted
-//' 
+//'
 //' @return Object for solving in rxode2
 //'
 //' @keywords internal
@@ -795,6 +795,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   idxOutput.reserve(resSize);
   std::vector<int> cens;
   cens.reserve(resSize);
+  std::vector<int> nObsId;
+
 
 #ifdef rxSolveT
   REprintf("  Time3: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
@@ -973,7 +975,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   double camt;
   int curIdx=0;
   double cdv, climit;
-  int nobs=0, ndose=0;
+  int nobs=0, nobsCur=0, ndose=0;
+
   int ccens=0;
   bool warnCensNA=false;
   bool censNone=true;
