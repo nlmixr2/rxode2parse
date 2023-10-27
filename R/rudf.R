@@ -5,7 +5,7 @@
   .fun <- try(get(fun, mode="function"), silent=TRUE)
   if (inherits(.fun, "try-error")) {
     return(list(nargs=NA_integer_,
-                sprintf("function '%s' is not supported and user function cannot be found",
+                sprintf("function '%s' is not supported; user not found",
                         fun)))
   }
   .formals <- formals(.fun)

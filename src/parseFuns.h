@@ -2,6 +2,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // rxode2 parsing function routines
 
+SEXP rxode2parse_getUdf(const char *fun);
+
 static inline int isAtFunctionArg(const char *name) {
   return !strcmp("(", name) ||
     !strcmp(")", name) ||
@@ -305,9 +307,18 @@ static inline void handleBadFunctions(transFunctions *tf) {
     }
   }
   if (foundFun == 0){
-    sPrint(&_gbuf, _("function '%s' is not supported in rxode2"), tf->v);
-    updateSyntaxCol();
-    trans_syntax_error_report_fn(_gbuf.s);
+    SEXP lst = PROTECT(rxode2parse_getUdf(tv->v));
+    int udfInfo = INTEGER(VECTOR_ELT(lst, 0))[0];
+    const char *udfInfo = R_CHAR(STRING_ELT(VECTOR_ELT(lst, 1), 0));
+    UNPROTECT(1);
+    if (udfInfo == NA_INTEGER) {
+      sPrint(&_gbuf, "%s", udfInfo);
+      updateSyntaxCol();
+      trans_syntax_error_report_fn(_gbuf.s);
+    } else {
+      sAppend(&sb, "_udf(\"%s\", %d, (double) ", tv->v, ii);
+      sAppend(&sbDt, "_udf(\"%s\", %d, (double) ", tv->v, ii);
+    }
   }
 }
 
