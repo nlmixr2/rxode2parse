@@ -2,6 +2,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // rxode2 parsing function routines
 
+#define threadSafe 1
+#define threadSafeRepNumThread 2
+#define notThreadSafe 0
+
+
 SEXP rxode2parse_getUdf(const char *fun);
 
 static inline int isAtFunctionArg(const char *name) {
@@ -34,7 +39,7 @@ static inline int handleSimFunctions(nodeInfo ni, char *name, int *i, int nch,
 				     D_ParseNode *pn){
   if (nodeHas(simfun_statement) && *i == 0) {
     *i = nch; // done
-    if (tb.thread != 1) tb.thread = 2;
+    //if (tb.thread != threadSafe) tb.thread = threadSafeRepNumThread;
     sb.o=0;sbDt.o=0; sbt.o=0;
     D_ParseNode *xpn = d_get_child(pn, 0);
     char *v = (char*)rc_dup_str(xpn->start_loc.s, xpn->end);
@@ -243,6 +248,7 @@ extern SEXP _rxode2parse_funName;
 extern SEXP _rxode2parse_funNameInt;
 extern SEXP _rxode2parse_functionThreadSafe;
 
+
 static inline void handleBadFunctions(transFunctions *tf) {
   // Split out to handle anticipated automatic conversion of R
   // functions to C
@@ -257,7 +263,7 @@ static inline void handleBadFunctions(transFunctions *tf) {
           argMin = INTEGER(_rxode2parse_functionArgMin)[kk];
           argMax = INTEGER(_rxode2parse_functionArgMax)[kk];
           curThread = INTEGER(_rxode2parse_functionThreadSafe)[kk];
-          if (curThread == 0) tb.thread = 0;
+          if (curThread == 0) tb.thread = notThreadSafe;
           if (argMin == NA_INTEGER || argMax == NA_INTEGER) {
             argMin = argMax = -1;
             break;
@@ -307,17 +313,26 @@ static inline void handleBadFunctions(transFunctions *tf) {
     }
   }
   if (foundFun == 0){
-    SEXP lst = PROTECT(rxode2parse_getUdf(tv->v));
-    int udfInfo = INTEGER(VECTOR_ELT(lst, 0))[0];
+    SEXP lst = PROTECT(rxode2parse_getUdf(tf->v));
+    int udf = INTEGER(VECTOR_ELT(lst, 0))[0];
     const char *udfInfo = R_CHAR(STRING_ELT(VECTOR_ELT(lst, 1), 0));
     UNPROTECT(1);
-    if (udfInfo == NA_INTEGER) {
+    if (udf == NA_INTEGER) {
       sPrint(&_gbuf, "%s", udfInfo);
       updateSyntaxCol();
       trans_syntax_error_report_fn(_gbuf.s);
     } else {
-      sAppend(&sb, "_udf(\"%s\", %d, (double) ", tv->v, ii);
-      sAppend(&sbDt, "_udf(\"%s\", %d, (double) ", tv->v, ii);
+      int ii = d_get_number_of_children(d_get_child(tf->pn,3))+1;
+      if (udf != ii) {
+        sPrint(&_gbuf, _("user function '%s' takes %d arguments, supplied %d"),
+               tf->v, udf, ii);
+        updateSyntaxCol();
+        trans_syntax_error_report_fn(_gbuf.s);
+      } else {
+        sAppend(&sb, "_udf(\"%s\", %d, (double) ", tf->v, ii);
+        sAppend(&sbDt, "_udf(\"%s\", %d, (double) ", tf->v, ii);
+        tb.thread = notThreadSafe;
+      }
     }
   }
 }
@@ -351,7 +366,7 @@ static inline int handlePrintf(nodeInfo ni, char *name, int i, D_ParseNode *xpn)
     if (i == 0){
       sb.o =0; sbDt.o =0;
       sbt.o=0;
-      tb.thread = 0;
+      tb.thread = notThreadSafe;
       aType(PPRN);
       aAppendN("Rprintf(", 8);
       sAppendN(&sbt,"printf(", 7);

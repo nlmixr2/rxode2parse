@@ -163,7 +163,7 @@ void R_init_rxode2parse(DllInfo *info){
     {NULL, NULL, 0}
   };
   // C callable to assign environments.
-  R_RegisterCCallable("rxode2parse", "_rxode2parse_evalUdf" (DL_FUNC) &_rxode2parse_evalUdf);
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_evalUdf", (DL_FUNC) &_rxode2parse_evalUdf);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_calcDerived", (DL_FUNC) &_rxode2parse_calcDerived);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_parseFree", (DL_FUNC) &_rxode2parse_parseFree);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans);

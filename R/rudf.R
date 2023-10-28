@@ -5,13 +5,13 @@
   .fun <- try(get(fun, mode="function"), silent=TRUE)
   if (inherits(.fun, "try-error")) {
     return(list(nargs=NA_integer_,
-                sprintf("function '%s' is not supported; user not found",
+                sprintf("function '%s' is not supported; user function not found",
                         fun)))
   }
   .formals <- formals(.fun)
   if (any(names(.formals) == "...")) {
     return(list(nargs=NA_integer_,
-                "user defined R functions in rxode2 cannot have ... in part of the arguments"))
+                "rxode2 user defined R cannot have '...' arguments"))
   }
   .nargs <- length(.formals)
   .udfEnv$fun[[fun]] <- list(.fun, environment(.fun))
