@@ -23,9 +23,19 @@
   .info <- .udfEnv$fun[[fun]]
   .fun <- .info[[1]]
   .envir <- .info[[2]]
-  .ret <- with(.envir, do.call(.fun, args))
-  if (length(.ret) != 1L) return(NA_real_)
-  .tmp <- try(as.double(.ret), silent=TRUE)
-  if (inherits(.tmp, "try-error")) return(NA_real_)
+  .env <- new.env(parent=.envir)
+  .env$.fun <- .fun
+  .env$.args <- args
+  .ret <- try(with(.env, do.call(.fun, .args)), silent=TRUE)
+  if (inherits(.ret, "try-error")) {
+    return(NA_real_)
+  }
+  if (length(.ret) != 1L) {
+    return(NA_real_)
+  }
+  .ret <- try(as.double(.ret), silent=TRUE)
+  if (inherits(.ret, "try-error")) {
+    return(NA_real_)
+  }
   .ret
 }

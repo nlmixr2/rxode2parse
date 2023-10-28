@@ -270,8 +270,8 @@ extern char *gBuf;
 extern int gBufFree;
 extern int gBufLast;
 
-extern int maxSumProdN, SumProdLD, foundF0, foundF, foundLag, foundRate, foundDur, 
-  good_jac, extraCmt, badMd5;
+extern int maxSumProdN, SumProdLD, foundF0, foundF, foundLag, foundRate, foundDur,
+  good_jac, extraCmt, badMd5, maxUdf;
 extern unsigned int found_jac, nmtime;
 
 extern sbuf sbNrm;

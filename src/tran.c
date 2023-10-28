@@ -61,8 +61,9 @@ int rx_syntax_error = 0, rx_suppress_syntax_info=0, rx_syntax_require_ode_first 
 extern D_ParserTables parser_tables_rxode2parse;
 
 unsigned int found_jac = 0, nmtime=0;
-int rx_syntax_allow_ini = 1, 
-  maxSumProdN = 0, SumProdLD = 0, good_jac=1, extraCmt=0;
+int rx_syntax_allow_ini = 1,
+  maxSumProdN = 0, SumProdLD = 0, good_jac=1, extraCmt=0,
+  maxUdf=0;
 
 sbuf s_inits;
 
@@ -629,7 +630,7 @@ SEXP _rxode2parse_parseModel(SEXP type){
       SET_STRING_ELT(pm, i, mkChar(sbPmDt.line[i]));
     }
     break;
-    
+
   default:
     pm = PROTECT(allocVector(STRSXP, sbPm.n));
     for (int i = 0; i < sbPm.n; i++){

@@ -311,6 +311,9 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,  "  for (int ddd=%d; ddd--;){_p[ddd]=_input[ddd]=_pld[ddd]=0.0;}", mx);
 
       }
+      if (maxUdf > 0) {
+        sAppend(&sbOut,  "  double __udf[%d];\n", maxUdf);
+      }
       else prnt_vars(print_void, 0, "  (void)t;\n", "\n",show_ode);     /* declare all used vars */
       if (maxSumProdN){
         sAppendN(&sbOut,  "  (void)_p;\n  (void)_input;\n", 28);

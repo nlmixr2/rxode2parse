@@ -5,15 +5,19 @@ using namespace Rcpp;
 
 Function loadNamespace("loadNamespace", R_BaseNamespace);
 //Function requireNamespace("requireNamespace", R_BaseNamespace);
-Environment rxode2parseNS = loadNamespace("rxode2parse");
-Function rxode2parse_getUdf_ = as<Function>(rxode2parseNS[".getUdfInfo"]);
-Function rxode2parse_evalUdf = as<Function>(rxode2parseNS[".udfCall"]);
 
 extern "C" SEXP rxode2parse_getUdf(const char *fun) {
+BEGIN_RCPP
+  Environment rxode2parseNS = loadNamespace("rxode2parse");
+  Function rxode2parse_getUdf_ = as<Function>(rxode2parseNS[".getUdfInfo"]);
   return rxode2parse_getUdf_(fun);
+END_RCPP
 }
 
 extern "C" double _rxode2parse_evalUdf(const char *fun, int n, const double *args) {
+BEGIN_RCPP
+  Environment rxode2parseNS = loadNamespace("rxode2parse");
+  Function rxode2parse_evalUdf = as<Function>(rxode2parseNS[".udfCall"]);
   List retL(n);
   CharacterVector funC(1);
   funC = fun;
@@ -24,4 +28,6 @@ extern "C" double _rxode2parse_evalUdf(const char *fun, int n, const double *arg
   }
   NumericVector ret = rxode2parse_evalUdf(funC, retL);
   return ret[0];
+VOID_END_RCPP
+  return NA_REAL;
 }

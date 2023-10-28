@@ -172,7 +172,7 @@ static inline int handleFunctionLogit(transFunctions *tf) {
 static inline int handleFunctionSum(transFunctions *tf) {
   if (!strcmp("prod",tf->v)   || !strcmp("sum", tf->v) || !strcmp("sign",  tf->v) ||
       !strcmp("max", tf->v)   || !strcmp("min", tf->v) ||
-      !strcmp("rxord", tf->v)){
+      !strcmp("rxord", tf->v)) {
     int ii = d_get_number_of_children(d_get_child(tf->pn,3))+1;
     if (!strcmp("prod", tf->v)){
       sAppend(&sb, "_prod(_p, _input, _solveData->prodType, %d, (double) ", ii);
@@ -249,7 +249,7 @@ extern SEXP _rxode2parse_funNameInt;
 extern SEXP _rxode2parse_functionThreadSafe;
 
 
-static inline void handleBadFunctions(transFunctions *tf) {
+static inline int handleBadFunctions(transFunctions *tf) {
   // Split out to handle anticipated automatic conversion of R
   // functions to C
   int foundFun = 0;
@@ -296,13 +296,13 @@ static inline void handleBadFunctions(transFunctions *tf) {
                  tf->v, argMin, ii);
           /* Free(v2); */
           trans_syntax_error_report_fn(_gbuf.s);
-          return;
+          return 0;
         } else if (argMin > ii || argMax < ii) {
           sPrint(&_gbuf, _("'%s' takes %d-%d arguments, supplied %d"),
                  tf->v, argMin, argMax, ii);
           /* Free(v2); */
           trans_syntax_error_report_fn(_gbuf.s);
-          return;
+          return 0;
         }
       }
       // Save log-likelihood information
@@ -329,12 +329,19 @@ static inline void handleBadFunctions(transFunctions *tf) {
         updateSyntaxCol();
         trans_syntax_error_report_fn(_gbuf.s);
       } else {
-        sAppend(&sb, "_udf(\"%s\", %d, (double) ", tf->v, ii);
-        sAppend(&sbDt, "_udf(\"%s\", %d, (double) ", tf->v, ii);
+        if (maxUdf < ii){
+          maxUdf = ii;
+        }
+        sAppend(&sb, "_udf(\"%s\", __udf, %d, (double) ", tf->v, ii);
+        sAppend(&sbDt, "_udf(\"%s\", __udf, %d, (double) ", tf->v, ii);
         tb.thread = notThreadSafe;
+        tf->i[0] = 1;// Parse next arguments
+        tf->depth[0]=1;
+        return 1;
       }
     }
   }
+  return 0;
 }
 
 static inline int handleFunctions(nodeInfo ni, char *name, int *i, int *depth, int nch, D_ParseNode *xpn, D_ParseNode *pn) {
@@ -353,8 +360,8 @@ static inline int handleFunctions(nodeInfo ni, char *name, int *i, int *depth, i
       return 1;
     } else if (handleFunctionLinCmt(tf)){
       return 0;
-    } else {
-      handleBadFunctions(tf);
+    } else if (handleBadFunctions(tf)) {
+      return 1;
     }
   }
   return 0;
