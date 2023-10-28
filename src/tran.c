@@ -297,6 +297,8 @@ char *f1LinCmtLine = NULL;
 char *rate1LinCmtLine = NULL;
 char *dur1LinCmtLine = NULL;
 
+void _rxode2parse_resetUdf();
+
 void reset(void) {
   // Reset sb/sbt string buffers
   parseFree(0);
@@ -427,6 +429,7 @@ void reset(void) {
   f1LinCmtLine = NULL;
   rate1LinCmtLine = NULL;
   dur1LinCmtLine = NULL;
+  _rxode2parse_resetUdf();
 }
 
 static void rxSyntaxError(struct D_Parser *ap);

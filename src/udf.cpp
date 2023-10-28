@@ -31,3 +31,19 @@ BEGIN_RCPP
 VOID_END_RCPP
   return NA_REAL;
 }
+
+extern "C" void _rxode2parse_resetUdf() {
+BEGIN_RCPP
+  Environment rxode2parseNS = loadNamespace("rxode2parse");
+  Function resetUdf = as<Function>(rxode2parseNS[".udfReset"]);
+  resetUdf();
+VOID_END_RCPP
+}
+
+extern "C" SEXP _rxode2parse_getUdf() {
+BEGIN_RCPP
+  Environment rxode2parseNS = loadNamespace("rxode2parse");
+  Function getUdf = as<Function>(rxode2parseNS[".udfInfo"]);
+  return getUdf();
+END_RCPP
+}
