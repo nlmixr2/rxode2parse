@@ -29,6 +29,35 @@
   return(list(nargs=.nargs,
               fun))
 }
+
+#' This function is run before starting a rxode2 solve to make sure
+#' the R-based user functions are setup correctly.
+#'
+#' This function also resets the udf-based run-time errors
+#'
+#' @param iv Named Integer Vector with the names representing the
+#'   functions and the integers representing the number of arguments
+#'   that were present when the model was compiled
+#' @return nothing, called for side effect
+#' @noRd
+#' @author Matthew L. Fidler
+.setupUdf <- function(iv) {
+  .n <- names(iv)
+  lapply(.n,
+         function(n) {
+           .oldArg <- iv[n]
+           .new <- .getUdfInfo(n)
+           if (is.na(.new[[1]])) {
+             stop(.new[[2]], call.=FALSE)
+           } else if (.new[[1]] != .oldArg) {
+             stop("'", n,
+                  "' had ", .oldArg, " arguments when model was compiled, now it has ",
+                  .new[[1]], " arguments",
+                  call.=FALSE)
+           }
+           NULL
+         })
+}
 #' Reset the tracking of user defined functions
 #'
 #' This is called during parsing reset
@@ -50,6 +79,22 @@
 .udfInfo <- function() {
   .udfEnv$udf
 }
+#' Get the function name with the current arguments as a string
+#'
+#' @param fun function name
+#' @param args  arguments
+#' @return string of the form 'fun(arg1, arg2)':
+#' @export
+#' @author Matthew L. Fidler
+#' @examples
+.udfCallFunArg <- function(fun, args) {
+  paste0("'", fun, "(",
+         paste(vapply(seq_along(args),
+                function(i) {
+                  as.character(args[[i]])
+                }, character(1), USE.NAMES=FALSE), collapse=", "),
+         ")': ")
+}
 #' This is the function that is always called for every user function in rxode2
 #'
 #' @param fun A character vector representing the function
@@ -68,14 +113,21 @@
   .env$.args <- args
   .ret <- try(with(.env, do.call(.fun, .args)), silent=TRUE)
   if (inherits(.ret, "try-error")) {
-    return(NA_real_)
+    .msg <- try(attr(.ret, "condition")$message, silent=TRUE)
+    if (inherits(.msg, "try-error")) .msg <- "Unknown Error"
+    # This can error since it isn't threaded
+    stop(paste0(.udfCallFunArg(fun, args), .msg), call.=FALSE)
   }
   if (length(.ret) != 1L) {
-    return(NA_real_)
+    # This can error since it isn't threaded
+    stop(paste0(.udfCallFunArg(fun, args), "needs to return a length 1 numeric"),
+         call.=FALSE)
   }
   .ret <- try(as.double(.ret), silent=TRUE)
   if (inherits(.ret, "try-error")) {
-    return(NA_real_)
+    .msg <- try(attr(.ret, "condition")$message, silent=TRUE)
+    if (inherits(.msg, "try-error")) .msg <- "Unknown Error"
+    stop(paste0(.udfCallFunArg(fun, args), .msg), call.=FALSE)
   }
   .ret
 }

@@ -334,6 +334,7 @@ static inline int handleBadFunctions(transFunctions *tf) {
         }
         sAppend(&sb, "_udf(\"%s\", __udf, %d, (double) ", tf->v, ii);
         sAppend(&sbDt, "_udf(\"%s\", __udf, %d, (double) ", tf->v, ii);
+        sAppend(&sbt, "%s(", tf->v);
         tb.thread = notThreadSafe;
         tf->i[0] = 1;// Parse next arguments
         tf->depth[0]=1;
