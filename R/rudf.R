@@ -2,6 +2,125 @@
 .udfEnv$fun <- list()
 .udfEnv$udf <- integer(0)
 
+.udfEnv$rxSEeqUsr <- NULL
+.udfEnv$rxCcode <- NULL
+.udfEnv$symengineFs <- new.env(parent = emptyenv())
+.udfEnv$extraCnow <- ""
+#' Generate extraC information for rxode2 models
+#'
+#' @param extraC Additional extraC from rxode2 compile optioioins
+#' @return Nothing, called for side effects
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.extraC <- function(extraC = NULL) {
+  if (!is.null(extraC)) {
+    if (file.exists(extraC)) {
+      .ret <- sprintf("#include \"%s\"\n", extraC)
+    } else {
+      .ret <- paste(extraC, collapse = "\n")
+    }
+  } else {
+    .ret <- ""
+  }
+  if (length(.udfEnv$rxCcode) > 0L) {
+    .ret <- sprintf("%s\n%s\n", .ret, paste(.udfEnv$rxCcode, collapse = "\n"))
+  }
+  assign("extraCnow", .ret, envir=.udfEnv)
+  return(invisible())
+}
+#' Get the extraCnow for compiling
+#'
+#'
+#' @return string of extraC information
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.extraCnow <- function() {
+  .udfEnv$extraCnow
+}
+
+#' Add user function to rxode2
+#'
+#' This adds a user function to rxode2 that can be called.  If needed,
+#' these functions can be differentiated by numerical differences or
+#' by adding the derivatives to rxode2's internal derivative table
+#' with [rxD()]
+#'
+#' @param name This gives the name of the user function
+#' @param args This gives the arguments of the user function
+#' @param cCode This is the C-code for the new function
+#' @return nothing
+#' @author Matthew L. Fidler
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+rxFunParse <- function(name, args, cCode) {
+  if (!is.character(name) || length(name) != 1L) {
+    stop("name argument must be a length-one character vector", call. = FALSE)
+  }
+  if (missing(cCode)) stop("a new function requires a C function so it can be used in rxode2", call. = FALSE)
+  if (any(name == names(.udfEnv$rxSEeqUsr))) {
+    stop("already defined user function '", name, "', remove it fist ('rxRmFun')",
+         call. = FALSE
+         )
+  }
+  suppressWarnings(rxRmFunParse(name))
+  assign("rxSEeqUsr", c(.udfEnv$rxSEeqUsr, setNames(length(args), name)),
+         envir =.udfEnv)
+  assign("rxCcode", c(.udfEnv$rxCcode, setNames(cCode, name)), envir=.udfEnv)
+  assign(name, symengine::Function(name), envir = .udfEnv$symengineFs)
+  return(invisible())
+}
+#' Return the equivalents symengine user functions from C
+#'
+#' @return equivalent symengine user functions
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.rxSEeqUsr <- function() {
+  .udfEnv$rxSEeqUsr
+}
+
+#' Return symengineFs from user functions
+#'
+#' @return symengineFs from user functions
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.symengineFs <- function() {
+  .udfEnv$symengineFs
+}
+
+#' @rdname rxFunParse
+#' @export
+rxRmFunParse <- function(name) {
+  if (!is.character(name) || length(name) != 1L) {
+    stop("name argument must be a length-one character vector",
+         call. = FALSE
+         )
+  }
+  if (!any(name == names(.rxSEeqUsr))) {
+    warning("no user function '", name, "' to remove", call. = FALSE)
+  }
+  .w <- which(name == names(.udfEnv$rxSEeqUsr))
+  if (length(.w) == 1L) {
+    assign("rxSEeqUsr", .udfEnv$rxSEeqUsr[-.w], envir=.udfEnv)
+  }
+  .w <- which(name == names(.udfEnv$rxCcode))
+  if (length(.w) == 1L) {
+    assign("rxCcode", .udfEnv$rxCcode[-.w], envir=.udfEnv)
+  }
+  .rxD <- rxode2parse::rxode2parseD()
+  if (exists(name, envir = .rxD)) {
+    rm(list = name, envir = .rxD)
+  }
+  if (exists(name, envir = .udfEnv$symengineFs)) {
+    rm(list = name, envir = .udfEnv$symengineFs)
+  }
+  return(invisible())
+}
+
 #' While parsing or setting up the solving, get information about the
 #' user defined function
 #'
@@ -43,10 +162,23 @@
 #' @author Matthew L. Fidler
 .setupUdf <- function(iv) {
   .n <- names(iv)
+  .env <- new.env(parent=emptyenv())
+  .env$needRecompile <- FALSE
   lapply(.n,
          function(n) {
            .oldArg <- iv[n]
            .new <- .getUdfInfo(n)
+           if (any(names(.udfEnv$rxSEeqUsr) == n)) {
+             .c <- .udfEnv$rxSEeqUsr[n]
+             if (.c == .new[[1]]) {
+               message("compiled with R user function '", n, "'; now there is a clashing C user function")
+               .env$needRecompile <- TRUE
+               message("triggered a recompile to use the C user function (they are always preferred)")
+             } else {
+               stop("there is both C and R user functions '", n, "' with a different number of arguments\n  since rxode2 prefers C, you will need to rename your R user function to use it")
+
+             }
+           }
            if (is.na(.new[[1]])) {
              stop(.new[[2]], call.=FALSE)
            } else if (.new[[1]] != .oldArg) {
@@ -57,6 +189,7 @@
            }
            NULL
          })
+  .env$needRecompile
 }
 #' Reset the tracking of user defined functions
 #'
@@ -86,7 +219,7 @@
 #' @return string of the form 'fun(arg1, arg2)':
 #' @export
 #' @author Matthew L. Fidler
-#' @examples
+#' @keywords internal
 .udfCallFunArg <- function(fun, args) {
   paste0("'", fun, "(",
          paste(vapply(seq_along(args),

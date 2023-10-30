@@ -1,5 +1,11 @@
 # rxode2parse (development version)
 
+* Added ability to query R user functions in a rxode2 model (will
+  force single threaded solve)
+
+* Moved core `rxFunParse` and `rxRmFunParse` here so that C and R user
+  function clashes can be handled
+
 * Model variables now tracks which compartments have a lag-time defined
 
 * For compartment with steady state doses (NONMEM equivalent SS=1,
@@ -18,7 +24,7 @@
 
 * Steady state bolus doses with `addl` are treated as non steady state
   events (like what is observed in `NONMEM`)
-  
+
 * Timsort was upgraded; drop radix support in rxode2 struct
 
 # rxode2parse 2.0.16
