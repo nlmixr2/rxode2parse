@@ -36,6 +36,7 @@ Imports:
     utils,
     digest,
     rex,
+    symengine,
     data.table (>= 1.12.4)
 Suggests:
     testthat (>= 3.0.0),

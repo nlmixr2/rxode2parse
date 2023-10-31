@@ -1,7 +1,7 @@
 .udfEnv <- new.env(parent=emptyenv())
 .udfEnv$fun <- list()
 .udfEnv$udf <- integer(0)
-
+.udfEnv$lockedEnvir <- FALSE
 .udfEnv$rxSEeqUsr <- NULL
 .udfEnv$rxCcode <- NULL
 .udfEnv$symengineFs <- new.env(parent = emptyenv())
@@ -45,7 +45,7 @@
 #' This adds a user function to rxode2 that can be called.  If needed,
 #' these functions can be differentiated by numerical differences or
 #' by adding the derivatives to rxode2's internal derivative table
-#' with [rxD()]
+#' with rxode2's `rxD` function
 #'
 #' @param name This gives the name of the user function
 #' @param args This gives the arguments of the user function
@@ -120,6 +120,34 @@ rxRmFunParse <- function(name) {
   }
   return(invisible())
 }
+#' Setup the UDF environment (for querying user defined funtions)
+#'
+#' @param env environment where user defined functions are queried
+#' @return nothing called for side effects
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.udfEnvSet <- function(env) {
+  if (.udfEnv$lockedEnvir) return(invisible())
+  if (is.environment(env)) {
+    .udfEnv$envir <- env
+    return(invisible())
+  }
+  stop("'env' needs to be an environment")
+}
+#' Lock/Unlock environment for getting R user functions
+#'
+#'
+#' @param lock logical to see if environment to look for user defined
+#'   functions is locked.  If it is locked then environments are not assigned.
+#' @return nothing, called for side effects
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.udfEnvLock <- function(lock=TRUE) {
+  .udfEnv$lockedEnvir <- lock
+  invisible()
+ }
 
 #' While parsing or setting up the solving, get information about the
 #' user defined function
@@ -131,7 +159,7 @@ rxRmFunParse <- function(name) {
 #' @noRd
 #' @author Matthew L. Fidler
 .getUdfInfo <- function(fun) {
-  .fun <- try(get(fun, mode="function"), silent=TRUE)
+  .fun <- try(get(fun, mode="function", envir=.udfEnv$envir), silent=TRUE)
   if (inherits(.fun, "try-error")) {
     return(list(nargs=NA_integer_,
                 sprintf("function '%s' is not supported; user function not found",
