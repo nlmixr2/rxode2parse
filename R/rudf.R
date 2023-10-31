@@ -100,7 +100,7 @@ rxRmFunParse <- function(name) {
          call. = FALSE
          )
   }
-  if (!any(name == names(.rxSEeqUsr))) {
+  if (!any(name == names(.udfEnv$rxSEeqUsr))) {
     warning("no user function '", name, "' to remove", call. = FALSE)
   }
   .w <- which(name == names(.udfEnv$rxSEeqUsr))
