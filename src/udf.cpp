@@ -14,30 +14,39 @@ BEGIN_RCPP
 END_RCPP
 }
 
-extern "C" double _rxode2parse_evalUdf(const char *fun, int n, const double *args) {
+extern "C" SEXP _rxode2parse_evalUdfS(const char *fun, int n, const double *args) {
 BEGIN_RCPP
   Environment rxode2parseNS = loadNamespace("rxode2parse");
   Function rxode2parse_evalUdf = as<Function>(rxode2parseNS[".udfCall"]);
   List retL(n);
   CharacterVector funC(1);
   funC = fun;
-  for (unsigned int i = 0; i < n; ++i) {
+  for (int i = 0; i < n; ++i) {
     NumericVector nv(1);
     nv[0] = args[i];
     retL[i] = nv;
   }
-  NumericVector ret = rxode2parse_evalUdf(funC, retL);
-  return ret[0];
-VOID_END_RCPP
-  return NA_REAL;
+  NumericVector ret0 = rxode2parse_evalUdf(funC, retL);
+  NumericVector ret(1);
+  ret[0] = ret0[0];
+  return wrap(ret);
+END_RCPP
 }
 
-extern "C" void _rxode2parse_resetUdf() {
+extern "C" double _rxode2parse_evalUdf(const char *fun, int n, const double *args) {
+  SEXP ret = PROTECT(_rxode2parse_evalUdfS(fun, n, args));
+  double r = REAL(ret)[0];
+  UNPROTECT(1);
+  return r;
+}
+
+extern "C" SEXP _rxode2parse_resetUdf() {
 BEGIN_RCPP
   Environment rxode2parseNS = loadNamespace("rxode2parse");
   Function resetUdf = as<Function>(rxode2parseNS[".udfReset"]);
   resetUdf();
-VOID_END_RCPP
+  return R_NilValue;
+END_RCPP
 }
 
 extern "C" SEXP _rxode2parse_getUdf() {

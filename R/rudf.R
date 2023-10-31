@@ -1,11 +1,31 @@
 .udfEnv <- new.env(parent=emptyenv())
 .udfEnv$fun <- list()
 .udfEnv$udf <- integer(0)
+.udfEnv$envir <- new.env(parent=emptyenv())
 .udfEnv$lockedEnvir <- FALSE
 .udfEnv$rxSEeqUsr <- NULL
 .udfEnv$rxCcode <- NULL
 .udfEnv$symengineFs <- new.env(parent = emptyenv())
 .udfEnv$extraCnow <- ""
+
+#' Get the udf strings for creating model md5
+#'
+#' @return string vector
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.udfMd5Info <- function() {
+  .tmp <- ls(.udfEnv$symengineFs)
+  c(vapply(.tmp, function(x) {
+    .cur <- .udfEnv$fun[[x]]
+    if (!is.null(.cur)) {
+      return(paste(x, data.table::address(.cur[[2]])))
+    }
+    x
+  }, character(1), USE.NAMES = FALSE),
+  data.table::address(.udfEnv$envir))
+}
+
 #' Generate extraC information for rxode2 models
 #'
 #' @param extraC Additional extraC from rxode2 compile optioioins
@@ -161,9 +181,13 @@ rxRmFunParse <- function(name) {
 .getUdfInfo <- function(fun) {
   .fun <- try(get(fun, mode="function", envir=.udfEnv$envir), silent=TRUE)
   if (inherits(.fun, "try-error")) {
-    return(list(nargs=NA_integer_,
-                sprintf("function '%s' is not supported; user function not found",
-                        fun)))
+    .msg <- try(attr(.fun, "condition")$message, silent=TRUE)
+    if (inherits(.msg, "try-error")){
+      .msg <- sprintf("function '%s' is not supported; user function not found",
+                      fun)
+    }
+    print(get(fun, envir=.udfEnv$envir))
+    return(list(nargs=NA_integer_, .msg))
   }
   .formals <- formals(.fun)
   if (any(names(.formals) == "...")) {
