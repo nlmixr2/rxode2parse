@@ -16,14 +16,20 @@
 #' @keywords internal
 .udfMd5Info <- function() {
   .tmp <- ls(.udfEnv$symengineFs)
-  c(vapply(.tmp, function(x) {
+  .env <- new.env(parent=emptyenv())
+  .env$found <- FALSE
+  .ret <- vapply(.tmp, function(x) {
     .cur <- .udfEnv$fun[[x]]
     if (!is.null(.cur)) {
+      .env$found <- TRUE
       return(paste(x, data.table::address(.cur[[2]])))
     }
     x
-  }, character(1), USE.NAMES = FALSE),
-  data.table::address(.udfEnv$envir))
+  }, character(1), USE.NAMES = FALSE)
+  if (.env$found) {
+    .ret <- c(.ret, data.table::address(.udfEnv$envir))
+  }
+  .ret
 }
 
 #' Generate extraC information for rxode2 models
@@ -46,7 +52,7 @@
   if (length(.udfEnv$rxCcode) > 0L) {
     .ret <- sprintf("%s\n%s\n", .ret, paste(.udfEnv$rxCcode, collapse = "\n"))
   }
-  assign("extraCnow", .ret, envir=.udfEnv)
+  .udfEnv$extraCnow <- .ret
   return(invisible())
 }
 #' Get the extraCnow for compiling
@@ -86,9 +92,8 @@ rxFunParse <- function(name, args, cCode) {
          )
   }
   suppressWarnings(rxRmFunParse(name))
-  assign("rxSEeqUsr", c(.udfEnv$rxSEeqUsr, setNames(length(args), name)),
-         envir =.udfEnv)
-  assign("rxCcode", c(.udfEnv$rxCcode, setNames(cCode, name)), envir=.udfEnv)
+  .udfEnv$rxSEeqUsr <- c(.udfEnv$rxSEeqUsr, setNames(length(args), name))
+  .udfEnv$rxCcode <- c(.udfEnv$rxCcode, setNames(cCode, name))
   assign(name, symengine::Function(name), envir = .udfEnv$symengineFs)
   return(invisible())
 }
@@ -117,19 +122,18 @@ rxFunParse <- function(name, args, cCode) {
 rxRmFunParse <- function(name) {
   if (!is.character(name) || length(name) != 1L) {
     stop("name argument must be a length-one character vector",
-         call. = FALSE
-         )
+         call. = FALSE)
   }
   if (!any(name == names(.udfEnv$rxSEeqUsr))) {
     warning("no user function '", name, "' to remove", call. = FALSE)
   }
   .w <- which(name == names(.udfEnv$rxSEeqUsr))
   if (length(.w) == 1L) {
-    assign("rxSEeqUsr", .udfEnv$rxSEeqUsr[-.w], envir=.udfEnv)
+    .udfEnv$rxSEeqUsr <- .udfEnv$rxSEeqUsr[-.w]
   }
   .w <- which(name == names(.udfEnv$rxCcode))
   if (length(.w) == 1L) {
-    assign("rxCcode", .udfEnv$rxCcode[-.w], envir=.udfEnv)
+    .udfEnv$rxCcode <- .udfEnv$rxCcode[-.w]
   }
   .rxD <- rxode2parse::rxode2parseD()
   if (exists(name, envir = .rxD)) {
@@ -186,7 +190,6 @@ rxRmFunParse <- function(name) {
       .msg <- sprintf("function '%s' is not supported; user function not found",
                       fun)
     }
-    print(get(fun, envir=.udfEnv$envir))
     return(list(nargs=NA_integer_, .msg))
   }
   .formals <- formals(.fun)
