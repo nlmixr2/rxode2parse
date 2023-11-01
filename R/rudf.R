@@ -239,7 +239,8 @@ rxRmFunParse <- function(name) {
   .fun <- try(get(fun, mode="function", envir=.udfEnv$envir), silent=TRUE)
   if (inherits(.fun, "try-error")) {
     .msg <- try(attr(.fun, "condition")$message, silent=TRUE)
-    if (inherits(.msg, "try-error")){
+    if (inherits(.msg, "try-error") ||
+          grepl("mode 'function'", .msg, fixed=TRUES)){
       .msg <- sprintf("function '%s' is not supported; user function not found",
                       fun)
     }
