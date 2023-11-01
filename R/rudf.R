@@ -196,7 +196,7 @@ rxRmFunParse <- function(name) {
       return(invisible(TRUE))
     }
     return(invisible(FALSE))
-  } else if (is.envirnoment(envir)) {
+  } else if (is.environment(envir)) {
     .env <- envir
     while(TRUE) {
       if (any(vapply(ls(.env, all=TRUE),
