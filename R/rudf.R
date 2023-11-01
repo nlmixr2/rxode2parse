@@ -190,7 +190,9 @@ rxRmFunParse <- function(name) {
   if (is.null(envir)) {
     if (any(vapply(ls(.udfEnv$envir, all=TRUE),
                    function(v) {
-                     identical(obj, get(v, envir=.udfEnv$envir))
+                     .v <- try(get(v, envir=.udfEnv$envir), silent=TRUE)
+                     if (inherits(.v, "try-error")) return(FALSE)
+                     identical(obj, .v)
                    }, logical(1), USE.NAMES = FALSE))) {
       .udfEnvLock(lock=TRUE)
       return(invisible(TRUE))
@@ -201,7 +203,9 @@ rxRmFunParse <- function(name) {
     while(TRUE) {
       if (any(vapply(ls(.env, all=TRUE),
                      function(v) {
-                       identical(obj, get(v, envir=.env))
+                       .v <- try(get(v, envir=.env), silent=TRUE)
+                       if (inherits(.v, "try-error")) return(FALSE)
+                       identical(obj, .v)
                      }, logical(1), USE.NAMES = FALSE))) {
         .udfEnvSet(.env)
         .udfEnvLock(lock=TRUE)
@@ -211,7 +215,9 @@ rxRmFunParse <- function(name) {
       if (identical(.env, globalenv())) {
         if (any(vapply(ls(.env, all=TRUE),
                        function(v) {
-                         identical(obj, get(v, envir=.env))
+                         .v <- try(get(v, envir=.env), silent=TRUE)
+                         if (inherits(.v, "try-error")) return(FALSE)
+                         identical(obj, .v)
                        }, logical(1), USE.NAMES = FALSE))) {
           .udfEnvSet(.env)
           .udfEnvLock(lock=TRUE)
@@ -240,7 +246,7 @@ rxRmFunParse <- function(name) {
   if (inherits(.fun, "try-error")) {
     .msg <- try(attr(.fun, "condition")$message, silent=TRUE)
     if (inherits(.msg, "try-error") ||
-          grepl("mode 'function'", .msg, fixed=TRUES)){
+          grepl("mode 'function'", .msg, fixed=TRUE)){
       .msg <- sprintf("function '%s' is not supported; user function not found",
                       fun)
     }
