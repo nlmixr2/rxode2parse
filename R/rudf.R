@@ -259,7 +259,10 @@ rxRmFunParse <- function(name) {
   }
   .nargs <- length(.formals)
   .udfEnv$fun[[fun]] <- list(.fun, environment(.fun))
-  .udfEnv$udf <- c(.udfEnv$udf, setNames(.nargs, fun))
+  .w <- which(names(.udfEnv$udf) == fun)
+  if (length(.w) == 0L) {
+    .udfEnv$udf <- c(.udfEnv$udf, setNames(.nargs, fun))
+  }
   return(list(nargs=.nargs,
               fun))
 }
