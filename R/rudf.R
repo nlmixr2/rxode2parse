@@ -22,7 +22,6 @@
     .cur <- .udfEnv$fun[[x]]
     if (!is.null(.cur)) {
       .env$found <- TRUE
-      return(paste(x, data.table::address(.cur[[2]])))
     }
     x
   }, character(1), USE.NAMES = FALSE)
@@ -163,15 +162,69 @@ rxRmFunParse <- function(name) {
 #'
 #'
 #' @param lock logical to see if environment to look for user defined
-#'   functions is locked.  If it is locked then environments are not assigned.
-#' @return nothing, called for side effects
+#'   functions is locked.  If it is locked then environments are not
+#'   assigned.  When NULL returns lock status.
+#' @return lock status
 #' @export
 #' @author Matthew L. Fidler
 #' @keywords internal
 .udfEnvLock <- function(lock=TRUE) {
+  if (is.null(lock)) return(invisible(.udfEnv$lockedEnvir))
   .udfEnv$lockedEnvir <- lock
-  invisible()
- }
+  if (!lock) {
+    .udfEnv$fun <- list()
+  }
+  invisible(.udfEnv$lockedEnvir)
+}
+#' Lock the UDF function if the object exits inside of it
+#'
+#' @param obj object to check to see if it exists
+#' @param envir When non-nil, look for object in environment and
+#'   parent environments
+#' @return logical saying if the environment was locked
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.udfEnvLockIfExists <- function(obj, envir=NULL) {
+  if (.udfEnv$lockedEnvir) return(invisible(FALSE))
+  if (is.null(envir)) {
+    if (any(vapply(ls(.udfEnv$envir, all=TRUE),
+                   function(v) {
+                     identical(obj, get(v, envir=.udfEnv$envir))
+                   }, logical(1), USE.NAMES = FALSE))) {
+      .udfEnvLock(lock=TRUE)
+      return(invisible(TRUE))
+    }
+    return(invisible(FALSE))
+  } else if (is.envirnoment(envir)) {
+    .env <- envir
+    while(TRUE) {
+      if (any(vapply(ls(.env, all=TRUE),
+                     function(v) {
+                       identical(obj, get(v, envir=.env))
+                     }, logical(1), USE.NAMES = FALSE))) {
+        .udfEnvSet(.env)
+        .udfEnvLock(lock=TRUE)
+        return(invisible(TRUE))
+      }
+      .env <- parent.env(.env)
+      if (identical(.env, globalenv())) {
+        if (any(vapply(ls(.env, all=TRUE),
+                       function(v) {
+                         identical(obj, get(v, envir=.env))
+                       }, logical(1), USE.NAMES = FALSE))) {
+          .udfEnvSet(.env)
+          .udfEnvLock(lock=TRUE)
+          return(invisible(TRUE))
+        } else {
+          return(invisible(FALSE))
+        }
+      }
+      if (identical(.env, emptyenv())) break;
+    }
+  }
+  invisible(FALSE)
+}
 
 #' While parsing or setting up the solving, get information about the
 #' user defined function
