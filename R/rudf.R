@@ -388,3 +388,31 @@ rxRmFunParse <- function(name) {
   }
   .ret
 }
+
+#' Find an object and if exists lock the environment
+#'
+#' @param object is the R object to find
+#' @param envirList a list of enviroments search
+#' @return This returns if the environment has been locked
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.udfFindAndLock <- function(object, envirList=list()) {
+  if (.udfEnvLockIfExists(object)) {
+    # If locked unlock when exiting
+    return(TRUE)
+    #on.exit(rxode2parse::.udfEnvLock(FALSE))
+  } else if (!rxode2parse::.udfEnvLock(NULL)) {
+    ## unlocked, look for object in parent frame until global or empty environment
+    .env <- new.env(parent=emptyenv())
+    .env$ret <- FALSE
+    lapply(envirList, function(env) {
+      if (!.env$ret) {
+        if (rxode2parse::.udfEnvLockIfExists(object, env)) {
+          .env$ret <- TRUE
+        }
+      }
+    })
+    return(.env$ret)
+  }
+}
