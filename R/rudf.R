@@ -232,7 +232,7 @@ rxRmFunParse <- function(name) {
           return(invisible(FALSE))
         }
       }
-      if (identical(.env, emptyenv())) break;
+      if (identical(.env, emptyenv())) break
     }
   }
   invisible(FALSE)
