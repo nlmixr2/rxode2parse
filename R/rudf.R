@@ -151,18 +151,18 @@ rxRmFunParse <- function(name) {
 }
 #' Setup the UDF environment (for querying user defined funtions)
 #'
-#' @param env environment where user defined functions are queried
-#' @return nothing called for side effects
+#' @param env environment where user defined functions are queried. If NULL return current environment
+#' @return environment
 #' @export
 #' @author Matthew L. Fidler
 #' @keywords internal
 .udfEnvSet <- function(env) {
-  if (.udfEnv$lockedEnvir) return(invisible())
+  if (.udfEnv$lockedEnvir) return(invisible(.udfEnv$envir))
   if (is.environment(env)) {
     .udfEnv$envir <- env
-    return(invisible())
+    return(invisible(.udfEnv$envir))
   }
-  stop("'env' needs to be an environment")
+  return(invisible(.udfEnv$envir))
 }
 #' Lock/Unlock environment for getting R user functions
 #'
