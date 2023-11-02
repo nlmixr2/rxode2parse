@@ -398,6 +398,21 @@ rxRmFunParse <- function(name) {
 #' @author Matthew L. Fidler
 #' @keywords internal
 .udfFindAndLock <- function(object, envirList=list()) {
+  if (is.null(object)) {
+    if (!rxode2parse::.udfEnvLock(NULL)) {
+      if (is.environment(envirList)) {
+        rxode2parse::.udfEnvSet(envirList)
+        rxode2parse::.udfEnvLock(TRUE)
+        return(TRUE)
+      }
+      if (is.environment(envrList[[1]])) {
+        rxode2parse::.udfEnvSet(envirList[[1]])
+        rxode2parse::.udfEnvLock(TRUE)
+        return(TRUE)
+      }
+    }
+    return(FALSE)
+  }
   if (.udfEnvLockIfExists(object)) {
     # If locked unlock when exiting
     return(TRUE)
@@ -415,4 +430,5 @@ rxRmFunParse <- function(name) {
     })
     return(.env$ret)
   }
+  FALSE
 }
