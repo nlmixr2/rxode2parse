@@ -136,6 +136,12 @@ rxRmFunParse <- function(name) {
   }
   .rxD <- rxode2parse::rxode2parseD()
   if (exists(name, envir = .rxD)) {
+    if (!grepl("^rx_", name)) {
+      .d <- get(name, envir=.rxD)
+      lapply(names(formals(.d[[1]])), function(v) {
+        suppressWarnings(rxRmFunParse(paste0("rx_", name, "_d_", v)))
+      })
+    }
     rm(list = name, envir = .rxD)
   }
   if (exists(name, envir = .udfEnv$symengineFs)) {
