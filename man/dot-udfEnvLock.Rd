@@ -8,10 +8,11 @@
 }
 \arguments{
 \item{lock}{logical to see if environment to look for user defined
-functions is locked.  If it is locked then environments are not assigned.}
+functions is locked.  If it is locked then environments are not
+assigned.  When NULL returns lock status.}
 }
 \value{
-nothing, called for side effects
+lock status
 }
 \description{
 Lock/Unlock environment for getting R user functions

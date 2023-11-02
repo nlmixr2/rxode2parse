@@ -15,7 +15,7 @@
 #' @author Matthew L. Fidler
 #' @keywords internal
 .udfMd5Info <- function() {
-  .tmp <- ls(.udfEnv$symengineFs)
+  .tmp <- ls(.udfEnv$symengineFs, all.names=TRUE)
   .env <- new.env(parent=emptyenv())
   .env$found <- FALSE
   .ret <- vapply(.tmp, function(x) {
@@ -194,7 +194,7 @@ rxRmFunParse <- function(name) {
 .udfEnvLockIfExists <- function(obj, envir=NULL) {
   if (.udfEnv$lockedEnvir) return(invisible(FALSE))
   if (is.null(envir)) {
-    if (any(vapply(ls(.udfEnv$envir, all=TRUE),
+    if (any(vapply(ls(.udfEnv$envir, all.names=TRUE),
                    function(v) {
                      .v <- try(get(v, envir=.udfEnv$envir), silent=TRUE)
                      if (inherits(.v, "try-error")) return(FALSE)
@@ -207,7 +207,7 @@ rxRmFunParse <- function(name) {
   } else if (is.environment(envir)) {
     .env <- envir
     while(TRUE) {
-      if (any(vapply(ls(.env, all=TRUE),
+      if (any(vapply(ls(.env, all.names=TRUE),
                      function(v) {
                        .v <- try(get(v, envir=.env), silent=TRUE)
                        if (inherits(.v, "try-error")) return(FALSE)
@@ -219,7 +219,7 @@ rxRmFunParse <- function(name) {
       }
       .env <- parent.env(.env)
       if (identical(.env, globalenv())) {
-        if (any(vapply(ls(.env, all=TRUE),
+        if (any(vapply(ls(.env, all.names=TRUE),
                        function(v) {
                          .v <- try(get(v, envir=.env), silent=TRUE)
                          if (inherits(.v, "try-error")) return(FALSE)

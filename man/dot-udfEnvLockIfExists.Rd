@@ -4,13 +4,16 @@
 \alias{.udfEnvLockIfExists}
 \title{Lock the UDF function if the object exits inside of it}
 \usage{
-.udfEnvLockIfExists(obj)
+.udfEnvLockIfExists(obj, envir = NULL)
 }
 \arguments{
 \item{obj}{object to check to see if it exists}
+
+\item{envir}{When non-nil, look for object in environment and
+parent environments}
 }
 \value{
-nothing called for side effects
+logical saying if the environment was locked
 }
 \description{
 Lock the UDF function if the object exits inside of it

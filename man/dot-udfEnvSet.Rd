@@ -7,10 +7,10 @@
 .udfEnvSet(env)
 }
 \arguments{
-\item{env}{environment where user defined functions are queried}
+\item{env}{environment where user defined functions are queried. If NULL return current environment}
 }
 \value{
-nothing called for side effects
+environment
 }
 \description{
 Setup the UDF environment (for querying user defined funtions)
