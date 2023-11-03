@@ -8,6 +8,11 @@
 .udfEnv$rxCcode <- NULL
 .udfEnv$symengineFs <- new.env(parent = emptyenv())
 .udfEnv$extraCnow <- ""
+.udfEnv$bestFun <- NULL
+.udfEnv$bestFunEnv <- NULL
+.udfEnv$bestFunHasDots <- FALSE
+.udfEnv$bestNargs <- NA_integer_
+.udfEnv$bestEqArgs <- FALSE
 
 #' Get the udf strings for creating model md5
 #'
@@ -238,60 +243,114 @@ rxRmFunParse <- function(name) {
   }
   invisible(FALSE)
 }
-
+#'
+#'
+#'
+#' @param fun
+#' @param nargs
+#' @param envir
+#' @param doList
+#' @return
+#' @export
+#' @author Matthew L. Fidler
+#' @examples
+.udfExists <- function(fun, nargs, envir, doList=TRUE) {
+  .e <- exists(fun, mode="function", envir=envir)
+  if (!.e) return(FALSE)
+  # ok now see if it makes sense
+  .fun <- get(fun, mode="function", envir=envir)
+  .f <- formals(.fun)
+  .bestHasDots <- any(names(.f) == "...")
+  .nargs <- length(.f)
+  .bestEqArgs <- .nargs == nargs
+  if (.bestEqArgs) { # We want the function to match the declared number of arguments
+    if (!.bestHasDots) { # We don't want ... arguments
+      if (doList) {
+        # In the case of multiple user functions, make sure the other
+        # user functions also exist in this environment
+        if (!all(vapply(seq_along(.udfEnv$fun), function(i) {
+          .info <- .udfEnv$fun[[i]]
+          return(.udfExists(.info[[1]], .info[[2]], envir=envir, doList=FALSE))
+        }, logical(1), USE.NAMES = FALSE))) {
+          if (is.null(.udfEnv$bestFun)) {
+            .udfEnv$bestFun <- .fun
+          }
+          return(FALSE)
+        }
+        # Success, save function and environment
+        .udfEnv$bestFun <- .fun
+        .udfEnv$bestFunEnv <- envir
+        .udfEnv$bestFunHasDots <- FALSE
+        .udfEnv$bestEqArgs <- TRUE
+        .udfEnv$bestNargs <- nargs
+      }
+      return(TRUE)
+    }
+  }
+  if (doList && is.null(.udfEnv$bestFun)) {
+    .udfEnv$bestFun <- .fun
+    .udfEnv$bestFunEnv <- envir
+    .udfEnv$bestFunHasDots <- .bestHasDots
+    .udfEnv$bestEqArgs <- .bestEqArgs
+    .udfEnv$bestNargs <- .nargs
+  }
+  FALSE
+}
 #' While parsing or setting up the solving, get information about the
 #' user defined function
 #'
 #' @param fun function (character) to get information about
+#' @param nargs Preferred number of arguments
 #' @return A list with two elements
 #'   - nargs = `NA` if the user function isn't supported, or the number of arguments suported
 #'   - string = Error message when `NA` or function string
 #' @noRd
 #' @author Matthew L. Fidler
-.getUdfInfo <- function(fun) {
+.getUdfInfo <- function(fun, nargs) {
+  .udfEnv$bestFun <- NULL
+  .udfEnv$bestFunHasDots <- FALSE
+  .udfEnv$bestEqArgs <- TRUE
   .found <- FALSE
-  if (!exists(fun, mode="function", envir=.udfEnv$envir)) {
+  if (!.udfExists(fun, nargs, .udfEnv$envir)) {
     # search prior environments with UDFs, assign the first one in the environments that match
-    if (length(.udfEnv$fun) == 1L) {
-      if (length(.udfEnv$envList) > 0L) {
-        if (any(vapply(rev(seq_along(.udfEnv$envList)), function(i) {
-          .e <- exists(fun, mode="function", envir=.udfEnv$envList[[i]])
-          if (.e) {
-            .udfEnv$envir <- .udfEnv$envList[[i]]
-          }
-          .e
-        }, logical(1), USE.NAMES = FALSE))) {
-          .found <- TRUE
-          .fun <- get(fun, mode="function", envir=.udfEnv$envir)
-        }
+    if (length(.udfEnv$envList) > 0L) {
+      if (any(vapply(rev(seq_along(.udfEnv$envList)), function(i) {
+        .udfExists(fun, nargs, .udfEnv$envList[[i]])
+      },  logical(1), USE.NAMES = FALSE))) {
+        .found <- TRUE
       }
     }
   } else {
-    .fun <- get(fun, mode="function", envir=.udfEnv$envir)
     .found <- TRUE
+  }
+  if (.udfEnv$bestFunHasDots) {
+    return(list(nargs=NA_integer_,
+                "rxode2 user defined R cannot have '...' arguments"))
+  }
+  if (!.udfEnv$bestEqArgs) {
+    return(list(nargs=NA_integer_,
+                sprintf("rxode2 user defined R function has %d arguments, but supplied %d",
+                        .udfEnv$bestNargs, nargs)))
   }
   if (!.found) {
     .msg <- sprintf("function '%s' is not supported; user function not found",
                     fun)
     return(list(nargs=NA_integer_, .msg))
   }
-  .formals <- formals(.fun)
-  if (any(names(.formals) == "...")) {
-    return(list(nargs=NA_integer_,
-                "rxode2 user defined R cannot have '...' arguments"))
-  }
-  .nargs <- length(.formals)
-  .udfEnv$fun[[fun]] <- list(.fun, environment(.fun))
+
+  .fun <- .udfEnv$bestFun
+  .udfEnv$envir <- .udfEnv$bestFunEnv
+  .udfEnv$fun[[fun]] <- list(fun, nargs)
   .w <- which(names(.udfEnv$udf) == fun)
   if (length(.w) == 0L) {
-    .udfEnv$udf <- c(.udfEnv$udf, setNames(.nargs, fun))
+    .udfEnv$udf <- c(.udfEnv$udf, setNames(nargs, fun))
   }
-  return(list(nargs=.nargs,
+  return(list(nargs=nargs,
               fun))
 }
 
 #' This function is run before starting a rxode2 solve to make sure
-#' the R-based user functions are setup correctly.
+' the R-based user functions are setup correctly.
 #'
 #' This function also resets the udf-based run-time errors
 #'
@@ -302,6 +361,9 @@ rxRmFunParse <- function(name) {
 #' @noRd
 #' @author Matthew L. Fidler
 .setupUdf <- function(iv) {
+  if (length(iv) == 0L) return(invisible())
+  .w <- which(is.na(iv))
+  iv <- iv[-.w]
   .n <- names(iv)
   .env <- new.env(parent=emptyenv())
   .env$needRecompile <- FALSE
@@ -370,7 +432,7 @@ rxRmFunParse <- function(name) {
   if (length(udf) == 0L) return(invisible())
   .w <- which(is.na(udf))
   .addr <- names(udf)[.w]
-  .env <- udfEnv$envList[[.addr]]
+  .env <- .udfEnv$envList[[.addr]]
   if (is.environment(.env)) {
     .udfEnv$envir <- .env
   } else {
@@ -404,8 +466,7 @@ rxRmFunParse <- function(name) {
 #' @noRd
 #' @author Matthew L. Fidler
 .udfCall <- function(fun, args) {
-  .info <- .udfEnv$fun[[fun]]
-  .ret <- try(do.call(.info[[1]], .args, envir=info[[2]]), silent=TRUE)
+  .ret <- try(do.call(fun, args, envir=.udfEnv$envir), silent=TRUE)
   if (inherits(.ret, "try-error")) {
     .msg <- try(attr(.ret, "condition")$message, silent=TRUE)
     if (inherits(.msg, "try-error")) .msg <- "Unknown Error"

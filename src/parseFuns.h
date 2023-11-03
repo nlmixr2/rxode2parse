@@ -7,7 +7,7 @@
 #define notThreadSafe 0
 
 
-SEXP rxode2parse_getUdf(const char *fun);
+SEXP rxode2parse_getUdf2(const char *fun, const int nargs);
 
 static inline int isAtFunctionArg(const char *name) {
   return !strcmp("(", name) ||
@@ -313,7 +313,8 @@ static inline int handleBadFunctions(transFunctions *tf) {
     }
   }
   if (foundFun == 0){
-    SEXP lst = PROTECT(rxode2parse_getUdf(tf->v));
+    int ii = d_get_number_of_children(d_get_child(tf->pn,3))+1;
+    SEXP lst = PROTECT(rxode2parse_getUdf2(tf->v, ii));
     int udf = INTEGER(VECTOR_ELT(lst, 0))[0];
     const char *udfInfo = R_CHAR(STRING_ELT(VECTOR_ELT(lst, 1), 0));
     UNPROTECT(1);
@@ -322,7 +323,6 @@ static inline int handleBadFunctions(transFunctions *tf) {
       updateSyntaxCol();
       trans_syntax_error_report_fn(_gbuf.s);
     } else {
-      int ii = d_get_number_of_children(d_get_child(tf->pn,3))+1;
       if (udf != ii) {
         sPrint(&_gbuf, _("user function '%s' takes %d arguments, supplied %d"),
                tf->v, udf, ii);

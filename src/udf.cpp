@@ -6,11 +6,11 @@ using namespace Rcpp;
 Function loadNamespace("loadNamespace", R_BaseNamespace);
 //Function requireNamespace("requireNamespace", R_BaseNamespace);
 
-extern "C" SEXP rxode2parse_getUdf(const char *fun) {
+extern "C" SEXP rxode2parse_getUdf2(const char *fun, const int nargs) {
 BEGIN_RCPP
   Environment rxode2parseNS = loadNamespace("rxode2parse");
   Function rxode2parse_getUdf_ = as<Function>(rxode2parseNS[".getUdfInfo"]);
-  return rxode2parse_getUdf_(fun);
+  return rxode2parse_getUdf_(fun, nargs);
 END_RCPP
 }
 
