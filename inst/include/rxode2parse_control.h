@@ -95,8 +95,7 @@
 #define Rxc_addlDropSs 91
 #define Rxc_ssAtDoseTime 92
 #define Rxc_ss2cancelAllPending 93
-#define Rxc_envir 94
-#define Rxc__zeros 95
+#define Rxc__zeros 94
 #define RxMv_params 0
 #define RxMv_lhs 1
 #define RxMv_state 2

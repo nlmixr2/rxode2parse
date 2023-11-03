@@ -2,6 +2,7 @@
 .udfEnv$fun <- list()
 .udfEnv$udf <- integer(0)
 .udfEnv$envir <- new.env(parent=emptyenv())
+.udfEnv$envList <- list()
 .udfEnv$lockedEnvir <- FALSE
 .udfEnv$rxSEeqUsr <- NULL
 .udfEnv$rxCcode <- NULL
@@ -182,7 +183,7 @@ rxRmFunParse <- function(name) {
   }
   invisible(.udfEnv$lockedEnvir)
 }
-#' Lock the UDF function if the object exits inside of it
+#' Lock the UDF function if the object exists inside of it
 #'
 #' @param obj object to check to see if it exists
 #' @param envir When non-nil, look for object in environment and
@@ -248,14 +249,30 @@ rxRmFunParse <- function(name) {
 #' @noRd
 #' @author Matthew L. Fidler
 .getUdfInfo <- function(fun) {
-  .fun <- try(get(fun, mode="function", envir=.udfEnv$envir), silent=TRUE)
-  if (inherits(.fun, "try-error")) {
-    .msg <- try(attr(.fun, "condition")$message, silent=TRUE)
-    if (inherits(.msg, "try-error") ||
-          grepl("mode 'function'", .msg, fixed=TRUE)){
-      .msg <- sprintf("function '%s' is not supported; user function not found",
-                      fun)
+  .found <- FALSE
+  if (!exists(fun, mode="function", envir=.udfEnv$envir)) {
+    # search prior environments with UDFs, assign the first one in the environments that match
+    if (length(.udfEnv$fun) == 1L) {
+      if (length(.udfEnv$envList) > 0L) {
+        if (any(vapply(rev(seq_along(.udfEnv$envList)), function(i) {
+          .e <- exists(fun, mode="function", envir=.udfEnv$envList[[i]])
+          if (.e) {
+            .udfEnv$envir <- .udfEnv$envList[[i]]
+          }
+          .e
+        }, logical(1), USE.NAMES = FALSE))) {
+          .found <- TRUE
+          .fun <- get(fun, mode="function", envir=.udfEnv$envir)
+        }
+      }
     }
+  } else {
+    .fun <- get(fun, mode="function", envir=.udfEnv$envir)
+    .found <- TRUE
+  }
+  if (!.found) {
+    .msg <- sprintf("function '%s' is not supported; user function not found",
+                    fun)
     return(list(nargs=NA_integer_, .msg))
   }
   .formals <- formals(.fun)
@@ -334,7 +351,32 @@ rxRmFunParse <- function(name) {
 #' @author Matthew L. Fidler
 #' @noRd
 .udfInfo <- function() {
-  .udfEnv$udf
+  if (length(.udfEnv$udf) == 0) return(integer(0))
+  .addr <- data.table::address(.udfEnv$envir)
+  .udfEnv$envList[[.addr]] <- .udfEnv$envir
+  c(.udfEnv$udf, setNames(NA_integer_, .addr))
+}
+
+#' Use the udf model variable information to get the environment where
+#' the functions exists
+#'
+#' @param udf modelVars$udf, integer vector with NA_integer_ for the
+#'   address of the environment where the functions exist
+#' @return nothing called for side effects
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.udfEnvSetUdf <- function(udf) {
+  if (length(udf) == 0L) return(invisible())
+  .w <- which(is.na(udf))
+  .addr <- names(udf)[.w]
+  .env <- udfEnv$envList[[.addr]]
+  if (is.environment(.env)) {
+    .udfEnv$envir <- .env
+  } else {
+    stop("environment were user functions were defined is no longer present")
+  }
+  invisible()
 }
 #' Get the function name with the current arguments as a string
 #'
@@ -363,12 +405,7 @@ rxRmFunParse <- function(name) {
 #' @author Matthew L. Fidler
 .udfCall <- function(fun, args) {
   .info <- .udfEnv$fun[[fun]]
-  .fun <- .info[[1]]
-  .envir <- .info[[2]]
-  .env <- new.env(parent=.envir)
-  .env$.fun <- .fun
-  .env$.args <- args
-  .ret <- try(with(.env, do.call(.fun, .args)), silent=TRUE)
+  .ret <- try(do.call(.info[[1]], .args, envir=info[[2]]), silent=TRUE)
   if (inherits(.ret, "try-error")) {
     .msg <- try(attr(.ret, "condition")$message, silent=TRUE)
     if (inherits(.msg, "try-error")) .msg <- "Unknown Error"
@@ -421,9 +458,9 @@ rxRmFunParse <- function(name) {
     ## unlocked, look for object in parent frame until global or empty environment
     .env <- new.env(parent=emptyenv())
     .env$ret <- FALSE
-    lapply(envirList, function(env) {
+    lapply(c(envirList, .udfEnv$envList), function(env) {
       if (!.env$ret) {
-        if (rxode2parse::.udfEnvLockIfExists(object, env)) {
+        if (.udfEnvLockIfExists(object, env)) {
           .env$ret <- TRUE
         }
       }
