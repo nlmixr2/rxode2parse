@@ -331,7 +331,6 @@ rxRmFunParse <- function(name) {
 #' @noRd
 #' @author Matthew L. Fidler
 .setupUdf <- function(iv) {
-  if (length(iv) == 0L) return(invisible())
   .w <- which(is.na(iv))
   iv <- iv[-.w]
   .n <- names(iv)
