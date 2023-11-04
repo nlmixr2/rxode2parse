@@ -3,7 +3,7 @@
 \name{.udfEnvSetUdf}
 \alias{.udfEnvSetUdf}
 \title{Use the udf model variable information to get the environment where
-the functions exits}
+the functions exists}
 \usage{
 .udfEnvSetUdf(udf)
 }
@@ -16,7 +16,7 @@ nothing called for side effects
 }
 \description{
 Use the udf model variable information to get the environment where
-the functions exits
+the functions exists
 }
 \author{
 Matthew L. Fidler

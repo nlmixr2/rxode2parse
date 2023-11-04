@@ -1,9 +1,9 @@
 .udfEnv <- new.env(parent=emptyenv())
 .udfEnv$fun <- list()
 .udfEnv$udf <- integer(0)
-.udfEnv$envir <- new.env(parent=emptyenv())
+.udfEnv$envir <- NULL
 .udfEnv$envList <- list()
-.udfEnv$lockedEnvir <- FALSE
+.udfEnv$searchList <- list()
 .udfEnv$rxSEeqUsr <- NULL
 .udfEnv$rxCcode <- NULL
 .udfEnv$symengineFs <- new.env(parent = emptyenv())
@@ -13,7 +13,6 @@
 .udfEnv$bestFunHasDots <- FALSE
 .udfEnv$bestNargs <- NA_integer_
 .udfEnv$bestEqArgs <- FALSE
-
 #' Get the udf strings for creating model md5
 #'
 #' @return string vector
@@ -36,7 +35,6 @@
   }
   .ret
 }
-
 #' Generate extraC information for rxode2 models
 #'
 #' @param extraC Additional extraC from rxode2 compile optioioins
@@ -140,7 +138,7 @@ rxRmFunParse <- function(name) {
   if (length(.w) == 1L) {
     .udfEnv$rxCcode <- .udfEnv$rxCcode[-.w]
   }
-  .rxD <- rxode2parse::rxode2parseD()
+  .rxD <- rxode2parseD()
   if (exists(name, envir = .rxD)) {
     if (!grepl("^rx_", name)) {
       .d <- get(name, envir=.rxD)
@@ -155,6 +153,27 @@ rxRmFunParse <- function(name) {
   }
   return(invisible())
 }
+
+.udfAddToSearch <- function(envir) {
+  if (is.list(envir)) {
+    lapply(seq_along(envir),
+           function(i) {
+             .udfAddToSearch(envir[[i]])
+           })
+    return(invisible())
+  }
+  if (length(.udfEnv$searchList) == 0L) {
+    .udfEnv$searchList <- list(envir)
+  }
+  if (!any(vapply(seq_along(.udfEnv$searchList),
+                  function(i) {
+                    identical(.udfEnv$searchList[[i]], envir)
+                  }, logical(1), USE.NAMES = FALSE))) {
+    .udfEnv$searchList <- c(.udfEnv$searchList, list(envir))
+  }
+  invisible()
+}
+
 #' Setup the UDF environment (for querying user defined funtions)
 #'
 #' @param env environment where user defined functions are queried. If NULL return current environment
@@ -163,97 +182,45 @@ rxRmFunParse <- function(name) {
 #' @author Matthew L. Fidler
 #' @keywords internal
 .udfEnvSet <- function(env) {
-  if (.udfEnv$lockedEnvir) return(invisible(.udfEnv$envir))
-  if (is.environment(env)) {
-    .udfEnv$envir <- env
-    return(invisible(.udfEnv$envir))
+  if (is.null(.udfEnv$envir)) {
+    if (is.list(env)) {
+      .udfEnv$envir <- env[[1]]
+    } else {
+      .udfEnv$envir <- env
+
+    }
   }
+  .udfAddToSearch(env)
   return(invisible(.udfEnv$envir))
 }
 #' Lock/Unlock environment for getting R user functions
 #'
-#'
 #' @param lock logical to see if environment to look for user defined
 #'   functions is locked.  If it is locked then environments are not
-#'   assigned.  When NULL returns lock status.
+#'   assigned.  When NULL returns lock status
+#'
 #' @return lock status
 #' @export
 #' @author Matthew L. Fidler
 #' @keywords internal
-.udfEnvLock <- function(lock=TRUE) {
-  if (is.null(lock)) return(invisible(.udfEnv$lockedEnvir))
-  .udfEnv$lockedEnvir <- lock
-  if (!lock) {
-    .udfEnv$fun <- list()
-  }
-  invisible(.udfEnv$lockedEnvir)
+.udfEnvReset <- function(lock=TRUE) {
+  .udfEnv$fun <- list()
+  .udfEnv$searchList <- list()
 }
-#' Lock the UDF function if the object exists inside of it
+#' See if the UI function exists in given environment.
 #'
-#' @param obj object to check to see if it exists
-#' @param envir When non-nil, look for object in environment and
-#'   parent environments
-#' @return logical saying if the environment was locked
+#' If other functions have been declared, make sure they exist too.
+#'
+#' @param fun Function to check
+#' @param nargs Number of args to check
+#' @param envir Environment to check
+#' @param doList A boolean to see if the functions in .udfEnv$fun
+#'   should be checked too.  By default TRUE, but this is called
+#'   recursively for each function (and set to FALSE)
+#' @return logical declaring if the udf function exists in this environment
 #' @export
 #' @author Matthew L. Fidler
 #' @keywords internal
-.udfEnvLockIfExists <- function(obj, envir=NULL) {
-  if (.udfEnv$lockedEnvir) return(invisible(FALSE))
-  if (is.null(envir)) {
-    if (any(vapply(ls(.udfEnv$envir, all.names=TRUE),
-                   function(v) {
-                     .v <- try(get(v, envir=.udfEnv$envir), silent=TRUE)
-                     if (inherits(.v, "try-error")) return(FALSE)
-                     identical(obj, .v)
-                   }, logical(1), USE.NAMES = FALSE))) {
-      .udfEnvLock(lock=TRUE)
-      return(invisible(TRUE))
-    }
-    return(invisible(FALSE))
-  } else if (is.environment(envir)) {
-    .env <- envir
-    while(TRUE) {
-      if (any(vapply(ls(.env, all.names=TRUE),
-                     function(v) {
-                       .v <- try(get(v, envir=.env), silent=TRUE)
-                       if (inherits(.v, "try-error")) return(FALSE)
-                       identical(obj, .v)
-                     }, logical(1), USE.NAMES = FALSE))) {
-        .udfEnvSet(.env)
-        .udfEnvLock(lock=TRUE)
-        return(invisible(TRUE))
-      }
-      .env <- parent.env(.env)
-      if (identical(.env, globalenv())) {
-        if (any(vapply(ls(.env, all.names=TRUE),
-                       function(v) {
-                         .v <- try(get(v, envir=.env), silent=TRUE)
-                         if (inherits(.v, "try-error")) return(FALSE)
-                         identical(obj, .v)
-                       }, logical(1), USE.NAMES = FALSE))) {
-          .udfEnvSet(.env)
-          .udfEnvLock(lock=TRUE)
-          return(invisible(TRUE))
-        } else {
-          return(invisible(FALSE))
-        }
-      }
-      if (identical(.env, emptyenv())) break
-    }
-  }
-  invisible(FALSE)
-}
-#'
-#'
-#'
-#' @param fun
-#' @param nargs
-#' @param envir
-#' @param doList
-#' @return
-#' @export
-#' @author Matthew L. Fidler
-#' @examples
 .udfExists <- function(fun, nargs, envir, doList=TRUE) {
   .e <- exists(fun, mode="function", envir=envir)
   if (!.e) return(FALSE)
@@ -313,9 +280,9 @@ rxRmFunParse <- function(name) {
   .found <- FALSE
   if (!.udfExists(fun, nargs, .udfEnv$envir)) {
     # search prior environments with UDFs, assign the first one in the environments that match
-    if (length(.udfEnv$envList) > 0L) {
-      if (any(vapply(rev(seq_along(.udfEnv$envList)), function(i) {
-        .udfExists(fun, nargs, .udfEnv$envList[[i]])
+    if (length(.udfEnv$searchList) > 0L) {
+      if (any(vapply(seq_along(.udfEnv$searchList), function(i) {
+        .udfExists(fun, nargs, .udfEnv$searchList[[i]])
       },  logical(1), USE.NAMES = FALSE))) {
         .found <- TRUE
       }
@@ -350,7 +317,7 @@ rxRmFunParse <- function(name) {
 }
 
 #' This function is run before starting a rxode2 solve to make sure
-' the R-based user functions are setup correctly.
+#' the R-based user functions are setup correctly.
 #'
 #' This function also resets the udf-based run-time errors
 #'
@@ -370,7 +337,7 @@ rxRmFunParse <- function(name) {
   lapply(.n,
          function(n) {
            .oldArg <- iv[n]
-           .new <- .getUdfInfo(n)
+           .new <- .getUdfInfo(n, .oldArg)
            if (any(names(.udfEnv$rxSEeqUsr) == n)) {
              .c <- .udfEnv$rxSEeqUsr[n]
              if (.c == .new[[1]]) {
@@ -434,7 +401,8 @@ rxRmFunParse <- function(name) {
   .addr <- names(udf)[.w]
   .env <- .udfEnv$envList[[.addr]]
   if (is.environment(.env)) {
-    .udfEnv$envir <- .env
+    .udfAddToSearch(.env)
+    ## .udfEnv$envir <- .env
   } else {
     stop("environment were user functions were defined is no longer present")
   }
@@ -473,60 +441,10 @@ rxRmFunParse <- function(name) {
     # This can error since it isn't threaded
     stop(paste0(.udfCallFunArg(fun, args), .msg), call.=FALSE)
   }
-  if (length(.ret) != 1L) {
-    # This can error since it isn't threaded
-    stop(paste0(.udfCallFunArg(fun, args), "needs to return a length 1 numeric"),
-         call.=FALSE)
+  if (checkmate::testNumeric(.ret, len=1)) {
+    return(as.double(.ret))
   }
-  .ret <- try(as.double(.ret), silent=TRUE)
-  if (inherits(.ret, "try-error")) {
-    .msg <- try(attr(.ret, "condition")$message, silent=TRUE)
-    if (inherits(.msg, "try-error")) .msg <- "Unknown Error"
-    stop(paste0(.udfCallFunArg(fun, args), .msg), call.=FALSE)
-  }
+  stop(paste0(.udfCallFunArg(fun, args), "needs to return a length 1 numeric"),
+       call.=FALSE)
   .ret
-}
-
-#' Find an object and if exists lock the environment
-#'
-#' @param object is the R object to find
-#' @param envirList a list of enviroments search
-#' @return This returns if the environment has been locked
-#' @export
-#' @author Matthew L. Fidler
-#' @keywords internal
-.udfFindAndLock <- function(object, envirList=list()) {
-  if (is.null(object)) {
-    if (!rxode2parse::.udfEnvLock(NULL)) {
-      if (is.environment(envirList)) {
-        rxode2parse::.udfEnvSet(envirList)
-        rxode2parse::.udfEnvLock(TRUE)
-        return(TRUE)
-      }
-      if (is.environment(envrList[[1]])) {
-        rxode2parse::.udfEnvSet(envirList[[1]])
-        rxode2parse::.udfEnvLock(TRUE)
-        return(TRUE)
-      }
-    }
-    return(FALSE)
-  }
-  if (.udfEnvLockIfExists(object)) {
-    # If locked unlock when exiting
-    return(TRUE)
-    #on.exit(rxode2parse::.udfEnvLock(FALSE))
-  } else if (!rxode2parse::.udfEnvLock(NULL)) {
-    ## unlocked, look for object in parent frame until global or empty environment
-    .env <- new.env(parent=emptyenv())
-    .env$ret <- FALSE
-    lapply(c(envirList, .udfEnv$envList), function(env) {
-      if (!.env$ret) {
-        if (.udfEnvLockIfExists(object, env)) {
-          .env$ret <- TRUE
-        }
-      }
-    })
-    return(.env$ret)
-  }
-  FALSE
 }
