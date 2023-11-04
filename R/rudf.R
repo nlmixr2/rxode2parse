@@ -31,7 +31,9 @@
     x
   }, character(1), USE.NAMES = FALSE)
   if (.env$found) {
-    .ret <- c(.ret, data.table::address(.udfEnv$envir))
+    .ret <- c(.ret, data.table::address(.udfEnv$envir),
+              # don't cache md5 changes every run:
+              as.character(runif(1)))
   }
   .ret
 }
