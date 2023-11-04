@@ -208,7 +208,6 @@ rxRmFunParse <- function(name) {
 .udfEnvReset <- function(lock=TRUE) {
   .udfEnv$fun <- list()
   .udfEnv$searchList <- list()
-  .udfEnv$envir <- NULL
 }
 #' See if the UI function exists in given environment.
 #'
