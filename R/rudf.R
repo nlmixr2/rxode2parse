@@ -208,6 +208,7 @@ rxRmFunParse <- function(name) {
 .udfEnvReset <- function(lock=TRUE) {
   .udfEnv$fun <- list()
   .udfEnv$searchList <- list()
+  .udfEnv$envir <- NULL
 }
 #' See if the UI function exists in given environment.
 #'
@@ -383,6 +384,7 @@ rxRmFunParse <- function(name) {
 #' @noRd
 .udfInfo <- function() {
   if (length(.udfEnv$udf) == 0) return(integer(0))
+  if (!is.environment(.udfEnv$envir)) return(integer(0))
   .addr <- data.table::address(.udfEnv$envir)
   .udfEnv$envList[[.addr]] <- .udfEnv$envir
   c(.udfEnv$udf, setNames(NA_integer_, .addr))
