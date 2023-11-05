@@ -16,10 +16,22 @@
     <loc>/reference/dot-convertId.html</loc>
   </url>
   <url>
+    <loc>/reference/dot-extraC.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-extraCnow.html</loc>
+  </url>
+  <url>
     <loc>/reference/dot-getLastIdLvl.html</loc>
   </url>
   <url>
     <loc>/reference/dot-getWh.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-rxC.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-rxSEeqUsr.html</loc>
   </url>
   <url>
     <loc>/reference/dot-rxTransInfo.html</loc>
@@ -28,7 +40,28 @@
     <loc>/reference/dot-rxode2parseFunPtrs.html</loc>
   </url>
   <url>
+    <loc>/reference/dot-symengineFs.html</loc>
+  </url>
+  <url>
     <loc>/reference/dot-toClassicEvid.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-udfCallFunArg.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-udfEnvReset.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-udfEnvSet.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-udfEnvSetUdf.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-udfExists.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-udfMd5Info.html</loc>
   </url>
   <url>
     <loc>/reference/etTransParse.html</loc>
@@ -44,6 +77,9 @@
   </url>
   <url>
     <loc>/reference/rxDerived.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rxFunParse.html</loc>
   </url>
   <url>
     <loc>/reference/rxParseSetSilentErr.html</loc>
