@@ -2,7 +2,7 @@
 
 #' Internal translation to get model variables list
 #'
-#' 
+#'
 #' @param model Model (either file name or string)
 #' @param linear boolean indicating if linear compartment model should
 #'   be generated from `linCmt()` (default FALSE)
@@ -11,6 +11,8 @@
 #'   with `linCmt()` parsing
 #' @param code is a file name where the c code is written to (for
 #'   testing purposes mostly, it needs `rxode2` to do anything fancy)
+#' @param envir is the environment to look for R user functions
+#'   (defaults to parent environment)
 #' @return A rxModelVars object that has the model variables of a
 #'   rxode2 syntax expression
 #' @export
@@ -26,8 +28,9 @@
 #' @examples
 #' rxode2parse("a=3")
 rxode2parse <- function(model, linear=FALSE, linCmtSens = c("linCmtA", "linCmtB", "linCmtC"), verbose=FALSE,
-                        code=NULL) {
+                        code=NULL, envir=parent.frame()) {
   rxParseSuppressMsg()
+  .udfEnvSet(envir)
   checkmate::assertCharacter(model, len=1, any.missing=FALSE)
   if (file.exists(model)) {
     .isStr <- 0L
@@ -106,11 +109,11 @@ rxode2parseFuns <- function() {
 #'   argMin and argMax
 #' @return Nothing called for side effects
 #' @author Matthew L. Fidler
-#' @export 
+#' @export
 #' @examples
-#' 
+#'
 #' rxode2parseAssignTranslation(rxode2parseGetTranslation())
-#' 
+#'
 rxode2parseAssignTranslation <- function(df) {
   .char <- c("rxFun", "fun", "type", "package", "packageFun")
   .int <- c("argMin", "argMax", "threadSafe")
@@ -126,10 +129,10 @@ rxode2parseAssignTranslation <- function(df) {
 }
 
 #' This function gets the currently assigned translations
-#' 
+#'
 #' @return The currently assigned translations
 #' @author Matthew L. Fidler
-#' @export 
+#' @export
 #' @examples
 #' rxode2parseGetTranslation()
 rxode2parseGetTranslation <- function() {
@@ -148,7 +151,7 @@ rxode2parseGetTranslationBuiltin <- function() {
 rxode2parseGetPackagesToLoad <- function() {
   .parseEnv$.packagesToLoad
 }
-  
+
 #' Control the packages that are loaded when a `rxode2` model dll is loaded
 #'
 #' @param pkgs The packages to make sure are loaded every time you load an rxode2 model.
@@ -169,10 +172,10 @@ rxode2parseAssignPackagesToLoad <- function(pkgs=rxode2parseGetPackagesToLoad())
 .parseEnv$.rxode2parsePointerAssignment <- "rxode2parse"
 
 #' This function gets the currently assigned function pointer assignments
-#' 
+#'
 #' @return The currently assigned pointer assignments
 #' @author Matthew L. Fidler
-#' @export 
+#' @export
 #' @examples
 #' rxode2parseGetTranslation()
 rxode2parseGetPointerAssignment <- function() {
@@ -183,11 +186,11 @@ rxode2parseGetPointerAssignment <- function() {
 #' This sets function gets the currently assigned function pointer assignments
 #'
 #' @param var List of packages where pointer assignment will be called.
-#' 
+#'
 #' @return Nothing, called for side effects
 #' @author Matthew L. Fidler
 #' @keywords internal
-#' @export 
+#' @export
 #' @examples
 #' rxode2parseAssignPointerTranslation("rxode2parse")
 rxode2parseAssignPointerTranslation <- function(var) {
@@ -200,9 +203,9 @@ rxode2parseAssignPointerTranslation <- function(var) {
 #'
 #' @return md5 hash of language revision
 #' @author Matthew L. Fidler
-#' @export 
+#' @export
 #' @examples
 #' rxode2parseMd5()
 rxode2parseMd5 <- function() {
-  rxode2parse.md5  
+  rxode2parse.md5
 }

@@ -9,7 +9,8 @@ rxode2parse(
   linear = FALSE,
   linCmtSens = c("linCmtA", "linCmtB", "linCmtC"),
   verbose = FALSE,
-  code = NULL
+  code = NULL,
+  envir = parent.frame()
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ with \code{linCmt()} parsing}
 
 \item{code}{is a file name where the c code is written to (for
 testing purposes mostly, it needs \code{rxode2} to do anything fancy)}
+
+\item{envir}{is the environment to look for R user functions
+(defaults to parent environment)}
 }
 \value{
 A rxModelVars object that has the model variables of a

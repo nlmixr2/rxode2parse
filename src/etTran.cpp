@@ -975,7 +975,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   double camt;
   int curIdx=0;
   double cdv, climit;
-  int nobs=0, nobsCur=0, ndose=0;
+  int nobs=0, ndose=0;
 
   int ccens=0;
   bool warnCensNA=false;
@@ -2263,7 +2263,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
               added = true;
             } else if (sub1[1+j]) {
               nvTmp = as<NumericVector>(lst1[1+j]);
-              double cur1 = nvTmp[idx1];
+              //double cur1 = nvTmp[idx1];
               double cur2 = nvTmp2[idxInput[idxOutput[i]]];
               if (!ISNA(cur2) && nvTmp[idx1] != cur2){
                 sub0[baseSize+j] = true;

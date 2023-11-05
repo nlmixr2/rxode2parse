@@ -2,14 +2,15 @@
 #define STRICT_R_HEADERS
 #include "genModelVars.h"
 
+SEXP _rxode2parse_getUdf(void);
 SEXP generateModelVars(void) {
   calcExtracmt();
   calcNparamsNlhsNslhs();
   calcNextra();
 
   int pro = 0;
-  SEXP lst   = PROTECT(allocVector(VECSXP, 20));pro++;
-  SEXP names = PROTECT(allocVector(STRSXP, 20));pro++;
+  SEXP lst   = PROTECT(allocVector(VECSXP, 21));pro++;
+  SEXP names = PROTECT(allocVector(STRSXP, 21));pro++;
 
   SEXP sNeedSort = PROTECT(allocVector(INTSXP,1));pro++;
   int *iNeedSort  = INTEGER(sNeedSort);
@@ -221,6 +222,10 @@ SEXP generateModelVars(void) {
   SET_STRING_ELT(modeln,1,mkChar("indLin"));
   SET_STRING_ELT(model,1,mkChar(me_code));
 
+  SET_STRING_ELT(names, 20, mkChar("udf"));
+  SEXP udf = PROTECT(_rxode2parse_getUdf());pro++;
+  SET_VECTOR_ELT(lst,   20, udf);
+
   setAttrib(tran,  R_NamesSymbol, trann);
   setAttrib(lst,   R_NamesSymbol, names);
   setAttrib(model, R_NamesSymbol, modeln);
@@ -231,4 +236,3 @@ SEXP generateModelVars(void) {
   UNPROTECT(pro);
   return lst;
 }
-
