@@ -122,6 +122,20 @@ rxFunParse <- function(name, args, cCode) {
   .udfEnv$symengineFs
 }
 
+#' Return the C code of an internal function
+#'
+#' @param fun is the string of a function that you wish to get the C
+#'   code for
+#' @return C code if found (as a string) or NULL if not found
+#' @export
+#' @author Matthew Fider
+#' @keywords internal
+.rxC <- function(fun) {
+  .w <- which(names(.udfEnv$rxCcode) == fun)
+  if (length(.w) == 1) return(setNames(.udfEnv$rxCcode[fun], NULL))
+  NULL
+}
+
 #' @rdname rxFunParse
 #' @export
 rxRmFunParse <- function(name) {
@@ -224,6 +238,7 @@ rxRmFunParse <- function(name) {
 #' @author Matthew L. Fidler
 #' @keywords internal
 .udfExists <- function(fun, nargs, envir, doList=TRUE) {
+  if (is.null(envir)) return(FALSE)
   .e <- exists(fun, mode="function", envir=envir)
   if (!.e) return(FALSE)
   # ok now see if it makes sense
@@ -276,6 +291,10 @@ rxRmFunParse <- function(name) {
 #' @noRd
 #' @author Matthew L. Fidler
 .getUdfInfo <- function(fun, nargs) {
+  if (is.null(.udfEnv$envir)) {
+    return(list(nargs=NA_integer_,
+                "rxode2 cannot determine which environment the user defined functions are located"))
+  }
   .udfEnv$bestFun <- NULL
   .udfEnv$bestFunHasDots <- FALSE
   .udfEnv$bestEqArgs <- TRUE
@@ -330,6 +349,7 @@ rxRmFunParse <- function(name) {
 #' @noRd
 #' @author Matthew L. Fidler
 .setupUdf <- function(iv) {
+  if (!is.environment(.udfEnv$envir)) return(FALSE)
   .w <- which(is.na(iv))
   iv <- iv[-.w]
   .n <- names(iv)
