@@ -13,7 +13,8 @@ solveEqual <- function(id) {
   d <- d[d$id == id,]
   s1 <- linCmt(d, cl=1.1, v=20/1000, ka=1.5) |>
     dplyr::filter(EVID == 0)
-  print(ggplot(data=s1, aes(TIME, Cc)) + geom_line())
+  print(ggplot(data=s1, aes(TIME, Cc)) + geom_line(col="red") +
+          theme_bw() + geom_line(data=tmp, aes(time, cp), col="blue") )
 }
 
 
