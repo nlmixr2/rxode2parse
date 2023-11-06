@@ -131,10 +131,11 @@ SEXP _rxode2parse_funPtrs(void) {
   UNPROTECT(pro);
   return(ret);
 }
-
 SEXP _rxode2parse_solComp3(SEXP sK10, SEXP sK12, SEXP sK21, SEXP sK13, SEXP sK31);
 SEXP _rxode2parse_solComp2(SEXP sK10, SEXP sK12, SEXP sK21);
 SEXP _rxode2parse_compC(SEXP in, SEXP mv);
+double _rxode2parse_evalUdf(const char *fun, int n, const double *args);
+
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
     {"_rxode2parse_compC", (DL_FUNC) &_rxode2parse_compC, 2},
@@ -168,6 +169,7 @@ void R_init_rxode2parse(DllInfo *info){
     {NULL, NULL, 0}
   };
   // C callable to assign environments.
+  R_RegisterCCallable("rxode2parse", "_rxode2parse_evalUdf", (DL_FUNC) &_rxode2parse_evalUdf);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_calcDerived", (DL_FUNC) &_rxode2parse_calcDerived);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_parseFree", (DL_FUNC) &_rxode2parse_parseFree);
   R_RegisterCCallable("rxode2parse", "_rxode2parse_trans", (DL_FUNC) &_rxode2parse_trans);

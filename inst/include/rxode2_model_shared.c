@@ -2,6 +2,7 @@ _getRxSolve_t _getRxSolve_;
 _simfun simeps;
 _simfun simeta;
 
+_udf_type _evalUdf = NULL;
 rx_solve *_solveData = NULL;
 rxode2_assign_ptr _assign_ptr = NULL;
 _rxRmModelLibType _rxRmModelLib = NULL;
@@ -135,6 +136,16 @@ double _prod(double *input, double *p, int type, int n, ...){
   return _prodPS(input, p, n, type);
 }
 
+double _udf(const char *funName, double *input, int n, ...) {
+  va_list valist;
+  va_start(valist, n);
+  for (unsigned int i = 0; i < n; i++){
+    input[i] = va_arg(valist, double);
+  }
+  va_end(valist);
+  return _evalUdf(funName, n, input);
+}
+
 double _sum(double *input, double *pld, int m, int type, int n, ...){
   va_list valist;
   va_start(valist, n);
@@ -247,6 +258,7 @@ double _transit3P(int cmt, double t, unsigned int id, double n, double mtt){
 }
 
 void _assignFuns0(void) {
+  _evalUdf = (_udf_type) R_GetCCallable("rxode2parse", "_rxode2parse_evalUdf");
   _getRxSolve_ = (_getRxSolve_t) R_GetCCallable("rxode2","getRxSolve_");
   _assign_ptr=(rxode2_assign_ptr) R_GetCCallable("rxode2","rxode2_assign_fn_pointers");
   _rxRmModelLib=(_rxRmModelLibType) R_GetCCallable("rxode2","rxRmModelLib");

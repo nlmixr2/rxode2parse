@@ -240,6 +240,7 @@ typedef SEXP (*_rxGetModelLibType)(const char *s);
 typedef  SEXP (*_rx_asgn) (SEXP objectSEXP);
 typedef int(*_rxIsCurrentC_type)(SEXP);
 typedef double(*_rxSumType)(double *, int, double *, int, int);
+typedef double(*_udf_type)(const char *fun, int, double *);
 
 typedef void(*_simfun)(int id);
 

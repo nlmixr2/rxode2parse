@@ -101,7 +101,13 @@ def <- def[1:w]
 def <- gsub("=NULL", "", def)
 def <- gsub("[^ ]* *[*]?([^;]*);", "\\1", def)
 
-def <- unique(c(def, c("_sum", "_sign", "_prod", "_max", "_min", "_transit4P", "_transit3P", "_assignFuns0", "_assignFuns", "_getRxSolve_", "_solveData", "_rxord", "__assignFuns2")))
+def <- unique(c(def, c("_sum", "_udf", "_sign", "_prod", "_max", "_min", "_transit4P", "_transit3P", "_assignFuns0", "_assignFuns", "_getRxSolve_", "_solveData", "_rxord", "__assignFuns2")))
+
+w0 <- which(grepl("double +_prod", l))[1]
+r <- 1:(w0 - 1)
+l0 <- l[r]
+l <- l[-r]
+
 
 w1 <- which(regexpr("dynamic start", l) != -1)
 l1 <- l[1:w1]
@@ -171,6 +177,9 @@ final <- c("#include <time.h>",
            "unsigned long int __timeId=0;",
            "void writeHeader(const char *md5, const char *extra) {",
            paste0("sAppend(&sbOut, \"#define ", def, " _rx%s%s%ld\\n\", extra, md5, __timeId++);"),
+           "}",
+           "void writeBody0(void) {",
+           paste0("sAppendN(&sbOut, ", vapply(paste0(l0, "\n"), deparse2, character(1)), ", ", nchar(l0) + 1, ");"),
            "}",
            "void writeBody1(void) {",
            paste0("sAppendN(&sbOut, ", vapply(paste0(l1, "\n"), deparse2, character(1)), ", ", nchar(l1) + 1, ");"),

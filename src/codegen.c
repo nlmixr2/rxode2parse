@@ -164,6 +164,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
       // Add sync PP define
       prnt_vars(print_simeps, 1, "#define _SYNC_simeps_ for (int _svari=_solveData->neps; _svari--;){", "}\n", 15);
       prnt_vars(print_simeta, 1, "#define _SYNC_simeta_ for (int _ovari=_solveData->neta; _ovari--;){", "}\n", 16);
+      writeBody0();
       sAppendN(&sbOut,"#include \"extraC.h\"\n", 20);
       writeBody1();
       for (int i = Rf_length(_rxode2parse_functionName); i--;) {
@@ -310,6 +311,9 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         sAppend(&sbOut,  "  double _pld[%d];\n", mx);
         sAppend(&sbOut,  "  for (int ddd=%d; ddd--;){_p[ddd]=_input[ddd]=_pld[ddd]=0.0;}", mx);
 
+      }
+      if (maxUdf > 0) {
+        sAppend(&sbOut,  "  double __udf[%d];\n", maxUdf);
       }
       else prnt_vars(print_void, 0, "  (void)t;\n", "\n",show_ode);     /* declare all used vars */
       if (maxSumProdN){

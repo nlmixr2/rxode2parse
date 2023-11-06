@@ -71,7 +71,7 @@ etTransEvidIsObs <- function(isObsSexp) {
 #' @param ssAtDoseTime Boolean that when `TRUE` back calculates the
 #'   steady concentration at the actual time of dose, otherwise when
 #'   `FALSE` the doses are shifted
-#' 
+#'
 #' @return Object for solving in rxode2
 #'
 #' @keywords internal
