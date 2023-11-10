@@ -112,7 +112,7 @@ void solveWith1Pt_lin(double *yp,
   }
 }
 
-SEXP _rxode2parse_solve1ptLin(SEXP in, SEXP tS, SEXP kaS, SEXP k10S,
+SEXP _rxode2parse_solve1ptLin(SEXP inp, SEXP tS, SEXP kaS, SEXP k10S,
                               SEXP k12S, SEXP k21S,
                               SEXP k13S, SEXP k31S,
                               SEXP vS, SEXP rateS) {
@@ -124,7 +124,7 @@ SEXP _rxode2parse_solve1ptLin(SEXP in, SEXP tS, SEXP kaS, SEXP k10S,
     rx->linKa = 1;
   } else {
     lin.oral0 = 0;
-    rx->linKa = 1;
+    rx->linKa = 0;
   }
   lin.k10 = REAL(k10S)[0];
   lin.k12 = REAL(k12S)[0];
@@ -134,7 +134,7 @@ SEXP _rxode2parse_solve1ptLin(SEXP in, SEXP tS, SEXP kaS, SEXP k10S,
   lin.v = REAL(vS)[0];
   lin.rate= REAL(rateS);
   rx_solving_options *op = rx->op;
-  rx->linNcmt = Rf_length(in) - lin.oral0;
+  rx->linNcmt = Rf_length(inp) - lin.oral0;
 
   rx_solving_options_ind indR;
   indR.n_all_times = 1;
@@ -142,13 +142,12 @@ SEXP _rxode2parse_solve1ptLin(SEXP in, SEXP tS, SEXP kaS, SEXP k10S,
   solve[0] = 0.0;
   indR.solve = solve;
   indR.linCmt = 0;//rx->linNcmt; // linNcmt
-  SEXP ret = PROTECT(Rf_allocVector(REALSXP, Rf_length(in)));
-  double* id = REAL(in);
+  SEXP ret = PROTECT(Rf_allocVector(REALSXP, Rf_length(inp)));
+  double* inpd = REAL(inp);
   double *yp = REAL(ret);
-  for (int i = Rf_length(in);i--;) {
-    yp[i] = id[i];
+  for (int i = Rf_length(inp);i--;) {
+    yp[i] = inpd[i];
   }
-  Rf_PrintValue(ret);
   int i =  0;
   solveWith1Pt_lin(yp,
                    REAL(tS)[0], 0.0,

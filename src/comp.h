@@ -117,6 +117,7 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
                 double *k21,
                 double *k13,
                 double *k31) {
+  printVec(yp, 3);
   double L[3], C1[9], C2[9], C3[9], E[3], Ea[3], Xo[3], Rm[3];
   rx_solve *rx=(&rx_global);
   int hasDepot = rx->linKa;
@@ -130,16 +131,12 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
   const double one = 1.0, zero = 0.0;
   const int ione = 1, itwo = 2, ithree=3;
   //Xo = Xo + pX[1 + j] * Co[, , j] %*% E # Bolus
-  printSqMat(C1, 3);
-  printVec(L, 3);
-  printVec(E, 3);
-  REprintf("dT: %f\n", dT);
-  F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+1]), C1, &ithree,
-                  E, &ithree, &zero, Xo, &ithree FCONE FCONE);
-  REprintf("yp[hasDepot+1]: %f\n", yp[hasDepot+1]);
-  F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+2]), C2, &ithree,
+  Xo[0]=Xo[1]=Xo[2]=0.0;
+  F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot]), C1, &ithree,
                   E, &ithree, &one, Xo, &ithree FCONE FCONE);
-  F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+3]), C3, &ithree,
+  F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+1]), C2, &ithree,
+                  E, &ithree, &one, Xo, &ithree FCONE FCONE);
+  F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+2]), C3, &ithree,
                   E, &ithree, &one, Xo, &ithree FCONE FCONE);
   if (!isSameTime(*rate, 0.0)) {
     // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
