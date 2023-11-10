@@ -137,12 +137,12 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
                   E, &ithree, &one, Xo, &ithree FCONE FCONE);
   F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+2]), C3, &ithree,
                   E, &ithree, &one, Xo, &ithree FCONE FCONE);
-  if (!isSameTime(*rate, 0.0)) {
+  if (!isSameTime(rate[hasDepot], 0.0)) {
     // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
     Rm[0] = (1.0 - E[0])/L[0];
     Rm[1] = (1.0 - E[1])/L[1];
     Rm[2] = (1.0 - E[2])/L[2];
-    F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, rate, C1, &ithree,
+    F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(rate[hasDepot]), C1, &ithree,
                     Rm, &ithree, &one, Xo, &ithree FCONE FCONE);
   }
   if (hasDepot == 1 && yp[0] > 0.0) {
