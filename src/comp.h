@@ -79,13 +79,17 @@ static inline int comp1solve2(double *yp, // prior solving information, will be 
   if (solComp2C(k10, k12, k21, L, C1, C2) == 0) {
     return 0;
   }
+  Xo[0] = Xo[1] = 0.0;
   E[0] = Ea[0] = exp(-L[0]*dT);
   E[1] = Ea[1] = exp(-L[1]*dT);
   const double one = 1.0, zero = 0.0;
   const int ione = 1, itwo = 2;
   //Xo = Xo + pX[1 + j] * Co[, , j] %*% E # Bolus
-  F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(yp[hasDepot+1]), C1, &itwo, E, &itwo, &zero, Xo, &itwo FCONE FCONE);
-  F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(yp[hasDepot+2]), C2, &itwo, E, &itwo, &one, Xo, &itwo FCONE FCONE);
+  F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(yp[hasDepot]), C1, &itwo, E,
+                  &itwo, &one, Xo, &itwo FCONE FCONE);
+
+  F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(yp[hasDepot+1]), C2, &itwo, E,
+                  &itwo, &one, Xo, &itwo FCONE FCONE);
   if (!isSameTime(*rate, 0.0)) {
     // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
     Rm[0] = (1.0 - E[0])/L[0];
@@ -97,8 +101,8 @@ static inline int comp1solve2(double *yp, // prior solving information, will be 
     double expa = exp(-(*ka)*dT);
     Ea[0] = (E[0]- expa)/((*ka)-L[0]);
     Ea[1] = (E[1]- expa)/((*ka)-L[1]);
-    expa = (*ka)*yp[0];
-    F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &expa, C1, &itwo, Ea, &itwo, &one, Xo, &itwo FCONE FCONE);
+    double cf = (*ka)*yp[0];
+    F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &cf, C1, &itwo, Ea, &itwo, &one, Xo, &itwo FCONE FCONE);
     yp[0] *= expa;
   }
   yp[hasDepot] = Xo[0];
