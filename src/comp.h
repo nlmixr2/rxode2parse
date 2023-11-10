@@ -10,6 +10,33 @@ typedef struct lin_context_c_t {
   double v;
 } lin_context_c_t;
 
+static inline void printSqMat(double *in, int d) {
+  // debugging function to print a square matrix in R.
+  int pro=0;
+  SEXP mat = PROTECT(Rf_allocVector(REALSXP, d*d)); pro++;
+  SEXP dm  = PROTECT(Rf_allocVector(INTSXP, 2)); pro++;
+  int *dmi = INTEGER(dm);
+  dmi[0] =dmi[1] = d;
+  double *matd = REAL(mat);
+  for (int i = d*d; i--;)  {
+    matd[i] = in[i];
+  }
+  Rf_setAttrib(mat, R_DimSymbol, dm);
+  Rf_PrintValue(mat);
+  UNPROTECT(pro);
+}
+
+static inline void printVec(double *in, int d) {
+  int pro=0;
+  SEXP vec = PROTECT(Rf_allocVector(REALSXP, d)); pro++;
+  double *vecd =REAL(vec);
+  for (int i = d; i--;) {
+    vecd[i] = in[i];
+  }
+  Rf_PrintValue(vec);
+  UNPROTECT(pro);
+}
+
 // Handle single point solve
 static inline int comp1solve1(double *yp, // prior solving information, will be updated with new information (like lsoda and the like)
                               double *xout, // time to solve to
@@ -103,12 +130,17 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
   const double one = 1.0, zero = 0.0;
   const int ione = 1, itwo = 2, ithree=3;
   //Xo = Xo + pX[1 + j] * Co[, , j] %*% E # Bolus
+  printSqMat(C1, 3);
+  printVec(L, 3);
+  printVec(E, 3);
+  REprintf("dT: %f\n", dT);
   F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+1]), C1, &ithree,
                   E, &ithree, &zero, Xo, &ithree FCONE FCONE);
+  REprintf("yp[hasDepot+1]: %f\n", yp[hasDepot+1]);
   F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+2]), C2, &ithree,
-                  E, &ithree, &one, Xo, &itwo FCONE FCONE);
+                  E, &ithree, &one, Xo, &ithree FCONE FCONE);
   F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+3]), C3, &ithree,
-                  E, &ithree, &one, Xo, &itwo FCONE FCONE);
+                  E, &ithree, &one, Xo, &ithree FCONE FCONE);
   if (!isSameTime(*rate, 0.0)) {
     // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
     Rm[0] = (1.0 - E[0])/L[0];
@@ -124,6 +156,7 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
     Ea[1] = (E[1]- expa)/((*ka) - L[1]);
     Ea[2] = (E[2]- expa)/((*ka) - L[2]);
     expa = (*ka)*yp[0];
+    REprintf("5\n");
     F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &expa, C1, &ithree,
                     Ea, &ithree, &one, Xo, &ithree FCONE FCONE);
     yp[0] *= expa;

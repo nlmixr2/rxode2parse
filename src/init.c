@@ -136,8 +136,12 @@ SEXP _rxode2parse_solComp2(SEXP sK10, SEXP sK12, SEXP sK21);
 SEXP _rxode2parse_compC(SEXP in, SEXP mv);
 double _rxode2parse_evalUdf(const char *fun, int n, const double *args);
 
+SEXP _rxode2parse_solve1ptLin(SEXP in, SEXP tS, SEXP kaS, SEXP k10S, SEXP k12S,
+                              SEXP k21S, SEXP k13S, SEXP k31S, SEXP vS, SEXP rateS);
+
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_solve1ptLin", (DL_FUNC) &_rxode2parse_solve1ptLin, 10},
     {"_rxode2parse_compC", (DL_FUNC) &_rxode2parse_compC, 2},
     {"_rxode2parse_solComp3",(DL_FUNC)  &_rxode2parse_solComp3, 5},
     {"_rxode2parse_solComp2",(DL_FUNC)  &_rxode2parse_solComp2, 3},

@@ -112,6 +112,63 @@ void solveWith1Pt_lin(double *yp,
   }
 }
 
+SEXP _rxode2parse_solve1ptLin(SEXP in, SEXP tS, SEXP kaS, SEXP k10S,
+                              SEXP k12S, SEXP k21S,
+                              SEXP k13S, SEXP k31S,
+                              SEXP vS, SEXP rateS) {
+  lin_context_c_t lin;
+  lin.ka = REAL(kaS)[0];
+  rx_solve* rx = &rx_global;
+  if (lin.ka > 0.0) {
+    lin.oral0 = 1;
+    rx->linKa = 1;
+  } else {
+    lin.oral0 = 0;
+    rx->linKa = 1;
+  }
+  lin.k10 = REAL(k10S)[0];
+  lin.k12 = REAL(k12S)[0];
+  lin.k21 = REAL(k21S)[0];
+  lin.k13 = REAL(k13S)[0];
+  lin.k31 = REAL(k31S)[0];
+  lin.v = REAL(vS)[0];
+  lin.rate= REAL(rateS);
+  rx_solving_options *op = rx->op;
+  rx->linNcmt = Rf_length(in) - lin.oral0;
+
+  rx_solving_options_ind indR;
+  indR.n_all_times = 1;
+  double solve[1];
+  solve[0] = 0.0;
+  indR.solve = solve;
+  indR.linCmt = 0;//rx->linNcmt; // linNcmt
+  SEXP ret = PROTECT(Rf_allocVector(REALSXP, Rf_length(in)));
+  double* id = REAL(in);
+  double *yp = REAL(ret);
+  for (int i = Rf_length(in);i--;) {
+    yp[i] = id[i];
+  }
+  Rf_PrintValue(ret);
+  int i =  0;
+  solveWith1Pt_lin(yp,
+                   REAL(tS)[0], 0.0,
+                   &i,
+                   &i, op,
+                   &indR,
+                   u_inis_lincmt,
+                   (void *)(&lin));
+  UNPROTECT(1);
+  return ret;
+}
+void solveWith1Pt_lin(double *yp,
+                      double xout, double xp,
+                      int *i,
+                      int *istate,
+                      rx_solving_options *op,
+                      rx_solving_options_ind *ind,
+                      t_update_inis u_inis,
+                      void *ctx);
+
 void handleSSbolus_lin(double *yp,
                        double *xout, double xp,
                        int *i,
@@ -296,7 +353,6 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   void *ctx = &(lin);
   if (ind->idx == 0) {
     // initializationu
-
     xp = xout = getTime_(ind->ix[ind->idx], ind);
     yp = ypLast = Alast0;
   } else {
@@ -360,7 +416,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
       //dadt_counter = 0;
     }
   }
-  if (!op->badSolve){
+  if (!op->badSolve) {
     ind->idx = i;
     if (getEvid(ind, ind->ix[i]) == 3){
       ind->curShift -= rx->maxShift;
@@ -383,6 +439,18 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
       }
       xp = xout;
     }
+    if (i+1 != ind->n_all_times) {
+      //ypLast=getAdvan(ind->idx-1);
+      double *ypNext = getAdvan(ind->idx+1);
+      REprintf("i: %d %f:\n", i, xout);
+      for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
+        REprintf("\tj: %d\t%f\t%f\n", j, ypNext[j], yp[j]);
+        ypNext[j] = yp[j];
+      }
+    }
+    //if (i+1 != nx) memcpy(getSolve(i+1), getSolve(i), neq[0]*sizeof(double));
+    //calc_lhs(neq[1], xout, getSolve(i), ind->lhs);
+    //updateExtraDoseGlobals(ind);
   }
   /* REprintf("%f: yp[oral0:%d]: %f, lin.v: %f; cp: %f\n", */
   /*         xout, oral0, yp[oral0], lin.v, yp[oral0]/lin.v); */
@@ -464,9 +532,6 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   indR.limit = NULL;
   //int *cens;
   indR.cens = NULL;
-
-
-
 
   // ..$ TIME: num [1:135] 0 0 1 2 3 4 5 6 7 8 ...
   indR.all_times  = REAL(VECTOR_ELT(dat, 0));

@@ -1,4 +1,4 @@
-## devtools::load_all()
+devtools::load_all()
 
 d <- nlmixr2data::nmtest
 names(d) <- sub("lagt", "lagcentral",
@@ -13,11 +13,13 @@ solveEqual <- function(id) {
   d <- d[d$id == id,]
   s1 <- linCmt(d, cl=1.1, v=20/1000, ka=1.5) |>
     dplyr::filter(EVID == 0)
-  print(ggplot(data=s1, aes(TIME, Cc)) + geom_line(col="red") +
-          theme_bw() + geom_line(data=tmp, aes(time, cp), col="blue") )
+  print(ggplot(data=s1, aes(TIME, Cc)) +
+          geom_line(col="red") +
+          theme_bw() +
+          geom_line(data=d, aes(time, cp), col="blue") )
 }
 
-
+solveEqual(1)
 
 id <- unique(d$id)
 

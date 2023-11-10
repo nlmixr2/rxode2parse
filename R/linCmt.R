@@ -269,6 +269,7 @@ linCmt <- function(data, ...,
 #' @return List with `L` vector and matrices `C1`, `C2` and `C3`
 #' @export
 #' @author Matthew L. Fidler
+#' @keywords internal
 #' @examples
 #' .solComp3(k10=0.1, k12=3, k21=1, k13=2, k31=0.5)
 .solComp3 <- function(k10, k12, k21, k13, k31) {
@@ -282,4 +283,36 @@ linCmt <- function(data, ...,
     stop("roots must be distinct real values", call.=FALSE)
   }
   .ret
+}
+#' Solve 1 point from a compartmental model
+#'
+#' @param inp Input compartment amounts.  The first value represents
+#'   the depot compartment (if ka > 0) followed by the compartmetns
+#'   (1st, 2nd or 3rd) or the amount in the first compartment followed
+#'   by the next compartments in order (2nd, 3rd).
+#' @param t The time after this point to sove for
+#' @inheritParams .solComp3
+#' @param rate Rate that is active in the central compartment
+#' @param ka The oral absorption rate
+#' @return All compartment values solved to t after current value
+#' @export
+#' @author Matthew L. Fidler
+#' @keywords internal
+.solve1pt <- function(inp, t, k10, k12=0.0, k21=0.0, k13=0.0, k31=0.0,
+                      v=1.0, rate=0.0, ka=0.0) {
+  checkmate::assertNumeric(k10, lower=0, len=1, any.missing=FALSE)
+  checkmate::assertNumeric(k12, lower=0, len=1, any.missing=FALSE)
+  checkmate::assertNumeric(k21, lower=0, len=1, any.missing=FALSE)
+  checkmate::assertNumeric(k13, lower=0, len=1, any.missing=FALSE)
+  checkmate::assertNumeric(k31, lower=0, len=1, any.missing=FALSE)
+  checkmate::assertNumeric(v, lower=0, len=1, any.missing=FALSE)
+  checkmate::assertNumeric(inp, any.missing=FALSE, lower=0, min.len=1, max.len=4)
+  checkmate::assertNumeric(ka, any.missing=FALSE, lower=0, min.len=1)
+  if (ka > 0) {
+    checkmate::assertNumeric(rate, any.missing=FALSE, lower=0, len=2)
+  } else {
+    checkmate::assertNumeric(rate, any.missing=FALSE, lower=0, len=1)
+  }
+  .Call(`_rxode2parse_solve1ptLin`,
+        inp, t, ka, k10, k12, k21, k13, k31, v, rate)
 }
