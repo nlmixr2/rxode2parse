@@ -301,6 +301,7 @@ test_that("single point 2-cmt linCmt rate", {
 })
 
 test_that("single point 2-cmt linCmt oral bolus + iv rate", {
+
   .v <- .solComp2(k10=0.1, k12=3, k21=1)
 
   pX <- c(10, 0, 0)
@@ -343,7 +344,53 @@ test_that("single point 2-cmt linCmt oral bolus + iv rate", {
 
   Xo <- c(pX[1] * Ea, Xo)
 
-  pX2 <- .solve1pt(pX, ka=ka, t=1, k10=0.1, k12=3, k21=1, k13=2, k31=0.5, rate=c(0, rate))
+  pX2 <- .solve1pt(pX, ka=ka, t=1, k10=0.1, k12=3, k21=1, rate=c(0, rate))
 
   expect_equal(Xo, pX2)
+
+})
+
+
+test_that("1 compartment linCmt() bolus", {
+
+  k10 <- 0.1
+  pX <- 10
+  dT <- 1
+  Xo <- pX * exp(-k10 * dT)
+
+  pX2 <- .solve1pt(pX, t=1, k10=0.1, rate=0)
+
+  expect_equal(pX2, Xo)
+
+  pX <- pX2
+  Xo <- pX * exp(-k10 * dT)
+
+  pX2 <- .solve1pt(pX, t=1, k10=0.1, rate=0)
+
+  expect_equal(pX2, Xo)
+
+})
+
+test_that("1 compartment linCmt() oral bolus", {
+
+  k10 <- 0.1
+  pX <- c(10, 0)
+  dT <- 1
+  ka <- 1
+  Xo <- c(pX[1] *exp(-ka * dT),
+          pX[2] * exp(-k10 * dT) + pX[1] * ka / (ka - k10) * (exp(-k10 * dT) - exp(-ka * dT)))
+
+  pX2 <- .solve1pt(pX, t=1, ka=ka, k10=0.1, rate=c(0, 0))
+
+  expect_equal(pX2, Xo)
+
+  pX <- pX2
+
+  Xo <- c(pX[1] *exp(-ka * dT),
+          pX[2] * exp(-k10 * dT) + pX[1] * ka / (ka - k10) * (exp(-k10 * dT) - exp(-ka * dT)))
+
+  pX2 <- .solve1pt(pX, t=1, ka=ka, k10=0.1, rate=c(0, 0))
+
+  expect_equal(pX2, Xo)
+
 })
