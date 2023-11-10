@@ -117,7 +117,6 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
                 double *k21,
                 double *k13,
                 double *k31) {
-  printVec(yp, 3);
   double L[3], C1[9], C2[9], C3[9], E[3], Ea[3], Xo[3], Rm[3];
   rx_solve *rx=(&rx_global);
   int hasDepot = rx->linKa;
@@ -152,11 +151,10 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
     Ea[0] = (E[0]- expa)/((*ka) - L[0]);
     Ea[1] = (E[1]- expa)/((*ka) - L[1]);
     Ea[2] = (E[2]- expa)/((*ka) - L[2]);
-    expa = (*ka)*yp[0];
-    REprintf("5\n");
-    F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &expa, C1, &ithree,
+    double expa2 = (*ka)*yp[0];
+    F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &expa2, C1, &ithree,
                     Ea, &ithree, &one, Xo, &ithree FCONE FCONE);
-    yp[0] *= expa;
+    yp[0] = expa*yp[0];
   }
   yp[hasDepot]   = Xo[0];
   yp[hasDepot+1] = Xo[1];
