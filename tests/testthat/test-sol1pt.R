@@ -415,3 +415,31 @@ test_that("1 compartment linCmt() infusion", {
   expect_equal(pX2, Xo)
 
 })
+
+
+test_that("1 compartment linCmt() oral bolus central infusion", {
+
+  k10 <- 0.1
+  pX <- c(10, 0)
+  dT <- 1
+  ka <- 1
+  rate <- 1
+  Xo <- c(pX[1] *exp(-ka * dT),
+          pX[2] * exp(-k10 * dT) + pX[1] * ka / (ka - k10) * (exp(-k10 * dT) - exp(-ka * dT)) +
+            rate / k10 * (1.0 - exp(-k10 * dT)))
+
+  pX2 <- .solve1pt(pX, t=1, ka=1, k10=0.1, rate=c(0, rate))
+
+  expect_equal(pX2, Xo)
+
+  pX <- pX2
+
+  Xo <- c(pX[1] *exp(-ka * dT),
+          pX[2] * exp(-k10 * dT) + pX[1] * ka / (ka - k10) * (exp(-k10 * dT) - exp(-ka * dT)) +
+            rate / k10 * (1.0 - exp(-k10 * dT)))
+
+  pX2 <- .solve1pt(pX, t=1, ka=1, k10=0.1, rate=c(0, rate))
+
+  expect_equal(pX2, Xo)
+
+})

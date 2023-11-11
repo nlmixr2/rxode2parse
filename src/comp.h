@@ -53,10 +53,11 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
     Ea = exp(-(*ka)*dt);
   }
   double pDepot = yp[0];
+  double R = rate[hasDepot];
   if (isSameTime((*ka), (*kel))) {
-    yp[hasDepot] = yp[hasDepot]*E + (*rate)*(1.0-E)/(*kel) + pDepot*(*kel)*dt*E;
+    yp[hasDepot] = yp[hasDepot]*E + R*(1.0-E)/(*kel) + pDepot*(*kel)*dt*E;
   } else {
-    yp[hasDepot] = E*yp[hasDepot] + (*rate)*(1.0-E)/(*kel) + pDepot*(*ka)*(E-Ea)/((*ka)-(*kel));
+    yp[hasDepot] = E*yp[hasDepot] + R*(1.0-E)/(*kel) + pDepot*(*ka)*(E-Ea)/((*ka)-(*kel));
   }
   if (hasDepot) {
     yp[0] *= Ea;
