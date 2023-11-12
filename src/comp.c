@@ -159,6 +159,7 @@ SEXP _rxode2parse_solve1ptLin(SEXP inp, SEXP tS, SEXP kaS, SEXP k10S,
   UNPROTECT(1);
   return ret;
 }
+
 void solveWith1Pt_lin(double *yp,
                       double xout, double xp,
                       int *i,
@@ -351,7 +352,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   }
   void *ctx = &(lin);
   if (ind->idx == 0) {
-    // initializationu
+    // initialization
     xp = xout = getTime_(ind->ix[ind->idx], ind);
     yp = ypLast = Alast0;
   } else {

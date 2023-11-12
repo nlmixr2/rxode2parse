@@ -131,6 +131,8 @@ test_that("single point 3-cmt linCmt rate", {
 
 test_that("single point 3-cmt linCmt rate+ka", {
 
+  .v <- .solComp3(k10=0.1, k12=3, k21=1, k13=2, k31=0.5)
+
   pX <- c(10, 0, 0, 0)
   Xo <- rep(0, 3)
   dT <- 1
@@ -308,6 +310,7 @@ test_that("single point 2-cmt linCmt oral bolus + iv rate", {
   Xo <- rep(0, 2)
   dT <- 1
   ka <- 1.0
+  rate <- 1.0
   E <- exp(-.v$L*dT) # Exponentials
 
   Xo <- Xo + pX[2] * .v$C1 %*% E
