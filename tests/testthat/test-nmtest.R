@@ -1,4 +1,4 @@
-devtools::load_all()
+## devtools::load_all()
 
 d <- nlmixr2data::nmtest
 names(d) <- sub("lagt", "lagcentral",
@@ -11,30 +11,33 @@ library(ggplot2)
 
 solveEqual <- function(id) {
   d <- d[d$id == id,]
-  s1 <- linCmt(d, cl=1.1, v=20/1000, ka=1.5) |>
-    dplyr::filter(EVID == 0)
+  s1 <- linCmt(d, cl=1.1, v=20, ka=1.5, sm=1000) |>
+    dplyr::filter(EVID == 0) |>
+    dplyr::mutate(Cc=Cc)
   print(ggplot(data=s1, aes(TIME, Cc)) +
-          geom_line(col="red") +
+          geom_line(col="red", size=1.2) +
           theme_bw() +
-          geom_line(data=d, aes(time, cp), col="blue") )
+          geom_line(data=d, aes(time, cp), col="blue", lty=2, size=1.2))
 }
 
-solveEqual(1)
+## solveEqual(1)
 
-id <- unique(d$id)
+## solveEqual(2)
 
-p <- FALSE
-lapply(id, function(i) {
-  meths <- c("liblsoda", "lsoda", "dop853")
-  modDat <- c("none", "rate", "dur")
-  for (meth in meths) {
-    for (modifyData in modDat) {
-      for (addlDropSs in c(TRUE, FALSE)) {
-        solveEqual(i, meth=meth, modifyData=modifyData, addlDropSs=addlDropSs)
-      }
-    }
-  }
-})
+## id <- unique(d$id)
+
+## p <- FALSE
+## lapply(id, function(i) {
+##   meths <- c("liblsoda", "lsoda", "dop853")
+##   modDat <- c("none", "rate", "dur")
+##   for (meth in meths) {
+##     for (modifyData in modDat) {
+##       for (addlDropSs in c(TRUE, FALSE)) {
+##         solveEqual(i, meth=meth, modifyData=modifyData, addlDropSs=addlDropSs)
+##       }
+##     }
+##   }
+## })
 
 ## invisible(lapply(unique(d$id), function(i){message(i);solveEqual(i);Sys.sleep(1)}))
 

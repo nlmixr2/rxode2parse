@@ -64,6 +64,14 @@
 #'   linear compartment models to the output, otherwise it only shows
 #'   the concentration in the central compartment
 #'
+#' @param sc scaling parameter of the central compartment like
+#'   NONMEM's scaling parameter. The concentration is divided by this
+#'   parameter value.
+#'
+#' @param sm multiplicative scaling parameter.  Unlike the NONMEM
+#'   scaling parameter, the concentration is multiplied by this
+#'   parameter.
+#'
 #' @inheritParams etTransParse
 #'
 #' @return A dataframe containing the linear compartment solution of
@@ -90,7 +98,8 @@ linCmt <- function(data, ...,
                    addlKeepsCov=FALSE, addlDropSs=TRUE, ssAtDoseTime=TRUE, scale=1,
                    gradient=FALSE,
                    keep=NULL,
-                   covsInterpolation = c("locf", "linear", "nocb", "midpoint")) {
+                   covsInterpolation = c("locf", "linear", "nocb", "midpoint"),
+                   sc=1, sm=1/sc) {
   checkmate::assertNumeric(fdepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
   checkmate::assertNumeric(fcentral, len=1, lower=0, finite=TRUE, any.missing=FALSE)
   checkmate::assertNumeric(ratedepot, len=1, lower=0, finite=TRUE, any.missing=FALSE)
@@ -104,6 +113,12 @@ linCmt <- function(data, ...,
   checkmate::assertLogical(addlDropSs, len=1, any.missing=FALSE)
   checkmate::assertLogical(ssAtDoseTime, len=1, any.missing=FALSE)
   checkmate::assertLogical(gradient, len=1, any.missing=FALSE)
+  checkmate::assertNumeric(sc, len=1, any.missing=FALSE, lower=0)
+  checkmate::assertNumeric(sm, len=1, any.missing=FALSE, lower=0)
+  if (!missing(sc) && !missing(sm)) {
+    stop("you can only specify either 'sc' or 'sm' as a scaling factor",
+         call.=FALSE)
+  }
   covsInterpolation <- match.arg(covsInterpolation)
   # First take care of the possible inputs to lag time
   .linNamesData <- names(data)
@@ -233,7 +248,7 @@ linCmt <- function(data, ...,
       fun(.i)
     }), names(.trans$str)))
     .ret <- .Call(`_rxode2parse_compC`,
-                  list(.dati[, c("TIME", "EVID", "AMT", "II")], .extra, .trans$trans), .mv)
+                  list(.dati[, c("TIME", "EVID", "AMT", "II")], .extra, .trans$trans, sm), .mv)
     data.frame(ID=i, .ret)
   })
   dplyr::as_tibble(do.call(`rbind`, .ret))

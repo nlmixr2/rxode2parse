@@ -465,6 +465,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   SEXP dat = PROTECT(VECTOR_ELT(in, 0)); pro++; // event table
   SEXP par = PROTECT(VECTOR_ELT(in, 1)); pro++; // parameter table
   int trans = INTEGER(VECTOR_ELT(in, 2))[0];
+  double sm = REAL(VECTOR_ELT(in, 3))[0];
   double rate[2];
   rate[0] = rate[1] = 0.0;
   int cnt = 0;
@@ -810,6 +811,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
                           lagcentral[i], fcentral[i], ratecentral[i], durcentral[i],
                           0.0, 0.0, 1.0,  0.0, 0.0);
     }
+    Cc[i]= Cc[i]*sm;
   }
   SEXP dfNames = PROTECT(Rf_allocVector(STRSXP, 19)); pro++;
   SEXP dfVals = PROTECT(Rf_allocVector(VECSXP, 19)); pro++;
