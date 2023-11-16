@@ -49,10 +49,11 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
   double Ea = E;
   rx_solve *rx=(&rx_global);
   int hasDepot = rx->linKa;
+  double pDepot = 0.0;
   if (hasDepot == 1) {
     Ea = exp(-(*ka)*dt);
+    pDepot = yp[0];
   }
-  double pDepot = yp[0];
   double R = rate[hasDepot];
   if (isSameTime((*ka), (*kel))) {
     yp[hasDepot] = yp[hasDepot]*E + R*(1.0-E)/(*kel) + pDepot*(*kel)*dt*E;

@@ -374,8 +374,8 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
       }
     }
   } else if (ind->idx != 0) {
-    for (int i = 0; i < ncmt+oral0; ++i) {
-      yp[i] = ypLast[0];
+    for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
+      yp[j] = ypLast[j];
     }
   }
   int i = ind->idx;
@@ -434,7 +434,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     } else if (handleEvid1(&i, rx, neq, yp, &xout)){
       handleSS(neq, ind->BadDose, ind->InfusionRate, ind->dose, yp, xout,
                xp, ind->id, &i, ind->n_all_times, &istate, op, ind, u_inis_lincmt, ctx);
-      if (ind->wh0 == EVID0_OFF){
+      if (ind->wh0 == EVID0_OFF) {
         yp[ind->cmt] = op->inits[ind->cmt];
       }
       xp = xout;
@@ -442,9 +442,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     if (i+1 != ind->n_all_times) {
       //ypLast=getAdvan(ind->idx-1);
       double *ypNext = getAdvan(ind->idx+1);
-      REprintf("i: %d %f:\n", i, xout);
       for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
-        REprintf("\tj: %d\t%f\t%f\n", j, ypNext[j], yp[j]);
         ypNext[j] = yp[j];
       }
     }
@@ -452,8 +450,6 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     //calc_lhs(neq[1], xout, getSolve(i), ind->lhs);
     //updateExtraDoseGlobals(ind);
   }
-  /* REprintf("%f: yp[oral0:%d]: %f, lin.v: %f; cp: %f\n", */
-  /*         xout, oral0, yp[oral0], lin.v, yp[oral0]/lin.v); */
   return(yp[oral0]/lin.v);
 }
 
@@ -466,8 +462,8 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   iniSolvingRx(rx);
   iniSolvingOptions(op);
   int pro = 0;
-  SEXP dat = PROTECT(VECTOR_ELT(in, 0)); pro++;
-  SEXP par = PROTECT(VECTOR_ELT(in, 1)); pro++;
+  SEXP dat = PROTECT(VECTOR_ELT(in, 0)); pro++; // event table
+  SEXP par = PROTECT(VECTOR_ELT(in, 1)); pro++; // parameter table
   int trans = INTEGER(VECTOR_ELT(in, 2))[0];
   double rate[2];
   rate[0] = rate[1] = 0.0;
@@ -648,6 +644,8 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
     indR._update_par_ptr_in = indR.cacheME = indR.inLhs =
     indR.isIni =  indR.linCmt = 0;
 
+  indR.linCmt = flags[RxMvFlag_linCmt];
+
   indR.solved = -1;
 
   indR.curShift = 0.0;
@@ -772,6 +770,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   indR.ixds = indR.idx=0;
   rx_solving_options_ind* ind = &indR;
   rx->subjects =  ind;
+  op->nlin = rx->linNcmt+rx->linKa;
   iniSubject(0, 0, ind, op, rx, u_inis_lincmt);
   double *yp;
   SEXP CcSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
@@ -795,7 +794,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   double xout = 0.0, xp= 0.0;
   int istate = 1;
   void *ctx = NULL;
-  bool isOral  = ka[0] == 0.0;
+  bool isOral  = rx->linKa;
   int linCmt = 0; // states before linCmt model, in this case 0
   for(int i=0; i < indR.n_all_times; ++i) {
     ind->idx=i;
