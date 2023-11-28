@@ -36,7 +36,7 @@ extern "C" {
       return time;
     }
     if (cmt < 0) return time;
-    if (ind->cmt >= op->neq) {
+    if (cmt >= op->neq) {
       return ind->linCmtLag[cmt - op->neq]+time;
     }
     double ret = LAG(id, cmt, time);

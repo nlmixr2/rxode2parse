@@ -27,6 +27,11 @@ extern "C" void rxode2parse_sortInd0(rx_solving_options_ind *ind) {
   rxode2parse_sortInd(ind);
 }
 
+extern "C" void rxode2parse_sortRest0(rx_solving_options_ind *ind, int i0) {
+  rxode2parse_sortRest(ind, i0);
+}
+
+
 extern "C" int rxode2parse_handleExtraDose0(double *yp,
                                            double xout, double xp,
                                            int *i,

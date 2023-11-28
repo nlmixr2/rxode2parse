@@ -58,6 +58,7 @@ void rxode2parse_setIndPointersByThread(rx_solving_options_ind *ind) {}
 
 // both these functions require sorting from C++, these are interfaces
 void rxode2parse_sortInd0(rx_solving_options_ind *ind);
+void rxode2parse_sortRest0(rx_solving_options_ind *ind, int i0);
 int rxode2parse_handleExtraDose0(double *yp, double xout, double xp, int *i, rx_solving_options *op, rx_solving_options_ind *ind);
 
 
@@ -350,6 +351,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     ind->linCmtDur[0] = d_dur1;
     ind->linCmtRate[0] = d_rate1;
   }
+  rxode2parse_sortRest0(ind, ind->idx);
   void *ctx = &(lin);
   if (ind->idx == 0) {
     // initialization

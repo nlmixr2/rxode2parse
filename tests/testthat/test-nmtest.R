@@ -1,8 +1,8 @@
-## devtools::load_all()
+devtools::load_all()
 
 d <- nlmixr2data::nmtest
 names(d) <- sub("lagt", "lagcentral",
-                sub("bioav", "fdepot",
+                sub("bioav", "fcentral",
                     sub("rat2", "ratecentral",
                         sub("dur2", "durcentral", names(d)))))
 
@@ -11,18 +11,19 @@ library(ggplot2)
 
 solveEqual <- function(id) {
   d <- d[d$id == id,]
+  print(head(d))
   s1 <- linCmt(d, cl=1.1, v=20, ka=1.5, sm=1000) |>
     dplyr::filter(EVID == 0) |>
     dplyr::mutate(Cc=Cc)
   print(ggplot(data=s1, aes(TIME, Cc)) +
-          geom_line(col="red", size=1.2) +
+          geom_line(col="red", linewidth=1.2) +
           theme_bw() +
-          geom_line(data=d, aes(time, cp), col="blue", lty=2, size=1.2))
+          geom_line(data=d, aes(time, cp), col="blue", lty=2, linewidth=1.2))
 }
 
 ## solveEqual(1)
 
-## solveEqual(2)
+solveEqual(2)
 
 ## id <- unique(d$id)
 
