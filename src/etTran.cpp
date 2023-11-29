@@ -313,10 +313,10 @@ IntegerVector toCmt(RObject inCmt, CharacterVector& state, const bool isDvid,
             warn = warn + std::to_string(warnDvid[i]) + ", ";
           }
           warn = warn + std::to_string(warnDvid[warnDvid.size()-1]);
-          Rf_warningcall(R_NilValue, warn.c_str());
+          Rf_warningcall(R_NilValue, "%s", warn.c_str());
         }
         if (warnConvertDvid.size() > 0){
-          Rf_warningcall(R_NilValue, warnC.c_str());
+          Rf_warningcall(R_NilValue, "%s", warnC.c_str());
         }
         return out;
       } else {
@@ -647,7 +647,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         wKeep += " " + as<std::string>(keep[j]);
       }
     }
-    Rf_warningcall(R_NilValue, wKeep.c_str());
+    Rf_warningcall(R_NilValue, "%s", wKeep.c_str());
   }
   List covUnits(covCol.size());
   CharacterVector covUnitsN(covCol.size());
@@ -1857,7 +1857,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           doseId.push_back(allId[j]);
         }
       }
-      Rf_warningcall(R_NilValue, idWarn.c_str());
+      Rf_warningcall(R_NilValue, "%s", idWarn.c_str());
       redoId=true;
     }
   }
@@ -1895,7 +1895,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         }
       }
     }
-    if (!_ini0) Rf_warningcall(R_NilValue, idWarn.c_str());
+    if (!_ini0) Rf_warningcall(R_NilValue, "%s", idWarn.c_str());
   }
   if (warnCensNA) Rf_warningcall(R_NilValue, _("censoring missing 'DV' values do not make sense"));
   if (warnNaTime) Rf_warningcall(R_NilValue, _("missing 'TIME' values do not make sense (ignored)"));
