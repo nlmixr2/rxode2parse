@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">rxode2parse</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.16.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.17</span>
       </span>
     </div>
 
@@ -48,16 +48,17 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="development version" id="rxode2parse-development-version">rxode2parse (development version)<a class="anchor" aria-label="anchor" href="#rxode2parse-development-version"></a></h2>
+<h2 class="page-header" data-toc-text="2.0.17" id="rxode2parse-2017">rxode2parse 2.0.17<a class="anchor" aria-label="anchor" href="#rxode2parse-2017"></a></h2>
 <ul><li><p>Added ability to query R user functions in a rxode2 model (will force single threaded solve)</p></li>
 <li><p>Moved core <code>rxFunParse</code> and <code>rxRmFunParse</code> here so that C and R user function clashes can be handled</p></li>
 <li><p>Model variables now tracks which compartments have a lag-time defined</p></li>
-<li><p>For compartment with steady state doses (NONMEM equivalent SS=1, SS=2), an additional tracking time-point is added at to track the time when the lagged dose is given. As an upshot, the lagged dose will start at the steady state concentration shifted by + ii - lag in <code>rxode2</code></p></li>
+<li><p>For compartment with steady state doses (NONMEM equivalent SS=1, SS=2), an additional tracking time-point is added at to track the time when the lagged dose is given. As an upshot, the lagged dose will start at the steady state concentration shifted by + ii - lag in <code>rxode2</code> (currently for ode systems only)</p></li>
 <li><p>This release calculates non bio-availability adjusted duration for all rates instead of trying to figure the rate duration during solving.</p></li>
 <li><p>Make double assignment an error, ie <code>a &lt;- b &lt;-</code></p></li>
 <li><p><code>NA</code> times are ignored (with warning)</p></li>
 <li><p>Steady state bolus doses with <code>addl</code> are treated as non steady state events (like what is observed in <code>NONMEM</code>)</p></li>
-<li><p>Timsort was upgraded; drop radix support in rxode2 struct</p></li>
+<li><p>Timsort was upgraded; drop radix support in rxode2 structure</p></li>
+<li><p>Security fixes were applied as requested by CRAN</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.16" id="rxode2parse-2016">rxode2parse 2.0.16<small>2023-03-28</small><a class="anchor" aria-label="anchor" href="#rxode2parse-2016"></a></h2>
