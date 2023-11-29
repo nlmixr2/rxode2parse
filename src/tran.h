@@ -331,7 +331,7 @@ static inline int allSpaces(char *v2) {
 
 void parseFree(int last);
 
-#define err_trans(chr) Rf_errorcall(R_NilValue, _(chr));
+#define err_trans(chr) Rf_errorcall(R_NilValue, "%s", _(chr));
 
 void _rxode2parse_unprotect(void);
 
