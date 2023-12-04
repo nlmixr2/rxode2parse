@@ -28,6 +28,9 @@
 
 * Timsort was upgraded; drop radix support in rxode2 structure
 
+* `etTrans` now supports keeping logical vectors (with the appropriate
+  version of `rxode2`).
+
 * Security fixes were applied as requested by CRAN
 
 # rxode2parse 2.0.16
