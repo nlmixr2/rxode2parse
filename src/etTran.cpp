@@ -2128,8 +2128,13 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       curType[1] = R_NilValue;
       inDataFK[j] = cur;
       inDataFKL[j] = curType;
+    } else if (TYPEOF(cur) == LGLSXP) {
+      curType[0]  = IntegerVector::create(5);
+      curType[1]  = R_NilValue;
+      inDataFK[j] = as<NumericVector>(cur);
+      inDataFKL[j] = curType;
     } else {
-      stop("the columns that are kept must be either a string, a factor, an integer number, or a real number");
+      stop(_("the columns that are kept must be either a logical, string, a factor, an integer number, or a real number"));
     }
   }
   int maxItemsPerId = 0;
