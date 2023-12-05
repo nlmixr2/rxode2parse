@@ -2112,6 +2112,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     } else if (TYPEOF(cur) == INTSXP){
       calc = cur;
       if (calc.hasAttribute("levels")) {
+        // need to check type
+        calc = clone(cur); // make sure they don't affect changes
         curType[0] = IntegerVector::create(2);
         curType[1] = calc.attr("levels");
         calc.attr("levels") = R_NilValue;
