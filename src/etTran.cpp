@@ -2168,7 +2168,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
       inDataFK[j] = as<NumericVector>(cur);
       inDataFKL[j] = curType;
     } else {
-      stop(_("the columns that are kept must be either a logical, string, a factor, an integer number, or a real number"));
+      stop(_("the columns that are kept must be either an underlying logical, string, factor, integer number, or real number"));
     }
   }
   int maxItemsPerId = 0;
