@@ -451,6 +451,33 @@ bool rxode2parseIsIntegerish(SEXP in) {
   return as<bool>(isIntegerish(in));
 }
 
+RObject etTranGetAttrKeep(SEXP in) {
+  RObject cur = as<RObject>(in);
+  std::vector<std::string> attr = cur.attributeNames();
+  if (cur.hasAttribute("levels")) {
+    List ret(attr.size()-1);
+    CharacterVector retN(attr.size()-1);
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < attr.size(); ++i) {
+      if (attr[i] != "levels") {
+        retN[j] = attr[i];
+        ret[j] = cur.attr(attr[i]);
+        j++;
+      }
+    }
+    ret.attr("names") = retN;
+    return as<RObject>(ret);
+  }
+  List ret(attr.size());
+  CharacterVector retN(attr.size());
+  for (unsigned int i = 0; i < attr.size(); ++i) {
+    retN[i] = attr[i];
+    ret[i] = cur.attr(attr[i]);
+  }
+  ret.attr("names") = retN;
+  return as<RObject>(ret);
+}
+
 //' Event translation for rxode2
 //'
 //' @param inData Data frame to translate
@@ -2100,11 +2127,12 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   for (j = 0; j < (int)(keepCol.size()); j++){
     SEXP cur = inData[keepCol[j]];
     RObject calc;
-    List curType(2);
+    List curType(3);
     if (TYPEOF(cur) == STRSXP){
       calc = convertId_(cur);
       curType[0] = IntegerVector::create(1);
       curType[1] = calc.attr("levels");
+      curType[2] = etTranGetAttrKeep(cur);
       calc.attr("levels") = R_NilValue;
       calc.attr("class") = R_NilValue;
       inDataFK[j] = as<NumericVector>(calc);
@@ -2116,23 +2144,27 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         calc = clone(cur); // make sure they don't affect changes
         curType[0] = IntegerVector::create(2);
         curType[1] = calc.attr("levels");
+        curType[2] = etTranGetAttrKeep(cur);
         calc.attr("levels") = R_NilValue;
         calc.attr("class") = R_NilValue;
         inDataFK[j] = as<NumericVector>(calc);
       } else {
         curType[0] = IntegerVector::create(3);
         curType[1] = R_NilValue;
+        curType[2] = etTranGetAttrKeep(cur);
         inDataFK[j] = as<NumericVector>(calc);
       }
       inDataFKL[j] = curType;
     } else if (TYPEOF(cur) == REALSXP) {
       curType[0] = IntegerVector::create(4);
       curType[1] = R_NilValue;
+      curType[2] = etTranGetAttrKeep(cur);
       inDataFK[j] = cur;
       inDataFKL[j] = curType;
     } else if (TYPEOF(cur) == LGLSXP) {
       curType[0]  = IntegerVector::create(5);
       curType[1]  = R_NilValue;
+      curType[2] = etTranGetAttrKeep(cur);
       inDataFK[j] = as<NumericVector>(cur);
       inDataFKL[j] = curType;
     } else {
