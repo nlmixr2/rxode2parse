@@ -297,7 +297,7 @@ char *f1LinCmtLine = NULL;
 char *rate1LinCmtLine = NULL;
 char *dur1LinCmtLine = NULL;
 
-SEXP _rxode2parse_resetUdf();
+SEXP _rxode2parse_resetUdf(void);
 
 void reset(void) {
   // Reset sb/sbt string buffers
