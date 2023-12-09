@@ -1,6 +1,6 @@
 # Cran comments
 
-- Explicitly use data.table in the R code (already used in C/C++)
-  - This fixes the note that we are not using data.table in our package (though we were)
-
-
+- Fixes the issues requested flagged by CRAN
+- Also changes solving structure; The reverse dependencies
+  rxode2random rxode2et and rxode2 need updates after this
+- Once updated the rxode2 reverse dependencies all successfully check
