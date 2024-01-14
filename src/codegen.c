@@ -152,7 +152,7 @@ void codegen(char *model, int show_ode, const char *prefix, const char *libname,
         // Hence CMT = 4 could translate in data to 44 with sensi=10
         // Then cmt=44 translates back to cmt-10 or 4.
         // This makes the sensitivity equations insensitive to CMT changes that occur in FOCEi
-        sAppend(&sbOut,"#define _CMT ((abs(CMT)<=%d) ? CMT : ((CMT<0) ? CMT+%d: CMT-%d))\n",
+        sAppend(&sbOut,"#define _CMT ((fabs(CMT)<=%d) ? CMT : ((CMT<0) ? CMT+%d: CMT-%d))\n",
                 baseSize, tb.sensi, tb.sensi);
       } else {
         sAppendN(&sbOut,"#define _CMT CMT\n", 17);

@@ -14,7 +14,7 @@
 #define _safe_log(a) (&_solveData->safeZero ? (((a) <= 0) ? log(DBL_EPSILON) : log(a)) : log(a))
 #define safe_zero(a) (&_solveData->safeZero ? ((a) == 0 ? DBL_EPSILON : ((double)(a))) : ((double)(a)))
 #define _as_zero(a) (&_solveData->safeZero && fabs((double)(a)) < sqrt(DBL_EPSILON) ? 0.0 : ((double)(a)))
-#define _as_dbleps(a) (&_solveData->safeZero && fabs(a) < sqrt(DBL_EPSILON) ? (((double)(a)) < 0 ? -sqrt(DBL_EPSILON)  : sqrt(DBL_EPSILON)) : ((double)(a)))
+#define _as_dbleps(a) (&_solveData->safeZero && fabs((double)a) < sqrt(DBL_EPSILON) ? (((double)(a)) < 0 ? -sqrt(DBL_EPSILON)  : sqrt(DBL_EPSILON)) : ((double)(a)))
 #define _as_dbleps2(a) (&_solveData->safeZero && fabs((double)(a)) < sqrt(DBL_EPSILON) ? sqrt(DBL_EPSILON) : ((double)(a)))
 #define factorial(a) exp(lgamma1p(a))
 #define sign_exp(sgn, x)(((sgn) > 0.0) ? exp(x) : (((sgn) < 0.0) ? -exp(x) : 0.0))

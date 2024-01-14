@@ -317,10 +317,10 @@ IntegerVector toCmt(RObject inCmt, CharacterVector& state, const bool isDvid,
             warn = warn + std::to_string(warnDvid[i]) + ", ";
           }
           warn = warn + std::to_string(warnDvid[warnDvid.size()-1]);
-          Rf_warningcall(R_NilValue, warn.c_str());
+          Rf_warningcall(R_NilValue, "%s", warn.c_str());
         }
         if (warnConvertDvid.size() > 0){
-          Rf_warningcall(R_NilValue, warnC.c_str());
+          Rf_warningcall(R_NilValue, "%s", warnC.c_str());
         }
         return out;
       } else {
@@ -453,6 +453,33 @@ bool rxode2parseIsIntegerish(SEXP in) {
   Environment rx = rxode2parseenv();
   Function isIntegerish = rx[".isIntegerish"];
   return as<bool>(isIntegerish(in));
+}
+
+RObject etTranGetAttrKeep(SEXP in) {
+  RObject cur = as<RObject>(in);
+  std::vector<std::string> attr = cur.attributeNames();
+  if (cur.hasAttribute("levels")) {
+    List ret(attr.size()-1);
+    CharacterVector retN(attr.size()-1);
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < attr.size(); ++i) {
+      if (attr[i] != "levels") {
+        retN[j] = attr[i];
+        ret[j] = cur.attr(attr[i]);
+        j++;
+      }
+    }
+    ret.attr("names") = retN;
+    return as<RObject>(ret);
+  }
+  List ret(attr.size());
+  CharacterVector retN(attr.size());
+  for (unsigned int i = 0; i < attr.size(); ++i) {
+    retN[i] = attr[i];
+    ret[i] = cur.attr(attr[i]);
+  }
+  ret.attr("names") = retN;
+  return as<RObject>(ret);
 }
 
 //' Event translation for rxode2
@@ -651,7 +678,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         wKeep += " " + as<std::string>(keep[j]);
       }
     }
-    Rf_warningcall(R_NilValue, wKeep.c_str());
+    Rf_warningcall(R_NilValue, "%s", wKeep.c_str());
   }
   List covUnits(covCol.size());
   CharacterVector covUnitsN(covCol.size());
@@ -1249,7 +1276,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         obsId.push_back(cid);
       }
       if (caddl > 0){
-        Rf_warningcall(R_NilValue, _("'addl' is ignored with observations"));
+        Rf_warningcall(R_NilValue, "%s", _("'addl' is ignored with observations"));
       }
       if (flg != 1){
         flg=1;
@@ -1370,10 +1397,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         if (rateI == 0) allInf=false;
         else allBolus=false;
         if (caddl > 0){
-          Rf_warningcall(R_NilValue, _("'addl' is ignored with 'EVID=2'"));
+          Rf_warningcall(R_NilValue, "%s", _("'addl' is ignored with 'EVID=2'"));
         }
         if (flg != 1){
-          Rf_warningcall(R_NilValue, _("'ss' is ignored with 'EVID=2'"));
+          Rf_warningcall(R_NilValue, "%s", _("'ss' is ignored with 'EVID=2'"));
         }
         id.push_back(cid);
         evid.push_back(2);
@@ -1415,10 +1442,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     case 3:
       cevid = 3;
       if (caddl > 0){
-        Rf_warningcall(R_NilValue, _("'addl' is ignored with 'EVID=3'"));
+        Rf_warningcall(R_NilValue, "%s", _("'addl' is ignored with 'EVID=3'"));
       }
       if (flg != 1){
-        Rf_warningcall(R_NilValue, _("'ss' is ignored with 'EVID=3'"));
+        Rf_warningcall(R_NilValue, "%s", _("'ss' is ignored with 'EVID=3'"));
       }
       id.push_back(cid);
       evid.push_back(3);
@@ -1496,11 +1523,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         continue;
       }
       if (rateI != 0 && hasEvid){
-        Rf_warningcall(R_NilValue, _("'rate' or 'dur' is ignored with classic rxode2 'EVID's"));
+        Rf_warningcall(R_NilValue, "%s", _("'rate' or 'dur' is ignored with classic rxode2 'EVID's"));
         rateI = 0;
       }
       if (flg!=1 && hasEvid){ // ss=1 is the same as ss=0 for NONMEM
-        Rf_warningcall(R_NilValue, _("'ss' is ignored with classic rxode2 'EVID's"));
+        Rf_warningcall(R_NilValue, "%s", _("'ss' is ignored with classic rxode2 'EVID's"));
         flg=1;
       }
     }
@@ -1861,7 +1888,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           doseId.push_back(allId[j]);
         }
       }
-      Rf_warningcall(R_NilValue, idWarn.c_str());
+      Rf_warningcall(R_NilValue, "%s", idWarn.c_str());
       redoId=true;
     }
   }
@@ -1899,10 +1926,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         }
       }
     }
-    if (!_ini0) Rf_warningcall(R_NilValue, idWarn.c_str());
+    if (!_ini0) Rf_warningcall(R_NilValue, "%s", idWarn.c_str());
   }
-  if (warnCensNA) Rf_warningcall(R_NilValue, _("censoring missing 'DV' values do not make sense"));
-  if (warnNaTime) Rf_warningcall(R_NilValue, _("missing 'TIME' values do not make sense (ignored)"));
+  if (warnCensNA) Rf_warningcall(R_NilValue, "%s", _("censoring missing 'DV' values do not make sense"));
+  if (warnNaTime) Rf_warningcall(R_NilValue, "%s", _("missing 'TIME' values do not make sense (ignored)"));
 #ifdef rxSolveT
   REprintf("  Time7: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
@@ -1994,11 +2021,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   int censAdd = 0;
   if (censCol != -1) censAdd=1;
   if (censAdd && censNone) {
-    Rf_warningcall(R_NilValue, _("while censoring is included in dataset, no observations are censored"));
+    Rf_warningcall(R_NilValue, "%s", _("while censoring is included in dataset, no observations are censored"));
     censAdd=0;
   }
   if (swapDvLimit){
-    Rf_warningcall(R_NilValue, _("'dv' and 'limit' swapped since 'limit' > 'dv'"));
+    Rf_warningcall(R_NilValue, "%s", _("'dv' and 'limit' swapped since 'limit' > 'dv'"));
   }
   int limitAdd = 0;
   if (limitCol != -1) limitAdd=1;
@@ -2104,11 +2131,12 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   for (j = 0; j < (int)(keepCol.size()); j++){
     SEXP cur = inData[keepCol[j]];
     RObject calc;
-    List curType(2);
+    List curType(3);
     if (TYPEOF(cur) == STRSXP){
       calc = convertId_(cur);
       curType[0] = IntegerVector::create(1);
       curType[1] = calc.attr("levels");
+      curType[2] = etTranGetAttrKeep(cur);
       calc.attr("levels") = R_NilValue;
       calc.attr("class") = R_NilValue;
       inDataFK[j] = as<NumericVector>(calc);
@@ -2116,24 +2144,35 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     } else if (TYPEOF(cur) == INTSXP){
       calc = cur;
       if (calc.hasAttribute("levels")) {
+        // need to check type
+        calc = clone(cur); // make sure they don't affect changes
         curType[0] = IntegerVector::create(2);
         curType[1] = calc.attr("levels");
+        curType[2] = etTranGetAttrKeep(cur);
         calc.attr("levels") = R_NilValue;
         calc.attr("class") = R_NilValue;
         inDataFK[j] = as<NumericVector>(calc);
       } else {
         curType[0] = IntegerVector::create(3);
         curType[1] = R_NilValue;
+        curType[2] = etTranGetAttrKeep(cur);
         inDataFK[j] = as<NumericVector>(calc);
       }
       inDataFKL[j] = curType;
     } else if (TYPEOF(cur) == REALSXP) {
       curType[0] = IntegerVector::create(4);
       curType[1] = R_NilValue;
+      curType[2] = etTranGetAttrKeep(cur);
       inDataFK[j] = cur;
       inDataFKL[j] = curType;
+    } else if (TYPEOF(cur) == LGLSXP) {
+      curType[0]  = IntegerVector::create(5);
+      curType[1]  = R_NilValue;
+      curType[2] = etTranGetAttrKeep(cur);
+      inDataFK[j] = as<NumericVector>(cur);
+      inDataFKL[j] = curType;
     } else {
-      stop("the columns that are kept must be either a string, a factor, an integer number, or a real number");
+      stop(_("the columns that are kept must be either an underlying logical, string, factor, integer number, or real number"));
     }
   }
   int maxItemsPerId = 0;
@@ -2450,7 +2489,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   Rf_setAttrib(lstF, R_RowNamesSymbol, IntegerVector::create(NA_INTEGER,-idxOutput.size()+rmAmt));
   if (doWarnNeg){
     if (!warnedNeg){
-      Rf_warningcall(R_NilValue, _("\nwith negative times, compartments initialize at first negative observed time\nwith positive times, compartments initialize at time zero\nuse 'rxSetIni0(FALSE)' to initialize at first observed time\nthis warning is displayed once per session"));
+      Rf_warningcall(R_NilValue, "%s", _("\nwith negative times, compartments initialize at first negative observed time\nwith positive times, compartments initialize at time zero\nuse 'rxSetIni0(FALSE)' to initialize at first observed time\nthis warning is displayed once per session"));
       warnedNeg=true;
     }
   }
