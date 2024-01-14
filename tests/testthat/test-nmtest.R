@@ -21,7 +21,7 @@ solveEqual <- function(id) {
           geom_line(data=d, aes(time, cp), col="blue", lty=2, linewidth=1.2))
 }
 
-## solveEqual(1)
+solveEqual(1)
 
 solveEqual(2)
 

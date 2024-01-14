@@ -817,7 +817,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
                           0.0, 0.0, 1.0,  0.0, 0.0);
     }
     Cc[i]= Cc[i]*sm;
-    time[i] = getTime(ind->ix[i], ind);
+    time[i] = getTime__(ind->ix[i], ind, 0);
   }
   SEXP dfNames = PROTECT(Rf_allocVector(STRSXP, 19)); pro++;
   SEXP dfVals = PROTECT(Rf_allocVector(VECSXP, 19)); pro++;
