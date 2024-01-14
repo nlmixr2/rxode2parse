@@ -1272,7 +1272,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         obsId.push_back(cid);
       }
       if (caddl > 0){
-        Rf_warningcall(R_NilValue, _("'addl' is ignored with observations"));
+        Rf_warningcall(R_NilValue, "%s", _("'addl' is ignored with observations"));
       }
       if (flg != 1){
         flg=1;
@@ -1393,10 +1393,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         if (rateI == 0) allInf=false;
         else allBolus=false;
         if (caddl > 0){
-          Rf_warningcall(R_NilValue, _("'addl' is ignored with 'EVID=2'"));
+          Rf_warningcall(R_NilValue, "%s", _("'addl' is ignored with 'EVID=2'"));
         }
         if (flg != 1){
-          Rf_warningcall(R_NilValue, _("'ss' is ignored with 'EVID=2'"));
+          Rf_warningcall(R_NilValue, "%s", _("'ss' is ignored with 'EVID=2'"));
         }
         id.push_back(cid);
         evid.push_back(2);
@@ -1438,10 +1438,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     case 3:
       cevid = 3;
       if (caddl > 0){
-        Rf_warningcall(R_NilValue, _("'addl' is ignored with 'EVID=3'"));
+        Rf_warningcall(R_NilValue, "%s", _("'addl' is ignored with 'EVID=3'"));
       }
       if (flg != 1){
-        Rf_warningcall(R_NilValue, _("'ss' is ignored with 'EVID=3'"));
+        Rf_warningcall(R_NilValue, "%s", _("'ss' is ignored with 'EVID=3'"));
       }
       id.push_back(cid);
       evid.push_back(3);
@@ -1519,11 +1519,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         continue;
       }
       if (rateI != 0 && hasEvid){
-        Rf_warningcall(R_NilValue, _("'rate' or 'dur' is ignored with classic rxode2 'EVID's"));
+        Rf_warningcall(R_NilValue, "%s", _("'rate' or 'dur' is ignored with classic rxode2 'EVID's"));
         rateI = 0;
       }
       if (flg!=1 && hasEvid){ // ss=1 is the same as ss=0 for NONMEM
-        Rf_warningcall(R_NilValue, _("'ss' is ignored with classic rxode2 'EVID's"));
+        Rf_warningcall(R_NilValue, "%s", _("'ss' is ignored with classic rxode2 'EVID's"));
         flg=1;
       }
     }
@@ -1924,8 +1924,8 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     }
     if (!_ini0) Rf_warningcall(R_NilValue, "%s", idWarn.c_str());
   }
-  if (warnCensNA) Rf_warningcall(R_NilValue, _("censoring missing 'DV' values do not make sense"));
-  if (warnNaTime) Rf_warningcall(R_NilValue, _("missing 'TIME' values do not make sense (ignored)"));
+  if (warnCensNA) Rf_warningcall(R_NilValue, "%s", _("censoring missing 'DV' values do not make sense"));
+  if (warnNaTime) Rf_warningcall(R_NilValue, "%s", _("missing 'TIME' values do not make sense (ignored)"));
 #ifdef rxSolveT
   REprintf("  Time7: %f\n", ((double)(clock() - _lastT0))/CLOCKS_PER_SEC);
   _lastT0 = clock();
@@ -2017,11 +2017,11 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   int censAdd = 0;
   if (censCol != -1) censAdd=1;
   if (censAdd && censNone) {
-    Rf_warningcall(R_NilValue, _("while censoring is included in dataset, no observations are censored"));
+    Rf_warningcall(R_NilValue, "%s", _("while censoring is included in dataset, no observations are censored"));
     censAdd=0;
   }
   if (swapDvLimit){
-    Rf_warningcall(R_NilValue, _("'dv' and 'limit' swapped since 'limit' > 'dv'"));
+    Rf_warningcall(R_NilValue, "%s", _("'dv' and 'limit' swapped since 'limit' > 'dv'"));
   }
   int limitAdd = 0;
   if (limitCol != -1) limitAdd=1;
@@ -2485,7 +2485,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
   Rf_setAttrib(lstF, R_RowNamesSymbol, IntegerVector::create(NA_INTEGER,-idxOutput.size()+rmAmt));
   if (doWarnNeg){
     if (!warnedNeg){
-      Rf_warningcall(R_NilValue, _("\nwith negative times, compartments initialize at first negative observed time\nwith positive times, compartments initialize at time zero\nuse 'rxSetIni0(FALSE)' to initialize at first observed time\nthis warning is displayed once per session"));
+      Rf_warningcall(R_NilValue, "%s", _("\nwith negative times, compartments initialize at first negative observed time\nwith positive times, compartments initialize at time zero\nuse 'rxSetIni0(FALSE)' to initialize at first observed time\nthis warning is displayed once per session"));
       warnedNeg=true;
     }
   }
