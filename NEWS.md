@@ -1,5 +1,7 @@
 # rxode2parse (development version)
 
+* Fixed m1mac warnings to use string literals as requested by CRAN
+
 # rxode2parse 2.0.17
 
 * Added ability to query R user functions in a rxode2 model (will
