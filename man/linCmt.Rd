@@ -21,7 +21,9 @@ linCmt(
   scale = 1,
   gradient = FALSE,
   keep = NULL,
-  covsInterpolation = c("locf", "linear", "nocb", "midpoint")
+  covsInterpolation = c("locf", "linear", "nocb", "midpoint"),
+  sc = 1,
+  sm = 1/sc
 )
 }
 \arguments{
@@ -91,6 +93,14 @@ the concentration in the central compartment}
 
 \item{keep}{This is a named vector of items you want to keep in the final rxode2 dataset.
 For added rxode2 event records (if seen), last observation carried forward will be used.}
+
+\item{sc}{scaling parameter of the central compartment like
+NONMEM's scaling parameter. The concentration is divided by this
+parameter value.}
+
+\item{sm}{multiplicative scaling parameter.  Unlike the NONMEM
+scaling parameter, the concentration is multiplied by this
+parameter.}
 }
 \value{
 A dataframe containing the linear compartment solution of

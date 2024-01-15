@@ -29,3 +29,4 @@ Calculate the lambdas and coefficients of the three compartment model
 \author{
 Matthew L. Fidler
 }
+\keyword{internal}

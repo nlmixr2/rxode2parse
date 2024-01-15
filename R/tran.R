@@ -50,8 +50,7 @@ rxode2parse <- function(model, linear=FALSE, linCmtSens = c("linCmtA", "linCmtB"
     .vars <- c(.ret$params, .ret$lhs, .ret$slhs)
     .ret <- .Call(`_rxode2parse_linCmtGen`,length(.ret$state), .vars,
                   setNames(
-                    c(
-                      "linCmtA" = 1L, "linCmtB" = 2L,
+                    c("linCmtA" = 1L, "linCmtB" = 2L,
                       "linCmtC" = 3L
                     )[match.arg(linCmtSens)],
                     NULL
@@ -90,6 +89,13 @@ rxode2parse <- function(model, linear=FALSE, linCmtSens = c("linCmtA", "linCmtB"
             .ret, .parseEnv$.parseFuns)
   }
   .ret
+}
+
+#' @export
+as.list.rxModelVars <- function(x, ...) {
+  .x <- x
+  class(.x) <- NULL
+  .x
 }
 
 rxode2parseFuns <- function() {

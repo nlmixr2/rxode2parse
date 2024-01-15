@@ -2,6 +2,8 @@
 
 * Fixed m1mac warnings to use string literals as requested by CRAN
 
+* Add `as.list()` method for `rxModelVars`
+
 # rxode2parse 2.0.17
 
 * Added ability to query R user functions in a rxode2 model (will
