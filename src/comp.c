@@ -80,11 +80,6 @@ void solveWith1Pt_lin(double *yp,
   rx_solve *rx=(&rx_global);
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
   int linCmt = ind->linCmt;
-  /* int ret = 1; */
-  /* int linNcmt = linCmtI[RxMvFlag_ncmt]; */
-  /* int linKa = linCmtI[RxMvFlag_ka]; */
-  /* rx->linKa = linKa; */
-  /* rx->linNcmt = linNcmt; */
   int ret = 1;
   switch(rx->linNcmt) {
   case 3:
@@ -679,7 +674,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
     }
   }
   for (int i = indR.ndoses; i< indR.n_all_times; ++i) {
-    indR.idose[i] = -NA_INTEGER;
+    indR.idose[i] = 0;
   }
   int *tmpI = (int*)malloc(EVID_EXTRA_SIZE* sizeof(int));
   if (tmpI == NULL) {

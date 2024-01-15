@@ -262,9 +262,13 @@ extern "C" {
   static inline void handleInfusionGetEndOfInfusionIndex(int idx, int *infEixds,
                                                          rx_solve *rx, rx_solving_options *op,
                                                          rx_solving_options_ind *ind) {
-    int curEvid = getEvid(ind, ind->idose[idx]);
-    double curAmt = getDoseNumber(ind, idx);
-    int lastKnownOff = 0;
+    ind curEvid = 0, lastKnownOff = 0;
+    double curAmt = 0.0;
+    if (idx < ind->ndoses) {
+      curEvid = getEvid(ind, ind->idose[idx]);
+      curAmt = getDoseNumber(ind, idx);
+      lastKnownOff = 0;
+    }
     *infEixds = -1;
     for (int j = 0; j < ind->ndoses; j++) {
       if (curEvid == getEvid(ind, ind->idose[j]) &&
