@@ -56,6 +56,7 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
     Ea = exp(-(*ka)*dt);
     pDepot = yp[0];
     rDepot = rate[0];
+    R = rDepot + R;
   }
   yp[hasDepot] = yp[hasDepot]*E + R*(1.0-E)/(*kel);
   if (isSameTime((*ka), (*kel))) {
@@ -71,11 +72,11 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
     // = dt*(kel*pDepot - rDepot)*E
     //rDepot/kel*exp(-0*t) + rDepot/(-kel)*exp(-kel*t)
     // rDepot/kel(1-E)
-    yp[hasDepot] += (pDepot*(*kel)-rDepot)*dt*E + rDepot/(*kel)*(1.0-E);
+    yp[hasDepot] += (pDepot*(*kel)-rDepot)*dt*E;
   } else {
-    double kaMkel = (*ka)-(*kel);
-    yp[hasDepot] += pDepot*(*ka)*(E-Ea)/(kaMkel) +
-      rDepot*((*ka)*(1-E) + (*kel)*(Ea-1))/((*kel)*kaMkel);
+    yp[hasDepot] += (pDepot*(*ka)-rDepot)*(E-Ea)/((*ka)-(*kel));
+    /* yp[hasDepot] += pDepot*(*ka)*(E-Ea)/(kaMkel) + */
+    /*   rDepot*((*ka)*(1-E) + (*kel)*(Ea-1))/((*kel)*kaMkel); */
   }
   if (hasDepot) {
     yp[0] = rDepot*(1.0-Ea)/(*ka) + pDepot*Ea;
@@ -93,8 +94,10 @@ static inline int comp1solve2(double *yp, // prior solving information, will be 
                  double *k12,
                  double *k21) {
   double L[2], C1[4], C2[4], E[2], Ea[2], Xo[2], Rm[2];
+  double rDepot=0.0;
   rx_solve *rx=(&rx_global);
   int hasDepot = rx->linKa;
+  double R=rate[hasDepot];
   double dT = (*xout)-(*xp);
   if (solComp2C(k10, k12, k21, L, C1, C2) == 0) {
     return 0;
@@ -109,21 +112,24 @@ static inline int comp1solve2(double *yp, // prior solving information, will be 
                   &itwo, &one, Xo, &itwo FCONE FCONE);
   F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(yp[hasDepot+1]), C2, &itwo, E,
                   &itwo, &one, Xo, &itwo FCONE FCONE);
-  if (!isSameTime(rate[hasDepot], 0.0)) {
-    // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
-    Rm[0] = (1.0 - E[0])/L[0];
-    Rm[1] = (1.0 - E[1])/L[1];
-    F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(rate[hasDepot]),
-                    C1, &itwo, Rm, &itwo, &one, Xo, &itwo FCONE FCONE);
-  }
   if (hasDepot == 1 && yp[0] > 0.0) {
     // Xo = Xo + Ka*pX[1]*(Co[, , 1] %*% ((E - Ea)/(Ka - L)))
+    rDepot = rate[0];
+    R += rDepot;
     double expa = exp(-(*ka)*dT);
     Ea[0] = (E[0]- expa)/((*ka)-L[0]);
     Ea[1] = (E[1]- expa)/((*ka)-L[1]);
-    double cf = (*ka)*yp[0];
+    double cf = (*ka)*yp[0] - rDepot;
     F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &cf, C1, &itwo, Ea, &itwo, &one, Xo, &itwo FCONE FCONE);
-    yp[0] *= expa;
+    yp[0] = rDepot*(1.0-expa)/(*ka) + yp[0]*expa;
+  }
+  if (!isSameTime(R, 0.0)) {
+    // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
+    Rm[0] = (1.0 - E[0])/L[0];
+    Rm[1] = (1.0 - E[1])/L[1];
+    double rtot = rate[hasDepot] + rDepot;
+    F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(R),
+                    C1, &itwo, Rm, &itwo, &one, Xo, &itwo FCONE FCONE);
   }
   yp[hasDepot] = Xo[0];
   yp[hasDepot+1] = Xo[1];
@@ -144,6 +150,8 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
   double L[3], C1[9], C2[9], C3[9], E[3], Ea[3], Xo[3], Rm[3];
   rx_solve *rx=(&rx_global);
   int hasDepot = rx->linKa;
+  double R = rate[hasDepot];
+  double rDepot = 0.0;
   double dT = (*xout)-(*xp);
   if (solComp3C(k10, k12, k21, k13, k31, L, C1, C2, C3) == 0) {
     return 0;
@@ -161,24 +169,26 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
                   E, &ithree, &one, Xo, &ithree FCONE FCONE);
   F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot+2]), C3, &ithree,
                   E, &ithree, &one, Xo, &ithree FCONE FCONE);
-  if (!isSameTime(rate[hasDepot], 0.0)) {
-    // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
-    Rm[0] = (1.0 - E[0])/L[0];
-    Rm[1] = (1.0 - E[1])/L[1];
-    Rm[2] = (1.0 - E[2])/L[2];
-    F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(rate[hasDepot]), C1, &ithree,
-                    Rm, &ithree, &one, Xo, &ithree FCONE FCONE);
-  }
   if (hasDepot == 1 && yp[0] > 0.0) {
     // Xo = Xo + Ka*pX[1]*(Co[, , 1] %*% ((E - Ea)/(Ka - L)))
+    rDepot=rate[0];
+    R += rDepot;
     double expa = exp(-(*ka)*dT);
     Ea[0] = (E[0]- expa)/((*ka) - L[0]);
     Ea[1] = (E[1]- expa)/((*ka) - L[1]);
     Ea[2] = (E[2]- expa)/((*ka) - L[2]);
-    double expa2 = (*ka)*yp[0];
+    double expa2 = (*ka)*yp[0] - rDepot;
     F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &expa2, C1, &ithree,
                     Ea, &ithree, &one, Xo, &ithree FCONE FCONE);
-    yp[0] = expa*yp[0];
+    yp[0] = rDepot*(1.0-expa)/(*ka) + yp[0]*expa;
+  }
+  if (!isSameTime(R, 0.0)) {
+    // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
+    Rm[0] = (1.0 - E[0])/L[0];
+    Rm[1] = (1.0 - E[1])/L[1];
+    Rm[2] = (1.0 - E[2])/L[2];
+    F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(R), C1, &ithree,
+                    Rm, &ithree, &one, Xo, &ithree FCONE FCONE);
   }
   yp[hasDepot]   = Xo[0];
   yp[hasDepot+1] = Xo[1];
