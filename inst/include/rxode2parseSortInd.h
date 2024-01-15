@@ -1,7 +1,6 @@
 static inline void rxode2parse_sortRest(rx_solving_options_ind *ind, int i0) {
   // Here the ix has been calculated at least once. Sort it if it changed
   rx_solve *rx = &rx_global;
-  rx_solving_options *op = &op_global;
   int evid0 = getEvid(ind, i0);
   if (evid0 == 0 || evid0 == 2) return;
   // Reset times for infusion

@@ -27,7 +27,8 @@
 #' @eval rxode2parseFuns()
 #' @examples
 #' rxode2parse("a=3")
-rxode2parse <- function(model, linear=FALSE, linCmtSens = c("linCmtA", "linCmtB", "linCmtC"), verbose=FALSE,
+rxode2parse <- function(model, linear=FALSE, linCmtSens = c("linCmtA", "linCmtB", "linCmtC"),
+                        verbose=FALSE,
                         code=NULL, envir=parent.frame()) {
   rxParseSuppressMsg()
   .udfEnvSet(envir)

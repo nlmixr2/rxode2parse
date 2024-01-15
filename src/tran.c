@@ -96,7 +96,8 @@ const char *model_prefix = NULL;
 const char *me_code = NULL;
 const char *md5 = NULL;
 int badMd5 = 0;
-int foundF=0,foundLag=0, foundRate=0, foundDur=0, foundF0=0, needSort=0;
+int foundF=0,foundLag=0, foundRate=0, foundDur=0, foundF0=0, needSort=0,
+  alagLin0 = 0, alagLin1 = 0, foundLinCmt = 0;
 
 sbuf sbOut;
 
@@ -410,6 +411,9 @@ void reset(void) {
   lastSyntaxErrorLine=0;
   foundF=0;
   foundLag=0;
+  alagLin0 = 0;
+  alagLin1 = 0;
+  foundLinCmt = 0;
   foundRate=0;
   gBufLast=0;
   lastStrLoc=0;
