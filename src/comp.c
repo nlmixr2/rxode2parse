@@ -773,8 +773,13 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   double *yp;
   SEXP CcSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
   SEXP TimeSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
+  SEXP EvidSxp = PROTECT(Rf_allocVector(INTSXP, indR.n_all_times)); pro++;
+  SEXP DoseSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
+  SEXP IiSxp   = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
   double *Cc = REAL(CcSxp);
   double *time = REAL(TimeSxp);
+  int *evidOut = INTEGER(EvidSxp);
+  double *doseOut = REAL(DoseSxp);
   double *p1 = REAL(VECTOR_ELT(par, 0));
   double *v1 = REAL(VECTOR_ELT(par, 1));
   double *p2 = REAL(VECTOR_ELT(par, 2));
@@ -811,6 +816,8 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
     }
     Cc[i]= Cc[i]*sm;
     time[i] = getTime__(ind->ix[i], ind, 0);
+    evidOut[i] = getEvid(ind, ind->ix[i]);
+    doseOut[i] = getDose(ind, ind->ix[i]);
   }
   SEXP dfNames = PROTECT(Rf_allocVector(STRSXP, 19)); pro++;
   SEXP dfVals = PROTECT(Rf_allocVector(VECSXP, 19)); pro++;
@@ -826,15 +833,15 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
 
   // "EVID"
   SET_STRING_ELT(dfNames, 1, Rf_mkChar("EVID"));
-  SET_VECTOR_ELT(dfVals,  1, VECTOR_ELT(dat, 1));
+  SET_VECTOR_ELT(dfVals,  1, EvidSxp);
 
   // "AMT"
   SET_STRING_ELT(dfNames, 2, Rf_mkChar("AMT"));
-  SET_VECTOR_ELT(dfVals,  2, VECTOR_ELT(dat, 2));
+  SET_VECTOR_ELT(dfVals,  2, DoseSxp);
 
   // "II"
   SET_STRING_ELT(dfNames, 3, Rf_mkChar("II"));
-  SET_VECTOR_ELT(dfVals,  3, VECTOR_ELT(dat, 3));
+  SET_VECTOR_ELT(dfVals,  3, IiSxp);
 
   // "Cc"
   SET_STRING_ELT(dfNames, 3, Rf_mkChar("Cc"));
