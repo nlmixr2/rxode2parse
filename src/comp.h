@@ -51,75 +51,34 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
   int hasDepot = rx->linKa;
   double pDepot = 0.0;
   double rDepot = 0.0;
+  double R = rate[hasDepot];
   if (hasDepot == 1) {
     Ea = exp(-(*ka)*dt);
     pDepot = yp[0];
     rDepot = rate[0];
   }
-  // A2 = (((rDepot)-pDepot*(ka))*Ea)/((ka)-(kel)) - ((((ka)-(kel))*(R)+(ka)*(rDepot)+(-yp-pDepot)*(kel)*(ka)+yp*(kel)*(kel))*EE)/((kel)*(ka)-(kel)*(kel))+ ((R)+(rDepot))/(kel);
-  // =
-  // rDepot/(ka-kel)*Ea - pDepot*(*ka)*Ea/(ka-kel) +
-  // -R*E/(kel) + ka*EE*(pDepot+yp[])/(ka-kel) - yp[]*(kel)/(ka-kel)
-  // (R+rDepot)/kel
-
-  // = R/kel + rDepot/kel +
-  //   Ea*rDepot/(ka - kel) + R*EE*kel/(ka*kel - kel^2) -
-  //   R*ka*EE/(ka*kel - kel^2) - ka*EE*rDepot/(ka*kel - kel^2) -
-  //   ka*Ea*pDepot/(ka - kel) - yp*EE*kel^2/(ka*kel - kel^2) +
-  //   ka*EE*kel*pDepot/(ka*kel - kel^2) + ka*yp*EE*kel/(ka*kel - kel^2)
-
-  // yp expressions:
-  //  - yp*EE*kel^2/(ka*kel - kel^2) + ka*yp*EE*kel/(ka*kel - kel^2)
-  //  yp*EE*(-kel^2/(ka*kel - kel^2) + ka*kel/(ka*kel - kel^2))
-  // = yp*EE* (-kel/(ka-kel) + ka/(ka-kel)) = yp*EE
-
-  // = yp*E + R/kel + rDepot/kel +
-  //   Ea*rDepot/(ka - kel) + R*EE*kel/(ka*kel - kel^2) -
-  //   R*ka*EE/(ka*kel - kel^2) - ka*EE*rDepot/(ka*kel - kel^2) -
-  //   ka*Ea*pDepot/(ka - kel) +
-  //   ka*EE*kel*pDepot/(ka*kel - kel^2)
-
-  // R expressions
-  // R/kel + R*EE*kel/(ka*kel - kel^2) -
-  //   R*ka*EE/(ka*kel - kel^2)
-  // = R/kel + R*EE/(ka-kel) - R*ka*EE(kel*(ka-kel))
-  // = R/kel -R*EE(R*ka/(ka-kel) - R*kel/(ka-kel))/kel
-  // = R(1-EE)/kel
-
-  //
-  // = yp*E + R(1-EE)/kel + rDepot/kel +
-  //   Ea*rDepot/(ka - kel) - ka*EE*rDepot/(ka*kel - kel^2) -
-  //   ka*Ea*pDepot/(ka - kel) +
-  //   ka*EE*kel*pDepot/(ka*kel - kel^2)
-
-  // Now pDepot expressions
-  //   -ka*Ea*pDepot/(ka - kel) +
-  //   ka*EE*kel*pDepot/(ka*kel - kel^2)
-  //  = -ka*Ea*pDepot/(ka-kel) + ka*EE*pDepot/(ka-kel)
-  //  = ka*pDepot*(E-Ea)/(ka-kel)
-
-  // = yp*E + R(1-E)/kel + ka*pDepot*(E-Ea)/(ka-kel) +rDepot/kel +
-  //   Ea*rDepot/(ka - kel) - ka*EE*rDepot/(ka*kel - kel^2) -
-
-  // Now rDepot expression
-  // rDepot/kel + Ea*rDepot/(ka-kel) - ka*EE*rDepot/(kel*(ka-kel))
-  // rDepot*(1/kel+Ea/(ka-kel)-ka*EE/(kel*(ka-kel)))
-  // rDepot/kel*(1+Ea*kel/(ka-kel) - ka*EE/(ka-kel))
-  // rDepot*(1+(Ea*kel-ka*EE)/(ka-kel))/kel
-  // rDepot*(ka-kel+Ea*kel -ka*EE)/(kel*(ka-kel))
-  // rDepot*(ka*(1-EE) + kel*(Ea-1))
-
-
   yp[hasDepot] = yp[hasDepot]*E + R*(1.0-E)/(*kel);
   if (isSameTime((*ka), (*kel))) {
-    yp[hasDepot] += pDepot*(*kel)*dt*E;
+    // Quick derivation of extra terms with laplace transform
+    // d/dt(central) = -kel*central + kel*(pDepot*E+rDepot*(1-E)/kel)
+    // d/dt(central) = -kel*central +  kel*pDepot*exp(-kel*t) + rDepot*(1-exp(-kel*t))
+
+    // Laplace transform:
+    // s*X(c) - X(0) = -kel*X(c) + kel*pDepot/(s+kel) + rDepot/s -rDepot/(s+kel)
+    // s*X(c) + kel* X(c) = X(0) + kel*pDepot/(s+kel) + rDepot/s -rDepot/(s+kel)
+    // X(c) = X(0)/(s+kel) + kel*pDepot/(s+kel)^2 + rDepot/(s*(s+kel)) -rDepot/(s+kel)^2
+    // = (kel*pDepot - rDepot)/(s+kel)^2 + rDepot/(s*(s+kel))
+    // = dt*(kel*pDepot - rDepot)*E
+    //rDepot/kel*exp(-0*t) + rDepot/(-kel)*exp(-kel*t)
+    // rDepot/kel(1-E)
+    yp[hasDepot] += (pDepot*(*kel)-rDepot)*dt*E + rDepot/(*kel)*(1.0-E);
   } else {
     double kaMkel = (*ka)-(*kel);
     yp[hasDepot] += pDepot*(*ka)*(E-Ea)/(kaMkel) +
       rDepot*((*ka)*(1-E) + (*kel)*(Ea-1))/((*kel)*kaMkel);
   }
   if (hasDepot) {
-    yp[0] = rDepot*(1.0-Ea)/(*ka) + pDepot*((*ka)*(1-E));
+    yp[0] = rDepot*(1.0-Ea)/(*ka) + pDepot*Ea;
   }
 
   return 1;
