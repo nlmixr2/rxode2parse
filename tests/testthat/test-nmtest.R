@@ -10,9 +10,8 @@ p <- TRUE
 library(ggplot2)
 
 solveEqual <- function(id) {
-  d <- d[d$id == id,]
-  print(head(d))
-  s1 <- linCmt(d, cl=1.1, v=20, ka=1.5, sm=1000) |>
+  d2 <- d[d$id == id,]
+  s1 <- linCmt(d2, cl=1.1, v=20, ka=1.5, sm=1000) |>
     dplyr::filter(EVID == 0) |>
     dplyr::mutate(Cc=Cc)
   print(ggplot(data=s1, aes(TIME, Cc)) +
@@ -24,6 +23,46 @@ solveEqual <- function(id) {
 solveEqual(1)
 
 solveEqual(2)
+
+
+solveEqual(3)
+solveEqual(4)
+solveEqual(5)
+solveEqual(7)
+solveEqual(8)
+solveEqual(16)
+solveEqual(18)
+
+# FIXME
+
+solveEqual(6)
+
+solveEqual(9)
+
+solveEqual(10)
+
+solveEqual(11)
+
+solveEqual(12)
+
+solveEqual(13)
+
+solveEqual(14)
+
+solveEqual(15)
+
+solveEqual(17)
+
+solveEqual(19)
+
+solveEqual(20)
+
+solveEqual(21)
+
+solveEqual(22)
+
+solveEqual(23)
+
 
 ## id <- unique(d$id)
 
