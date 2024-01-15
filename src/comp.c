@@ -355,11 +355,11 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   void *ctx = &(lin);
   if (ind->idx == 0) {
     // initialization
-    xp = xout = getTime_(ind->ix[ind->idx], ind);
+    xp = xout = getTime__(ind->ix[ind->idx], ind, 0);
     yp = ypLast = Alast0;
   } else {
     xp = (ind->idx == 0 ? 0.0 : getTime_(ind->ix[ind->idx-1], ind));
-    xout = getTime_(ind->ix[ind->idx], ind);
+    xout = getTime__(ind->ix[ind->idx], ind, 0);
     ypLast=getAdvan(ind->idx-1);
   }
   yp = getAdvan(ind->idx);
@@ -777,9 +777,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   iniSubject(0, 0, ind, op, rx, u_inis_lincmt);
   double *yp;
   SEXP CcSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
-
   SEXP TimeSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
-
   double *Cc = REAL(CcSxp);
   double *time = REAL(TimeSxp);
   double *p1 = REAL(VECTOR_ELT(par, 0));
@@ -804,7 +802,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   int linCmt = 0; // states before linCmt model, in this case 0
   for(int i=0; i < indR.n_all_times; ++i) {
     ind->idx=i;
-    xout = getTime_(ind->ix[i], ind);
+    xout = getTime__(ind->ix[i], ind, 0);
     if (isOral) {
       Cc[i] = linCmtCompA(rx, 0, xout, linCmt, rx->linNcmt, trans,
                           p1[i], v1[i], p2[i], p3[i], p4[i], p5[i],
@@ -813,7 +811,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
     } else {
       Cc[i] = linCmtCompA(rx, 0, xout, linCmt, rx->linNcmt, trans,
                           p1[i], v1[i], p2[i], p3[i], p4[i], p5[i],
-                          lagcentral[i], fcentral[i], ratecentral[i], durcentral[i],
+                         lagcentral[i], fcentral[i], ratecentral[i], durcentral[i],
                           0.0, 0.0, 1.0,  0.0, 0.0);
     }
     Cc[i]= Cc[i]*sm;
