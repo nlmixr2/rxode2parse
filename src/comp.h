@@ -52,6 +52,33 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
   double pDepot = 0.0;
   double rDepot = 0.0;
   double R = rate[hasDepot];
+  // In the derivation used in https://doi.org/10.12793/tcp.2019.27.2.43
+  // the expression for the Ka contribution (Eq 9, Eq 13 and Eq 33) is given by
+  //
+  // Ka*Xg(0)*exp(-Ka*t)
+  //
+  // This is true as long as there is not an infusion in the depot
+  //
+  // When there is an infusion (Rg) in the depot the ka would be:
+  //
+  // Ka*[Kg(0)*exp(-Ka*t) + Rg/ka*(1-exp(-Ka*t))]
+  //
+  // as implied by equation #12 (which is the eq in the bracket)
+  //
+  // expanding this becomes:
+  //
+  // (Ka*Kg(0) - Rg)*exp(-Ka*t) + Rg
+  //
+  // Both Ka*Kg(0) and Ka*kg(0)-Rg in general are not dependent on
+  // time.  Also Rg is simply a time invariant constant
+  //
+  // Which means to get equations where infusions into a depot are supported
+  // You need to simply change 2 items:
+  //
+  // - in Eq 11, 32 and 41 you change Ka*Kg(0) to (Ka*Kg(0)- Rg)
+  // - in Eq 11, 32 and 41 you change R to (R+Rg)
+  //
+  // This was observed after solving a few systems manually
   if (hasDepot == 1) {
     Ea = exp(-(*ka)*dt);
     pDepot = yp[0];
@@ -60,23 +87,9 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
   }
   yp[hasDepot] = yp[hasDepot]*E + R*(1.0-E)/(*kel);
   if (isSameTime((*ka), (*kel))) {
-    // Quick derivation of extra terms with laplace transform
-    // d/dt(central) = -kel*central + kel*(pDepot*E+rDepot*(1-E)/kel)
-    // d/dt(central) = -kel*central +  kel*pDepot*exp(-kel*t) + rDepot*(1-exp(-kel*t))
-
-    // Laplace transform:
-    // s*X(c) - X(0) = -kel*X(c) + kel*pDepot/(s+kel) + rDepot/s -rDepot/(s+kel)
-    // s*X(c) + kel* X(c) = X(0) + kel*pDepot/(s+kel) + rDepot/s -rDepot/(s+kel)
-    // X(c) = X(0)/(s+kel) + kel*pDepot/(s+kel)^2 + rDepot/(s*(s+kel)) -rDepot/(s+kel)^2
-    // = (kel*pDepot - rDepot)/(s+kel)^2 + rDepot/(s*(s+kel))
-    // = dt*(kel*pDepot - rDepot)*E
-    //rDepot/kel*exp(-0*t) + rDepot/(-kel)*exp(-kel*t)
-    // rDepot/kel(1-E)
     yp[hasDepot] += (pDepot*(*kel)-rDepot)*dt*E;
   } else {
     yp[hasDepot] += (pDepot*(*ka)-rDepot)*(E-Ea)/((*ka)-(*kel));
-    /* yp[hasDepot] += pDepot*(*ka)*(E-Ea)/(kaMkel) + */
-    /*   rDepot*((*ka)*(1-E) + (*kel)*(Ea-1))/((*kel)*kaMkel); */
   }
   if (hasDepot) {
     yp[0] = rDepot*(1.0-Ea)/(*ka) + pDepot*Ea;
