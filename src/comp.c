@@ -204,11 +204,7 @@ void handleSSbolus_lin(double *yp,
     }
     break;
   case 1:
-    if (cmtOff == 0 && oral0 == 1) {
-      comp1ssBolusDepot(yp + linCmt, &ii, &dose, &(lin->ka), &(lin->k10));
-    } else {
-      comp1ssBolusCentral(yp + linCmt, &ii, &dose, &(lin->ka), &(lin->k10));
-    }
+    comp1ssBolus(&cmtOff, yp + linCmt, &ii, &dose, &(lin->ka), &(lin->k10));
     break;
   }
   if (ret == 0) {

@@ -4,33 +4,79 @@
 // Infinite infusion
 static inline void comp1ssInf8(double *yp, double *rate, double *ka, double *kel) {
   rx_solve *rx=(&rx_global);
-  int hasDepot = rx->linKa;
-  yp[hasDepot] = (*rate)/(*kel);
+  if (rx->linKa) {
+    // has depot
+    if (isSameTime(rate[0], 0.0)) {
+      // rate[0]; assume central infusion
+      yp[0] = 0.0;
+      yp[1] = rate[1]/(*kel);
+    } else {
+      // depot infusion
+      yp[0] = rate[0]/(*kel);
+      yp[1] = rate[0]/(*kel);
+    }
+  } else {
+    // central infusion (no depot)
+    yp[0] = rate[0]/(*kel);
+  }
 }
 
 static inline void comp1ssInf(double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *kel) {
-  double eiK = exp(-(*kel)*(*dur));
-  double eK = exp(-(*kel)*((*ii)-(*dur)))/(1.0-exp(-(*kel)*(*ii)));
   rx_solve *rx=(&rx_global);
-  int hasDepot = rx->linKa;
-  yp[hasDepot]=eK*((*rate)/(*kel) - eiK*(*rate)*(-(*kel) + (*ka))/((*ka)*(*kel) - (*kel)*(*kel)));
+  if (rx->linKa) {
+    // has depot
+    if (isSameTime(rate[0], 0.0)) {
+      // rate[0]; assume central infusion
+      double eiK = exp(-(*kel)*(*dur));
+      double eK = exp(-(*kel)*((*ii)-(*dur)))/(1.0-exp(-(*kel)*(*ii)));
+      double rCentral = rate[1];
+      yp[0]=0.0;
+      yp[1]=eK*((rCentral)/(*kel) - eiK*(rCentral)*(-(*kel) + (*ka))/((*ka)*(*kel) - (*kel)*(*kel)));
+    } else {
+      // depot infusion
+      double eKa = exp(-(*ka)*((*ii)-(*dur)))/(1.0-exp(-(*ii)*(*ka)));
+      double eiKa = exp(-(*ka)*(*dur));
+      double eiK = exp(-(*kel)*(*dur));
+      double eK = exp(-(*kel)*((*ii)-(*dur)))/(1.0-exp(-(*ii)*(*kel)));
+      double rDepot = rate[0];
+      yp[0] = eKa*((rDepot)/(*ka) - eiKa*(rDepot)/(*ka));
+      yp[1] = eK*((rDepot)/(*kel) +
+                  eiKa*(rDepot)/(-(*kel) + (*ka)) -
+                  eiK*(rDepot)*(*ka)/((*ka)*(*kel) - (*kel)*(*kel))) +
+        (*ka)*(eK - eKa)*((rDepot)/(*ka) -
+                          eiKa*(rDepot)/(*ka))/(-(*kel) + (*ka));
+    }
+  } else {
+    // no depot
+    double eiK = exp(-(*kel)*(*dur));
+    double eK = exp(-(*kel)*((*ii)-(*dur)))/(1.0-exp(-(*kel)*(*ii)));
+    double rCentral = rate[0];
+    yp[0]=eK*((rCentral)/(*kel) - eiK*(rCentral)*(-(*kel) + (*ka))/((*ka)*(*kel) - (*kel)*(*kel)));
+  }
 }
 
-// Steady state central dosing
-static inline void comp1ssBolusCentral(double *yp, double *ii, double *dose, double *ka, double *kel) {
+static inline void comp1ssBolus(int *cmtOff, double *yp, double *ii, double *dose, double *ka, double *kel) {
   rx_solve *rx=(&rx_global);
-  int hasDepot = rx->linKa;
-  double eT = 1.0/(1.0-exp(-(*kel)*(*ii)));
-  yp[hasDepot] = (*dose)*eT;
-}
-
-// Steady state bolus dosing
-static inline void comp1ssBolusDepot(double *yp, double *ii, double *dose, double *ka, double *kel) {
-  double eKa = 1.0/(1.0-exp(-(*ii)*(*ka)));
-  double eK =  1.0/(1.0-exp(-(*ii)*(*kel)));
-  yp[0]=eKa*(*dose);
-  yp[1]=(*ka)*(*dose)*(eK - eKa)/((*ka)-(*kel));
+  if (rx->linKa) {
+    // has depot
+    if (*cmtOff == 0) {
+      // dosing to depot
+      double eKa = 1.0/(1.0-exp(-(*ii)*(*ka)));
+      double eK =  1.0/(1.0-exp(-(*ii)*(*kel)));
+      yp[0]=eKa*(*dose);
+      yp[1]=(*ka)*(*dose)*(eK - eKa)/((*ka)-(*kel));
+    } else {
+      // dosing to central
+      double eT = 1.0/(1.0-exp(-(*kel)*(*ii)));
+      yp[0] = 0.0;
+      yp[1] = (*dose)*eT;
+    }
+  } else {
+    // dossing to central
+    double eT = 1.0/(1.0-exp(-(*kel)*(*ii)));
+    yp[0] = (*dose)*eT;
+  }
 }
 
 //////////////////////////////////////////////////
@@ -40,15 +86,39 @@ static inline void comp1ssBolusDepot(double *yp, double *ii, double *dose, doubl
 static inline void comp2ssInf8(double *yp, double *rate, double *ka, double *k10,
                                double *k12, double *k21) {
   rx_solve *rx=(&rx_global);
-  int hasDepot = rx->linKa;
-  double E1 = (*k10)+(*k12);
-  double s = E1+(*k21);
-  double sqr = sqrt(s*s-4*(E1*(*k21)-(*k12)*(*k21)));
-  double lambda1 = 0.5*(s+sqr);
-  double lambda2 = 0.5*(s-sqr);
-  double l12 = 1.0/(lambda1*lambda2);
-  yp[hasDepot]=(*rate)*(*k21)*l12;
-  yp[hasDepot+1]=(*rate)*(*k12)*l12;
+  if (rx->linKa) {
+    // has depot
+    if (isSameTime(rate[0], 0.0)) {
+      // central infusion
+      double E1 = (*k10)+(*k12);
+      double s = E1+(*k21);
+      double sqr = sqrt(s*s-4*(E1*(*k21)-(*k12)*(*k21)));
+      double lambda1 = 0.5*(s+sqr);
+      double lambda2 = 0.5*(s-sqr);
+      double l12 = 1.0/(lambda1*lambda2);
+      yp[0] = 0.0;
+      yp[1] = (rate[1])*(*k21)*l12; // central
+      yp[2] = (rate[1])*(*k12)*l12; // periph
+    } else {
+      // depot infusion
+      double s = (*k12)+(*k21)+(*k10);
+      double beta  = 0.5*(s - sqrt(s*s - 4*(*k21)*(*k10)));
+      double alpha = (*k21)*(*k10)/beta;
+      yp[0]=(rate[0])/(*ka);
+      yp[1]=(rate[0])*(*k21)/(beta*alpha);
+      yp[2]=(rate[0])*(*k12)/(beta*alpha);
+    }
+  } else {
+    // central only
+    double E1 = (*k10)+(*k12);
+    double s = E1+(*k21);
+    double sqr = sqrt(s*s-4*(E1*(*k21)-(*k12)*(*k21)));
+    double lambda1 = 0.5*(s+sqr);
+    double lambda2 = 0.5*(s-sqr);
+    double l12 = 1.0/(lambda1*lambda2);
+    yp[0]=(rate[0])*(*k21)*l12; // central
+    yp[1]=(rate[0])*(*k12)*l12; // periph
+  }
 }
 
 static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
