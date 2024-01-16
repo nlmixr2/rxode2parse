@@ -182,19 +182,13 @@ void handleSSbolus_lin(double *yp,
   rx_solve *rx=(&rx_global);
   double ii = getIi(ind, ind->ix[*i]);
   double dose = getDose(ind, ind->ix[*i]);
-  int oral0 = rx->linKa;
   int linCmt = ind->linCmt;
   int cmtOff = ind->cmt- ind->linCmt;
   int ret = 1;
   switch(rx->linNcmt) {
   case 3:
-    if (cmtOff == 0 && oral0 == 1) {
-      comp3ssBolusDepot(yp + linCmt, &ii, &dose, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
+    comp3ssBolus(&cmtOff, yp + linCmt, &ii, &dose, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                         &(lin->k13), &(lin->k31));
-    } else {
-      comp3ssBolusCentral(yp + linCmt, &ii, &dose, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
-                          &(lin->k13), &(lin->k31));
-    }
     break;
   case 2:
     comp2ssBolus(&cmtOff, yp + linCmt, &ii, &dose, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));

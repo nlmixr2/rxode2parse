@@ -118,7 +118,7 @@ static inline int comp1solve2(double *yp, // prior solving information, will be 
   Xo[0] = Xo[1] = 0.0;
   E[0] = Ea[0] = exp(-L[0]*dT);
   E[1] = Ea[1] = exp(-L[1]*dT);
-  const double one = 1.0, zero = 0.0;
+  const double one = 1.0;
   const int ione = 1, itwo = 2;
   //Xo = Xo + pX[1 + j] * Co[, , j] %*% E # Bolus
   F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(yp[hasDepot]), C1, &itwo, E,
@@ -140,7 +140,6 @@ static inline int comp1solve2(double *yp, // prior solving information, will be 
     // Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
     Rm[0] = (1.0 - E[0])/L[0];
     Rm[1] = (1.0 - E[1])/L[1];
-    double rtot = rate[hasDepot] + rDepot;
     F77_CALL(dgemm)("N", "N", &itwo, &ione, &itwo, &(R),
                     C1, &itwo, Rm, &itwo, &one, Xo, &itwo FCONE FCONE);
   }
@@ -173,7 +172,7 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
   E[1] = Ea[1] = exp(-L[1]*dT);
   E[2] = Ea[2] = exp(-L[2]*dT);
   const double one = 1.0, zero = 0.0;
-  const int ione = 1, itwo = 2, ithree=3;
+  const int ione = 1, ithree=3;
   //Xo = Xo + pX[1 + j] * Co[, , j] %*% E # Bolus
   Xo[0]=Xo[1]=Xo[2]=0.0;
   F77_CALL(dgemm)("N", "N", &ithree, &ione, &ithree, &(yp[hasDepot]), C1, &ithree,
