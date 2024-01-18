@@ -229,16 +229,16 @@ void solveSSinf_lin(double *yp,
   rx_solve *rx=(&rx_global);
   switch(rx->linNcmt) {
   case 3:
-    comp3ssInf(yp + linCmt, dur, curIi, lin->rate,
+    comp3ssInf(ind, yp + linCmt, dur, curIi, lin->rate,
                &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                &(lin->k13), &(lin->k31));
     break;
   case 2:
-    comp2ssInf(yp + linCmt, dur, curIi, lin->rate,
+    comp2ssInf(ind, yp + linCmt, dur, curIi, lin->rate,
                &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
-    comp1ssInf(yp + linCmt, dur, curIi, lin->rate,
+    comp1ssInf(ind, yp + linCmt, dur, curIi, lin->rate,
                &(lin->ka), &(lin->k10));
     break;
   }
@@ -344,7 +344,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     ypLast=getAdvan(ind->idx-1);
   }
   yp = getAdvan(ind->idx);
-  if (ind->idx <= ind->solved) {
+  if (ind->idx < ind->solved) {
     // Pull from last solved value (cached)
     if (yp[oral0] == 0.0) {
       // it is zero, perhaps it wasn't solved, double check
@@ -356,10 +356,9 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
         return(yp[oral0]/v1);
       }
     }
-  } else if (ind->idx != 0) {
-    for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
-      yp[j] = ypLast[j];
-    }
+  }
+  for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
+    yp[j] = ypLast[j];
   }
   int i = ind->idx;
   if (getEvid(ind, ind->ix[i]) != 3) {

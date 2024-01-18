@@ -21,7 +21,7 @@ static inline void comp1ssInf8(double *yp, double *rate, double *ka, double *kel
   yp[central] = rate[central]/(*kel);
 }
 
-static inline void comp1ssInf(double *yp, double *dur, double *ii, double *rate,
+static inline void comp1ssInf(rx_solving_options_ind *ind, double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *kel) {
   rx_solve *rx=(&rx_global);
   int central = 0;
@@ -30,7 +30,8 @@ static inline void comp1ssInf(double *yp, double *dur, double *ii, double *rate,
     if (isSameTime(rate[0], 0.0)) {
       // rate[0]; assume central infusion
       central = 1;
-      yp[0]=0.0;
+      yp[0]   = 0.0;
+      rate[0] = 0.0;
     } else {
       // depot infusion
       double eKa = exp(-(*ka)*((*ii)-(*dur)))/(1.0-exp(-(*ii)*(*ka)));
@@ -44,6 +45,11 @@ static inline void comp1ssInf(double *yp, double *dur, double *ii, double *rate,
                   eiK*(rDepot)*(*ka)/((*ka)*(*kel) - (*kel)*(*kel))) +
         (*ka)*(eK - eKa)*((rDepot)/(*ka) -
                           eiKa*(rDepot)/(*ka))/(-(*kel) + (*ka));
+      double lag = ind->linCmtLag[0];
+      if (lag + *dur < *ii) {
+        rate[0] = 0.0;
+      }
+      rate[1] = 0.0;
       return;
     }
   }
@@ -52,6 +58,12 @@ static inline void comp1ssInf(double *yp, double *dur, double *ii, double *rate,
   double eK = exp(-(*kel)*((*ii)-(*dur)))/(1.0-exp(-(*kel)*(*ii)));
   double rCentral = rate[central];
   yp[central]=eK*((rCentral)/(*kel) - eiK*(rCentral)*(-(*kel) + (*ka))/((*ka)*(*kel) - (*kel)*(*kel)));
+  double lag = ind->linCmtLag[central];
+  // lag + dur < ii
+  if (lag + *dur < *ii) {
+    // should be off
+    rate[central] = 0.0;
+  }
 }
 
 static inline void comp1ssBolus(int *cmtOff, double *yp, double *ii, double *dose, double *ka, double *kel) {
@@ -91,6 +103,7 @@ static inline void comp2ssInf8(double *yp, double *rate, double *ka, double *k10
       // central infusion
       central = 1;
       yp[0] = 0.0;
+      rate[0] = 0.0;
     } else {
       // depot infusion
       double s = (*k12)+(*k21)+(*k10);
@@ -99,6 +112,7 @@ static inline void comp2ssInf8(double *yp, double *rate, double *ka, double *k10
       yp[0]=(rate[0])/(*ka);
       yp[1]=(rate[0])*(*k21)/(beta*alpha);
       yp[2]=(rate[0])*(*k12)/(beta*alpha);
+      rate[0] = rate[1] = 0.0;
       return;
     }
   }
@@ -111,9 +125,10 @@ static inline void comp2ssInf8(double *yp, double *rate, double *ka, double *k10
   double l12 = 1.0/(lambda1*lambda2);
   yp[central]=(rate[central])*(*k21)*l12; // central
   yp[central+1]=(rate[central])*(*k12)*l12; // periph
+  rate[central] = 0.0;
 }
 
-static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
+static inline void comp2ssInf(rx_solving_options_ind *ind, double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *k10, double *k12, double *k21) {
   rx_solve *rx=(&rx_global);
   int central = 0;
@@ -122,6 +137,7 @@ static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
       // central infusion
       central = 1;
       yp[0] = 0.0;
+      rate[0] = 0.0;
     } else {
       // depot infusion
       double s = (*k12)+(*k21)+(*k10);
@@ -148,6 +164,11 @@ static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
       yp[0]=eKa*((rate[0])/(*ka) - eiKa*(rate[0])/(*ka));
       yp[1]=(eA*(-alpha*((rate[0])*(*k21)/(beta*alpha) + eiKa*(rate[0])*(-(*k21) + (*ka))/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(-alpha + (*k21))/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(-beta + (*k21))/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + (*k21)*((rate[0])*(*k12)/(beta*alpha) - eiKa*(rate[0])*(*k12)/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(*k12)/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(*k12)/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + (*k21)*((rate[0])*(*k21)/(beta*alpha) + eiKa*(rate[0])*(-(*k21) + (*ka))/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(-alpha + (*k21))/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(-beta + (*k21))/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3))) - eB*(-beta*((rate[0])*(*k21)/(beta*alpha) + eiKa*(rate[0])*(-(*k21) + (*ka))/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(-alpha + (*k21))/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(-beta + (*k21))/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + (*k21)*((rate[0])*(*k12)/(beta*alpha) - eiKa*(rate[0])*(*k12)/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(*k12)/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(*k12)/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + (*k21)*((rate[0])*(*k21)/(beta*alpha) + eiKa*(rate[0])*(-(*k21) + (*ka))/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(-alpha + (*k21))/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(-beta + (*k21))/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3))))/(-alpha + beta) + (*ka)*(eA*(-alpha + (*k21))/((-alpha + beta)*(-alpha + (*ka))) + eB*(-beta + (*k21))/((-beta + (*ka))*(alpha - beta)) + eKa*((*k21) - (*ka))/((beta - (*ka))*(alpha - (*ka))))*((rate[0])/(*ka) - eiKa*(rate[0])/(*ka));
       yp[2]=(eA*(-alpha*((rate[0])*(*k12)/(beta*alpha) - eiKa*(rate[0])*(*k12)/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(*k12)/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(*k12)/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + (*k12)*((rate[0])*(*k21)/(beta*alpha) + eiKa*(rate[0])*(-(*k21) + (*ka))/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(-alpha + (*k21))/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(-beta + (*k21))/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + ((*k10) + (*k12))*((rate[0])*(*k12)/(beta*alpha) - eiKa*(rate[0])*(*k12)/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(*k12)/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(*k12)/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3))) - eB*(-beta*((rate[0])*(*k12)/(beta*alpha) - eiKa*(rate[0])*(*k12)/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(*k12)/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(*k12)/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + (*k12)*((rate[0])*(*k21)/(beta*alpha) + eiKa*(rate[0])*(-(*k21) + (*ka))/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(-alpha + (*k21))/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(-beta + (*k21))/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3)) + ((*k10) + (*k12))*((rate[0])*(*k12)/(beta*alpha) - eiKa*(rate[0])*(*k12)/(beta*alpha + (*ka)*(-alpha - beta) + ka2) - eiA*(rate[0])*(*ka)*(*k12)/(-beta*alpha2 + (*ka)*(beta*alpha - alpha2) + alpha3) + eiB*(rate[0])*(*ka)*(*k12)/(beta2*alpha + (*ka)*(-beta*alpha + beta2) - beta3))))/(-alpha + beta) + (*ka)*(*k12)*(eA/((-alpha + beta)*(-alpha + (*ka))) + eB/((-beta + (*ka))*(alpha - beta)) + eKa/((beta - (*ka))*(alpha - (*ka))))*((rate[0])/(*ka) - eiKa*(rate[0])/(*ka));
+      rate[1] = 0.0;
+      double lag = ind->linCmtLag[0];
+      if (lag + *dur < *ii) {
+        rate[0] = 0.0;
+      }
       return;
     }
   }
@@ -166,6 +187,10 @@ static inline void comp2ssInf(double *yp, double *dur, double *ii, double *rate,
   double eT2 =exp(-L2*((*ii)-(*dur)))/(1.0-exp(-(*ii)*L2));
   yp[central]=(eT1*(E2*((eTi1*(*rate) - eTi2*(*rate))/(-L1 + L2) + (*rate)*E2*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) - L1*((eTi1*(*rate) - eTi2*(*rate))/(-L1 + L2) + (*rate)*E2*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) + (*rate)*(*k12)*(*k21)*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) - eT2*(E2*((eTi1*(*rate) - eTi2*(*rate))/(-L1 + L2) + (*rate)*E2*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) - L2*((eTi1*(*rate) - eTi2*(*rate))/(-L1 + L2) + (*rate)*E2*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) + (*rate)*(*k12)*(*k21)*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))))/(-L1 + L2);
   yp[central+1]=(eT1*((*k12)*((eTi1*(*rate) - eTi2*(*rate))/(-L1 + L2) + (*rate)*E2*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) + (*rate)*E1*(*k12)*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2)) - (*rate)*(*k12)*L1*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) - eT2*((*k12)*((eTi1*(*rate) - eTi2*(*rate))/(-L1 + L2) + (*rate)*E2*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))) + (*rate)*E1*(*k12)*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2)) - (*rate)*(*k12)*L2*(1.0/(L1*L2) + eTi1/((L1 - L2)*L1) - eTi2/((L1 - L2)*L2))))/(-L1 + L2);
+  double lag = ind->linCmtLag[central];
+  if (lag + *dur < *ii) {
+    rate[central] = 0.0;
+  }
 }
 
 // Steady state central dosing
@@ -283,7 +308,7 @@ static inline void comp3ssInf8(double *yp, double *rate,
   yp[central+2] = (rate[central])*E2*(*k13)*l123;
 }
 
-static inline void comp3ssInf(double *yp, double *dur, double *ii, double *rate,
+static inline void comp3ssInf(rx_solving_options_ind *ind, double *yp, double *dur, double *ii, double *rate,
                               double *ka, double *k10,
                               double *k12, double *k21,
                               double *k13, double *k31) {
