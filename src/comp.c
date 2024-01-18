@@ -227,20 +227,60 @@ void solveSSinf_lin(double *yp,
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
   int linCmt = ind->linCmt;
   rx_solve *rx=(&rx_global);
+  int central = 0;
+  if (rx->linKa) {
+    // has depot
+    if (isSameTime(lin->rate[0], 0.0)) {
+      // lin->rate[0]; assume central infusion
+      central = 1;
+      yp[0]   = 0.0;
+      lin->rate[0] = 0.0;
+    } else {
+      // depot infusion
+      switch(rx->linNcmt) {
+      case 3:
+        comp3ssInfDepot(yp + linCmt, dur, curIi, lin->rate,
+                        &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
+                        &(lin->k13), &(lin->k31));
+        break;
+      case 2:
+        comp2ssInfDepot(yp + linCmt, dur, curIi, lin->rate,
+                        &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
+        break;
+      case 1:
+        comp1ssInfDepot(yp + linCmt, dur, curIi, lin->rate,
+                        &(lin->ka), &(lin->k10));
+        break;
+      }
+      double lag = ind->linCmtLag[0];
+      if (lag + *dur < *curIi) {
+        lin->rate[0] = 0.0;
+      }
+      lin->rate[1] = 0.0;
+      return;
+    }
+  }
+  // central
   switch(rx->linNcmt) {
   case 3:
-    comp3ssInf(ind, yp + linCmt, dur, curIi, lin->rate,
-               &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
-               &(lin->k13), &(lin->k31));
+    comp3ssInfCentral(&central, yp + linCmt, dur, curIi, lin->rate,
+                      &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
+                      &(lin->k13), &(lin->k31));
     break;
   case 2:
-    comp2ssInf(ind, yp + linCmt, dur, curIi, lin->rate,
-               &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
+    comp2ssInfCentral(&central, yp + linCmt, dur, curIi, lin->rate,
+                      &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
-    comp1ssInf(ind, yp + linCmt, dur, curIi, lin->rate,
-               &(lin->ka), &(lin->k10));
+    comp1ssInfCentral(&central, yp + linCmt, dur, curIi, lin->rate,
+                      &(lin->ka), &(lin->k10));
     break;
+  }
+  double lag = ind->linCmtLag[central];
+  // lag + dur < ii
+  if (lag + *dur < *curIi) {
+    // should be off
+    lin->rate[central] = 0.0;
   }
 }
 
