@@ -136,7 +136,6 @@ SEXP generateModelVars(void) {
   if (foundLinCmt) {
     if (tb.hasKa) {
       // depot + central
-      REprintf("alagLin0: %d, alagLin1: %d\n", alagLin0, alagLin1);
       extraAlag = 2;
       if (alagLin0) {
         alagVar[extraAlagAlloc] = 1;
