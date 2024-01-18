@@ -384,7 +384,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     ypLast=getAdvan(ind->idx-1);
   }
   yp = getAdvan(ind->idx);
-  if (ind->idx < ind->solved) {
+  if (ind->idx <= ind->solved) {
     // Pull from last solved value (cached)
     if (yp[oral0] == 0.0) {
       // it is zero, perhaps it wasn't solved, double check
