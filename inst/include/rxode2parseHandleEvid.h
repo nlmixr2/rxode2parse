@@ -264,7 +264,7 @@ extern "C" {
                                                          rx_solving_options_ind *ind) {
     int curEvid = 0, lastKnownOff = 0;
     double curAmt = 0.0;
-    if (idx < ind->ndoses) {
+    if (idx < ind->ndoses && idx >= 0) {
       curEvid = getEvid(ind, ind->idose[idx]);
       curAmt = getDoseNumber(ind, idx);
       lastKnownOff = 0;

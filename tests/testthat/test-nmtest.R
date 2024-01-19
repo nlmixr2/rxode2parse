@@ -17,20 +17,25 @@ solveEqual <- function(id) {
   print(ggplot(data=s1, aes(TIME, Cc)) +
           geom_line(col="red", linewidth=1.2) +
           theme_bw() +
-          geom_line(data=d, aes(time, cp), col="blue", lty=2, linewidth=1.2))
+          geom_line(data=d2, aes(time, cp), col="blue", lty=2, linewidth=1.2))
 }
 
 solveEqual(1)
 
 solveEqual(2)
 
-
 solveEqual(3)
+
 solveEqual(4)
+
 solveEqual(5)
+
 solveEqual(7)
+
 solveEqual(8)
+
 solveEqual(16)
+
 solveEqual(18)
 
 # FIXME

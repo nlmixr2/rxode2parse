@@ -350,7 +350,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   }
   lin.ka = d_ka;
   lin.rate = ind->InfusionRate + op->neq;
-  double xp, xout;
+  double xp = ind->all_times[0], xout = ind->all_times[0];
   double *ypLast, *yp;
   double Alast0[4] = {0, 0, 0, 0};
   int oral0 = rx->linKa;
@@ -472,6 +472,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     //calc_lhs(neq[1], xout, getSolve(i), ind->lhs);
     //updateExtraDoseGlobals(ind);
   }
+  ind->solved = ind->idx;
   return(yp[oral0]/lin.v);
 }
 

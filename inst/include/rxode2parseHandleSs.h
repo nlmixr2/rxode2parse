@@ -741,7 +741,7 @@ extern "C" {
       u_inis(neq[1], yp); // Update initial conditions @ current time
       if (rx->istateReset) *istate = 1;
       int k;
-      double xp2, xout2;
+      double xp2 = ind->all_times[0], xout2=0;
       int canBreak=0;
       xp2 = xp;
       if (doSSinf || isSameTimeOp(curIi, dur)) {
