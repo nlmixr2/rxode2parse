@@ -379,7 +379,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     xp = xout = getTime__(ind->ix[ind->idx], ind, 0);
     yp = ypLast = Alast0;
   } else {
-    xp = (ind->idx == 0 ? 0.0 : getTime_(ind->ix[ind->idx-1], ind));
+    xp = (ind->idx == 0 ?  getTime_(ind->ix[0], ind) : getTime_(ind->ix[ind->idx-1], ind));
     xout = getTime__(ind->ix[ind->idx], ind, 0);
     ypLast=getAdvan(ind->idx-1);
   }
