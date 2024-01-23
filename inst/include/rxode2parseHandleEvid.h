@@ -406,7 +406,6 @@ extern "C" {
 
   static inline double getAmt(rx_solving_options_ind *ind, int id, int cmt, double dose, double t, double *y) {
     // AMT handles the bioavailibility
-    rx_solving_options *op = &op_global;
     double ret = AMT(id, cmt, dose, t, y);
     if (ISNA(ret)){
       rx_solving_options *op = &op_global;
@@ -573,6 +572,58 @@ extern "C" {
     return re;
   }
 
+  static inline int ssSolveN(void) {
+    rx_solve *rx = &rx_global;
+    int n = rx->op->neq;
+    switch(rx->op->extraCmt) {
+    case 2:
+      n+=1;
+    case 1:
+      n+=rx->linNcmt;
+    }
+    return n;
+  }
+
+
+  static inline void ssSaveSolveLast(rx_solving_options_ind *ind, double *yp) {
+    for (int k = ssSolveN(); k--;) {
+      ind->solveLast[k] = yp[k];
+    }
+  }
+
+  static inline void ssSaveSolveLastUpdateBreak(rx_solving_options_ind *ind, double *yp, int *canBreak) {
+    rx_solving_options *op = &op_global;
+    for (int k = ssSolveN(); k--;) {
+      ind->solveLast[k] = yp[k];
+      if (op->ssRtol[k]*fabs(yp[k]) + op->ssAtol[k] <= fabs(yp[k]-ind->solveLast[k])) {
+        *canBreak=0;
+      }
+    }
+  }
+
+  static inline void ssSaveSolveLast2(rx_solving_options_ind *ind, double *yp) {
+    for (int k = ssSolveN(); k--;) {
+      ind->solveLast2[k] = yp[k];
+    }
+  }
+
+  static inline void ssSaveSolveLast2UpdateBreak(rx_solving_options_ind *ind, double *yp, int *canBreak) {
+    rx_solving_options *op = &op_global;
+    for (int k = ssSolveN(); k--;) {
+      ind->solveLast2[k] = yp[k];
+      if (op->ssRtol[k]*fabs(yp[k]) + op->ssAtol[k] <= fabs(yp[k]-ind->solveLast2[k])){
+        *canBreak=0;
+      }
+    }
+  }
+
+  static inline void ssAddSolveSave(rx_solving_options_ind *ind, double *yp) {
+    for (int j = ssSolveN(); j--;) {
+      yp[j]+=ind->solveSave[j];
+    }
+  }
+
+
   static inline int handle_evid(int evid, double *yp, double xout, rx_solving_options_ind *ind) {
     rx_solving_options *op = &op_global;
     int id  = ind->solveid;
@@ -628,7 +679,7 @@ extern "C" {
       }
       if (!ind->doSS && (ind->wh0 == EVID0_SS2 || ind->wh0 == EVID0_SS20)) {
         // Save for adding at the end; Only for ODE systems
-        memcpy(ind->solveSave, yp, (op->neq+op->extraCmt)*sizeof(double));
+        memcpy(ind->solveSave, yp, (ssSolveN())*sizeof(double));
       }
       switch(ind->whI) {
       case EVIDF_MODEL_RATE_ON: // modeled rate.

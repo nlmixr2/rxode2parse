@@ -23,8 +23,6 @@ solveEqual <- function(id) {
 }
 
 
-solveEqual(25)
-
 solveEqual(1)
 
 solveEqual(2)
@@ -57,7 +55,10 @@ solveEqual(21)
 
 solveEqual(22)
 
+solveEqual(25)
+
 solveEqual(26)
+
 
 # FIXME
 
@@ -75,8 +76,6 @@ solveEqual(20)
 solveEqual(23)
 
 solveEqual(24)
-
-solveEqual(25)
 
 
 ## id <- unique(d$id)

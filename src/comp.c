@@ -445,19 +445,6 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     xout = getTime__(ind->ix[ind->idx], ind, 0);
   }
   yp = getAdvan(ind->idx);
-  /* if (ind->idx <= ind->solved) { */
-  /*   // Pull from last solved value (cached) */
-  /*   if (yp[oral0] == 0.0) { */
-  /*     // it is zero, perhaps it wasn't solved, double check */
-  /*     ind->solved = max2(ind->idx-1, 0); */
-  /*   } else { */
-  /*     if (trans == 10) { */
-  /*       return(yp[oral0]*(v1+p3+p5)); */
-  /*     } else { */
-  /*       return(yp[oral0]/v1); */
-  /*     } */
-  /*   } */
-  /* } */
   for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
     yp[j] = ypLast[j];
   }
@@ -670,14 +657,14 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   // ..$ II  : num [1:135] 0 0 0 0 0 0 0 0 0 0 ...
   indR.ii = REAL(VECTOR_ELT(dat, 3)); // $II
 
-  double solveSave[2];
-  solveSave[0]   = solveSave[1] = 0.0;
+  double solveSave[4];
+  solveSave[0]   = solveSave[1] = solveSave[2] = solveSave[3] = 0.0;
   indR.solveSave  = solveSave;
-  double solveLast[2];
-  solveLast[0]   = solveLast[1] =0.0;
+  double solveLast[4];
+  solveLast[0]   = solveLast[1] = solveLast[2] = solveLast[3] = 0.0;
   indR.solveLast  = solveLast;
-  double solveLast2[2];
-  solveLast2[0]  = solveLast2[1] = 0.0;
+  double solveLast2[4];
+  solveLast2[0]  = solveLast2[1] = solveLast2[2] = solveLast[3] =0.0;
   indR.solveLast2 = solveLast2;
   /* int ixds; */
   indR.ixds=0;

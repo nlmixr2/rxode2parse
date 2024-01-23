@@ -217,27 +217,18 @@ extern "C" {
           badSolveExit(*i);
           break;
         }
-        for (int k = op->neq + op->extraCmt; k--;) {
-          ind->solveLast[k] = yp[k];
-        }
+        ssSaveSolveLast(ind, yp);
         *canBreak=0;
       } else if (j >= op->minSS){
         if (ind->rc[0]== -2019){
           if (op->strictSS){
             badSolveExit(*i);
           } else {
-            for (int k = op->neq + op->extraCmt; k--;){
-              yp[k] = ind->solveLast[k];
-            }
+            ssSaveSolveLast(ind, yp);
             ind->rc[0] = 2019;
           }
         }
-        for (int k = op->neq + op->extraCmt; k--;) {
-          ind->solveLast[k] = yp[k];
-          if (op->ssRtol[k]*fabs(yp[k]) + op->ssAtol[k] <= fabs(yp[k]-ind->solveLast[k])){
-            *canBreak=0;
-          }
-        }
+        ssSaveSolveLastUpdateBreak(ind, yp, canBreak);
       }
       // yp is last solve or y0
       *istate=1;
@@ -247,28 +238,19 @@ extern "C" {
           badSolveExit(*i);
           break;
         }
-        for (int k = op->neq + op->extraCmt; k--;){
-          ind->solveLast2[k] = yp[k];
-        }
+        ssSaveSolveLast2(ind, yp);
         *canBreak=0;
       } else if (j >= op->minSS){
         if (ind->rc[0]== -2019){
           if (op->strictSS){
             badSolveExit(*i);
           } else {
-            for (int k = op->neq + op->extraCmt; k--;){
-              yp[k] = ind->solveLast2[k];
-            }
+            ssSaveSolveLast2(ind, yp);
             ind->rc[0] = 2019;
           }
           break;
         }
-        for (int k = op->neq + op->extraCmt; k--;){
-          if (op->ssRtol[k]*fabs(yp[k]) + op->ssAtol[k] <= fabs(yp[k]-ind->solveLast2[k])){
-            *canBreak=0;
-          }
-          ind->solveLast2[k] = yp[k];
-        }
+        ssSaveSolveLast2UpdateBreak(ind, yp, canBreak);
         if (canBreak){
           break;
         }
@@ -276,7 +258,6 @@ extern "C" {
       *xp2 = *xout2;
     }
   }
-
 
   static inline const char *getId(int id) {
     rx_solve *rx = &rx_global;
@@ -740,7 +721,6 @@ extern "C" {
       memcpy(yp,op->inits, neq[0]*sizeof(double));
       u_inis(neq[1], yp); // Update initial conditions @ current time
       if (rx->istateReset) *istate = 1;
-      int k;
       double xp2 = ind->all_times[0], xout2=0;
       int canBreak=0;
       xp2 = xp;
@@ -772,7 +752,7 @@ extern "C" {
         //          ind->InfusionRate[ind->cmt], rate);
         if (doSS2){
           // Add at the end
-          for (j = neq[0];j--;) yp[j]+=ind->solveSave[j];
+          ssAddSolveSave(ind, yp);
         }
         ind->doSS=0;
         return;
@@ -802,9 +782,7 @@ extern "C" {
             pushDosingEvent(startTimeD+curLagExtra+cur*curIi,
                             rateOn, regEvid, ind);
           }
-          for (k = neq[0]; k--;){
-            ind->solveLast[k] = yp[k];
-          }
+          ssSaveSolveLast(ind, yp);
           ind->ixds--; // This dose stays in place
           // REprintf("ixds-- #3\n");
           xp2 = xout2;
@@ -935,9 +913,7 @@ extern "C" {
                      &canBreak, solveWith1Pt);
           *istate=1;
           // REprintf("Assign ind->ixds to %d (idx: %d) #6\n", ind->ixds, ind->idx);
-          for (k = neq[0]; k--;){
-            ind->solveLast[k] = yp[k];
-          }
+          ssSaveSolveLast(ind, yp);
           xp2 = xout2;
           bool doNoLag = false;
           if (isSsLag) {
@@ -1039,9 +1015,7 @@ extern "C" {
                             rateOff, extraEvid, ind);
           }
           *istate=1;
-          for (k = neq[0]; k--;){
-            ind->solveLast[k] = yp[k];
-          }
+          ssSaveSolveLast(ind, yp);
           xp2 = xout2;
           ind->idx=fi;
           ind->ixds = infFixds;
@@ -1052,7 +1026,7 @@ extern "C" {
       }
       if (doSS2){
         // Add at the end
-        for (j = neq[0];j--;) yp[j]+=ind->solveSave[j];
+        ssAddSolveSave(ind, yp);
       }
       if (!doSSinf && !isSsLag && !skipDosingEvent){
         // REprintf("handleEvid %d %d %d\n", doSSinf, isSsLag, skipDosingEvent);
