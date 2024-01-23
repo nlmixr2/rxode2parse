@@ -51,9 +51,15 @@ solveEqual(17)
 
 solveEqual(18)
 
+solveEqual(20)
+
 solveEqual(21)
 
 solveEqual(22)
+
+solveEqual(23)
+
+solveEqual(24)
 
 solveEqual(25)
 
@@ -70,12 +76,8 @@ solveEqual(12)
 
 solveEqual(19)
 
-solveEqual(20)
 
 
-solveEqual(23)
-
-solveEqual(24)
 
 
 ## id <- unique(d$id)
