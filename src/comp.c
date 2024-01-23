@@ -414,7 +414,6 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   lin_context_c_t lin;
   rx_solving_options_ind *ind = &(rx->subjects[id]);
   rx_solving_options *op = rx->op;
-  double t = _t - ind->curShift;
   unsigned int ncmt=0;
   int neq[2];
   neq[0] = op->neq;
@@ -489,18 +488,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   if (!op->badSolve) {
     ind->idx = i;
     if (getEvid(ind, ind->ix[i]) == 3){
-      ind->curShift -= rx->maxShift;
-      for (int j = op->neq + op->extraCmt; j--;) {
-        ind->InfusionRate[j] = 0;
-        ind->on[j] = 1;
-        ind->cacheME=0;
-      }
-      cancelInfusionsThatHaveStarted(ind, ind->solveid, xout);
-      cancelPendingDoses(ind, neq[1]);
-      /* memcpy(yp, op->inits, neq[0]*sizeof(double)); */
-      u_inis_lincmt(neq[1], yp); // Update initial conditions @ current time */
-      ind->ixds++;
-      xp=xout;
+      handle_evid3(ind, neq, &xp, &xout, yp, u_inis_lincmt, &istate);
     } else if (handleEvid1(&i, rx, neq, yp, &xout)){
       handleSS(neq, ind->BadDose, ind->InfusionRate, ind->dose, yp, xout,
                xp, ind->id, &i, ind->n_all_times, &istate, op, ind, u_inis_lincmt, ctx);
@@ -845,7 +833,6 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   DUR = (t_DUR)(linDur);
 
   iniSubject(0, 0, ind, op, rx, u_inis_lincmt);
-  double *yp;
   SEXP CcSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
   SEXP TimeSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
   SEXP EvidSxp = PROTECT(Rf_allocVector(INTSXP, indR.n_all_times)); pro++;
@@ -862,10 +849,8 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   double *p4 = REAL(VECTOR_ELT(par, 4));
   double *p5 = REAL(VECTOR_ELT(par, 5));
   double *ka = REAL(VECTOR_ELT(par, 10));
-  double xout = 0.0, xp= 0.0;
-  int istate = 1;
+  double xout = 0.0;
   void *ctx = NULL;
-  bool isOral  = rx->linKa;
   int linCmt = 0; // states before linCmt model, in this case 0
   for(int i=0; i < indR.n_all_times; ++i) {
     ind->idx=i;

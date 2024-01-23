@@ -170,7 +170,7 @@ static inline int comp1solve3(double *yp, // prior solving information, will be 
   E[0] = Ea[0] = exp(-L[0]*dT);
   E[1] = Ea[1] = exp(-L[1]*dT);
   E[2] = Ea[2] = exp(-L[2]*dT);
-  const double one = 1.0, zero = 0.0;
+  const double one = 1.0;
   const int ione = 1, ithree=3;
   //Xo = Xo + pX[1 + j] * Co[, , j] %*% E # Bolus
   Xo[0]=Xo[1]=Xo[2]=0.0;

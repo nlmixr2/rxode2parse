@@ -623,7 +623,6 @@ extern "C" {
     }
   }
 
-
   static inline int handle_evid(int evid, double *yp, double xout, rx_solving_options_ind *ind) {
     rx_solving_options *op = &op_global;
     int id  = ind->solveid;
