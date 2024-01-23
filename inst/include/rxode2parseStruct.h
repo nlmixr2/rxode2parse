@@ -178,6 +178,106 @@ extern "C" {
   }
 
   typedef struct {
+    int idx;
+    double p1;
+    double v1;
+    double p2;
+    double p3;
+    double p4;
+    double p5;
+    double d_tlag;
+    double d_F;
+    double d_rate1;
+    double d_dur1;
+    // Oral parameters
+    double d_ka;
+    double d_tlag2;
+    double d_F2;
+    double d_rate2;
+    double d_dur2;
+  } rx_solving_linCmt_dose_single;
+
+  typedef struct {
+    rx_solving_linCmt_dose_single *pars;
+    int n;
+    int nAlloc;
+  } rx_solving_linCmt_doses;
+
+  #define iniLinCmtAlloc 2
+
+  static inline void iniLinCmtDoses(rx_solving_linCmt_doses *doses) {
+    doses->n = 0;
+    doses->pars = (rx_solving_linCmt_dose_single*)(malloc(iniLinCmtAlloc*sizeof(rx_solving_linCmt_dose_single)));
+    if (doses->pars == NULL) {
+      Rf_error("ran out of memory");
+    }
+    doses->nAlloc = iniLinCmtAlloc;
+  }
+
+  static inline rx_solving_linCmt_dose_single* getLinCmtDoses(rx_solving_linCmt_doses *doses, int idx) {
+    rx_solving_linCmt_dose_single *single;
+    for (int i = 0; i < doses->n; ++i) {
+      single = &(doses->pars[i]);
+      if (single->idx == idx) {
+        return single;
+      }
+    }
+    return NULL;
+  }
+
+  static inline rx_solving_linCmt_dose_single* pushLinCmtDose(rx_solving_linCmt_doses *doses, int idx,
+                                                              double p1, double v1,
+                                                              double p2, double p3,
+                                                              double p4, double p5,
+                                                              double d_tlag, double d_F, double d_rate1,
+                                                              double d_dur1,
+                                                              // Oral parameters
+                                                              double d_ka, double d_tlag2,
+                                                              double d_F2,  double d_rate2, double d_dur2) {
+    rx_solving_linCmt_dose_single* single = getLinCmtDoses(doses, idx);
+    if (single == NULL) {
+      if (doses->nAlloc <= doses->n + 1) {
+        int size = doses->n + iniLinCmtAlloc + 1;
+        rx_solving_linCmt_dose_single* n = (rx_solving_linCmt_dose_single*)(realloc(doses->pars, size*sizeof(rx_solving_linCmt_dose_single)));
+        if (n == NULL) {
+          Rf_error("ran out of memory");
+        }
+        doses->pars = n;
+        doses->nAlloc = size;
+      }
+      single = &(doses->pars[doses->n]);
+      doses->n++;
+    }
+    single->idx = idx;
+    single->p1 = p1;
+    single->v1 = v1;
+    single->p2 = p2;
+    single->p3 = p3;
+    single->p4 = p4;
+    single->p4 = p5;
+    single->d_tlag = d_tlag;
+    single->d_F = d_F;
+    single->d_rate1 = d_rate1;
+    single->d_dur1 = d_dur1;
+    single->d_ka = d_ka;
+    single->d_tlag2 = d_tlag2;
+    single->d_F2 = d_tlag2;
+    single->d_rate2 = d_rate2;
+    single->d_dur2 = d_dur2;
+    return single;
+  }
+
+  static inline void resetLinCmtDose(rx_solving_linCmt_doses *doses) {
+    doses->n = 0;
+  }
+
+  static inline void freeLinCmtDoses(rx_solving_linCmt_doses *doses) {
+    doses->n = 0;
+    free(doses->pars);
+    doses->nAlloc = 0;
+  }
+
+  typedef struct {
     double bT;
     int *slvr_counter;
     int *dadt_counter;
@@ -291,10 +391,6 @@ extern "C" {
     bool lastIsSs2;
     double *timeThread;
     // linear compartmental solve
-    double *linCmtLag;
-    double *linCmtF;
-    double *linCmtDur;
-    double *linCmtRate;
   } rx_solving_options_ind;
 
   typedef struct {

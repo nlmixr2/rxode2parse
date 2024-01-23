@@ -36,9 +36,6 @@ extern "C" {
       return time;
     }
     if (cmt < 0) return time;
-    if (cmt >= op->neq) {
-      return ind->linCmtLag[cmt - op->neq]+time;
-    }
     double ret = LAG(id, cmt, time);
     if (ISNA(ret)) {
       op->badSolve = 1;
@@ -50,9 +47,6 @@ extern "C" {
   static inline double getRate(rx_solving_options_ind *ind, int id, int cmt, double dose, double t){
     rx_solving_options *op = &op_global;
     returnBadTime(t);
-    if (cmt >= op->neq) {
-      return ind->linCmtRate[cmt - op->neq];
-    }
     double ret = RATE(id, cmt, dose, t);
     if (ISNA(ret)){
       op->badSolve=1;
@@ -65,9 +59,6 @@ extern "C" {
     rx_solving_options *op = &op_global;
     returnBadTime(t);
     if (ISNA(t)) return t;
-    if (cmt >= op->neq) {
-      return ind->linCmtDur[cmt - op->neq];
-    }
     double ret = DUR(id, cmt, dose, t);
     if (ISNA(ret)){
       op->badSolve=1;
@@ -103,7 +94,7 @@ extern "C" {
     } else {
       rx_solve *rx = &rx_global;
       rx_solving_options *op = &op_global;
-      if (ind->cmt < op->neq){
+      if (ind->cmt < op->neq) {
         if (rx->needSort & 4){
           if (!(ind->err & 16)){
             ind->err += 16;
@@ -135,7 +126,7 @@ extern "C" {
       rx_solve *rx;
       rx = &rx_global;
       rx_solving_options *op = &op_global;
-      if (ind->cmt < op->neq){
+      if (ind->cmt < op->neq) {
         if (rx->needSort & 8){
           if (!(ind->err & 2)){
             ind->err += 2;

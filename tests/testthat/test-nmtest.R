@@ -1,4 +1,4 @@
-devtools::load_all()
+system("rm -rv src/*.o src/*.so");devtools::load_all()
 
 d <- nlmixr2data::nmtest
 names(d) <- sub("lagt", "lagcentral",
@@ -14,11 +14,16 @@ solveEqual <- function(id) {
   s1 <- linCmt(d2, cl=1.1, v=20, ka=1.5, sm=1000) |>
     dplyr::filter(EVID == 0) |>
     dplyr::mutate(Cc=Cc)
+  assign("s1", s1, envir=globalenv())
   print(ggplot(data=s1, aes(TIME, Cc)) +
           geom_line(col="red", linewidth=1.2) +
           theme_bw() +
-          geom_line(data=d2, aes(time, cp), col="blue", lty=2, linewidth=1.2))
+          geom_line(data=d2, aes(time, cp), col="blue", lty=2, linewidth=1.2) +
+          ggtitle(paste0("id=", id)))
 }
+
+
+solveEqual(17)
 
 solveEqual(1)
 
@@ -30,9 +35,15 @@ solveEqual(4)
 
 solveEqual(5)
 
+solveEqual(6)
+
 solveEqual(7)
 
 solveEqual(8)
+
+solveEqual(9)
+
+solveEqual(13)
 
 solveEqual(16)
 
@@ -40,19 +51,12 @@ solveEqual(18)
 
 # FIXME
 
-solveEqual(6)
-
-solveEqual(9)
 
 solveEqual(10)
 
 solveEqual(11)
 
 solveEqual(12)
-
-solveEqual(13)
-
-solveEqual(14)
 
 solveEqual(15)
 
@@ -67,6 +71,12 @@ solveEqual(21)
 solveEqual(22)
 
 solveEqual(23)
+
+solveEqual(24)
+
+solveEqual(25)
+
+solveEqual(26)
 
 
 ## id <- unique(d$id)

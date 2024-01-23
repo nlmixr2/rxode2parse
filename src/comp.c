@@ -84,19 +84,19 @@ void solveWith1Pt_lin(double *yp,
   switch(rx->linNcmt) {
   case 3:
     ret = comp1solve3(yp + linCmt, &xout, &xp, // last time
-                      lin->rate, // rate in central compartment
+                      ind->InfusionRate, // rate in central compartment
                       &(lin->ka),  &(lin->k10),
                       &(lin->k12), &(lin->k21),
                       &(lin->k13), &(lin->k31));
     break;
   case 2:
     ret = comp1solve2(yp + linCmt, &xout, &xp,
-                      lin->rate, // rate in central compartment
+                      ind->InfusionRate, // rate in central compartment
                       &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
     ret = comp1solve1(yp + linCmt, &xout, &xp, // last time
-                      lin->rate, &(lin->ka), &(lin->k10));
+                      ind->InfusionRate, &(lin->ka), &(lin->k10));
     break;
   }
   if (ret == 0) {
@@ -165,6 +165,7 @@ void solveWith1Pt_lin(double *yp,
                       t_update_inis u_inis,
                       void *ctx);
 
+
 void handleSSbolus_lin(double *yp,
                        double *xout, double xp,
                        int *i,
@@ -230,57 +231,57 @@ void solveSSinf_lin(double *yp,
   int central = 0;
   if (rx->linKa) {
     // has depot
-    if (isSameTime(lin->rate[0], 0.0)) {
-      // lin->rate[0]; assume central infusion
+    if (isSameTime(ind->InfusionRate[op->neq], 0.0)) {
+      // ind->InfusionRate[op->neq]; assume central infusion
       central = 1;
       yp[0]   = 0.0;
-      lin->rate[0] = 0.0;
+      ind->InfusionRate[op->neq] = 0.0;
     } else {
       // depot infusion
       switch(rx->linNcmt) {
       case 3:
-        comp3ssInfDepot(yp + linCmt, dur, curIi, lin->rate,
+        comp3ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate,
                         &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                         &(lin->k13), &(lin->k31));
         break;
       case 2:
-        comp2ssInfDepot(yp + linCmt, dur, curIi, lin->rate,
+        comp2ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate,
                         &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
         break;
       case 1:
-        comp1ssInfDepot(yp + linCmt, dur, curIi, lin->rate,
+        comp1ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate,
                         &(lin->ka), &(lin->k10));
         break;
       }
-      double lag = ind->linCmtLag[0];
+      double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
       if (lag + *dur < *curIi) {
-        lin->rate[0] = 0.0;
+        ind->InfusionRate[op->neq] = 0.0;
       }
-      lin->rate[1] = 0.0;
+      ind->InfusionRate[op->neq+1] = 0.0;
       return;
     }
   }
   // central
   switch(rx->linNcmt) {
   case 3:
-    comp3ssInfCentral(&central, yp + linCmt, dur, curIi, lin->rate,
+    comp3ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate,
                       &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                       &(lin->k13), &(lin->k31));
     break;
   case 2:
-    comp2ssInfCentral(&central, yp + linCmt, dur, curIi, lin->rate,
+    comp2ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate,
                       &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
-    comp1ssInfCentral(&central, yp + linCmt, dur, curIi, lin->rate,
+    comp1ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate,
                       &(lin->ka), &(lin->k10));
     break;
   }
-  double lag = ind->linCmtLag[central];
+  double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
   // lag + dur < ii
   if (lag + *dur < *curIi) {
     // should be off
-    lin->rate[central] = 0.0;
+    ind->InfusionRate[op->neq + central] = 0.0;
   }
 }
 
@@ -304,17 +305,66 @@ void solveSSinf8_lin(double *yp,
   rx_solve *rx=(&rx_global);
   switch(rx->linNcmt) {
   case 3:
-    comp3ssInf8(yp + linCmt, lin->rate,
+    comp3ssInf8(yp + linCmt, ind->InfusionRate + op->neq,
                 &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                 &(lin->k13), &(lin->k31));
     break;
   case 2:
-    comp2ssInf8(yp + linCmt,lin->rate, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
+    comp2ssInf8(yp + linCmt,ind->InfusionRate + op->neq, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
-    comp1ssInf8(yp + linCmt, lin->rate, &(lin->ka), &(lin->k10));
+    comp1ssInf8(yp + linCmt, ind->InfusionRate + op->neq, &(lin->ka), &(lin->k10));
     break;
   }
+}
+
+rx_solving_options_ind *_linInd;
+double *_linCmtFdepot;
+double *_linCmtFcentral;
+
+//typedef double (*t_F)(int _cSub,  int _cmt, double _amt, double t, double *y);
+extern double linAmt(int cSub, int cmt, double amt, double t, double *y) {
+  rx_solve* rx = &rx_global;
+  if (rx->linKa && cmt == 0) {
+    return(_linCmtFdepot[_linInd->ix[_linInd->idx]]*amt);
+  }
+  return(_linCmtFcentral[_linInd->ix[_linInd->idx]]*amt);
+}
+
+double *_linCmtLagdepot;
+double *_linCmtLagcentral;
+
+// typedef double (*t_LAG)(int _cSub,  int _cmt, double t);
+extern double linLag(int cSub, int cmt, double t) {
+  rx_solve* rx = &rx_global;
+  if (rx->linKa && cmt == 0) {
+    return(_linCmtLagdepot[_linInd->ix[_linInd->idx]] + t);
+  }
+  return(_linCmtLagcentral[_linInd->ix[_linInd->idx]] + t);
+}
+
+double *_linCmtRatedepot;
+double *_linCmtRatecentral;
+
+// typedef double (*t_RATE)(int _cSub,  int _cmt, double _amt, double t);
+extern double linRate(int cSub, int cmt, double amt, double t) {
+  rx_solve* rx = &rx_global;
+  if (rx->linKa && cmt == 0) {
+    return(_linCmtRatedepot[_linInd->ix[_linInd->idx]]);
+  }
+  return(_linCmtRatecentral[_linInd->ix[_linInd->idx]]);
+}
+
+double *_linCmtDurdepot;
+double *_linCmtDurcentral;
+
+// typedef double (*t_DUR)(int _cSub,  int _cmt, double _amt, double t);
+extern double linDur(int cSub,  int cmt, double amt, double t) {
+  rx_solve* rx = &rx_global;
+  if (rx->linKa && cmt == 0) {
+    return(_linCmtDurdepot[_linInd->ix[_linInd->idx]]);
+  }
+  return(_linCmtDurcentral[_linInd->ix[_linInd->idx]]);
 }
 
 #define handleSS(neq, BadDose, InfusionRate, dose, yp, xout, xp, id, i, nx, istate, op, ind, u_inis, ctx) handleSSGen(neq, BadDose, InfusionRate, dose, yp, xout, xp, id, i, nx, istate, op, ind, u_inis, ctx, solveWith1Pt_lin, handleSSbolus_lin, solveSSinf_lin, solveSSinf8_lin)
@@ -331,9 +381,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
                    double p1, double v1,
                    double p2, double p3,
                    double p4, double p5,
-                   double d_tlag, double d_F, double d_rate1, double d_dur1,
-                   // Oral parameters
-                   double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2) {
+                   double d_ka) {
   lin_context_c_t lin;
   rx_solving_options_ind *ind = &(rx->subjects[id]);
   rx_solving_options *op = rx->op;
@@ -354,49 +402,33 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   double *ypLast, *yp;
   double Alast0[4] = {0, 0, 0, 0};
   int oral0 = rx->linKa;
-  if (oral0) {
-    /* double d_tlag, double d_F, double d_rate1, double d_dur1, */
-    /*   // Oral parameters */
-    /*   double d_ka, double d_tlag2, double d_F2,  double d_rate2, double d_dur2 */
-    ind->linCmtLag[0] = d_tlag; // depot
-    ind->linCmtLag[1] = d_tlag2; // central
-    ind->linCmtF[0] = d_F;
-    ind->linCmtF[1] = d_F2;
-    ind->linCmtDur[0] = d_dur1;
-    ind->linCmtDur[1] = d_dur2;
-    ind->linCmtRate[0] = d_rate1;
-    ind->linCmtRate[1] = d_rate2;
-  } else {
-    ind->linCmtLag[0] = d_tlag;
-    ind->linCmtF[0]   = d_F;
-    ind->linCmtDur[0] = d_dur1;
-    ind->linCmtRate[0] = d_rate1;
-  }
-  rxode2parse_sortRest0(ind, ind->idx);
   void *ctx = &(lin);
   if (ind->idx == 0) {
     // initialization
     xp = xout = getTime__(ind->ix[ind->idx], ind, 0);
     yp = ypLast = Alast0;
   } else {
-    xp = (ind->idx == 0 ?  getTime_(ind->ix[0], ind) : getTime_(ind->ix[ind->idx-1], ind));
+    ind->idx = ind->idx - 1;
+    xp = getTime__(ind->ix[ind->idx], ind, 0);
+    ypLast=getAdvan(ind->idx);
+
+    ind->idx = ind->idx + 1;
     xout = getTime__(ind->ix[ind->idx], ind, 0);
-    ypLast=getAdvan(ind->idx-1);
   }
   yp = getAdvan(ind->idx);
-  if (ind->idx <= ind->solved) {
-    // Pull from last solved value (cached)
-    if (yp[oral0] == 0.0) {
-      // it is zero, perhaps it wasn't solved, double check
-      ind->solved = max2(ind->idx-1, 0);
-    } else {
-      if (trans == 10) {
-        return(yp[oral0]*(v1+p3+p5));
-      } else {
-        return(yp[oral0]/v1);
-      }
-    }
-  }
+  /* if (ind->idx <= ind->solved) { */
+  /*   // Pull from last solved value (cached) */
+  /*   if (yp[oral0] == 0.0) { */
+  /*     // it is zero, perhaps it wasn't solved, double check */
+  /*     ind->solved = max2(ind->idx-1, 0); */
+  /*   } else { */
+  /*     if (trans == 10) { */
+  /*       return(yp[oral0]*(v1+p3+p5)); */
+  /*     } else { */
+  /*       return(yp[oral0]/v1); */
+  /*     } */
+  /*   } */
+  /* } */
   for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
     yp[j] = ypLast[j];
   }
@@ -470,9 +502,9 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
     }
     //if (i+1 != nx) memcpy(getSolve(i+1), getSolve(i), neq[0]*sizeof(double));
     //calc_lhs(neq[1], xout, getSolve(i), ind->lhs);
-    //updateExtraDoseGlobals(ind);
+    /* updateExtraDoseGlobals(ind); */
   }
-  ind->solved = ind->idx;
+  //ind->solved = ind->idx;
   return(yp[oral0]/lin.v);
 }
 
@@ -489,31 +521,19 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   SEXP par = PROTECT(VECTOR_ELT(in, 1)); pro++; // parameter table
   int trans = INTEGER(VECTOR_ELT(in, 2))[0];
   double sm = REAL(VECTOR_ELT(in, 3))[0];
-  double rate[2];
-  rate[0] = rate[1] = 0.0;
+  double InfusionRate[2];
+  InfusionRate[0] = InfusionRate[1] = 0.0;
   int cnt = 0;
   rx_solving_options_ind indR;
+  _linInd = &indR;
   indR.bT = 0.0;
+  indR.InfusionRate = InfusionRate;
   indR.slvr_counter = &cnt;
   indR.dadt_counter = &cnt;
   indR.jac_counter = &cnt;
-  indR.InfusionRate = rate;
   int BadDose[2];
   BadDose[0] = BadDose[1] = 0;
   indR.BadDose = BadDose;
-  double linCmtLag[2];
-  linCmtLag[0] = linCmtLag[1] = 0.0;
-  indR.linCmtLag = linCmtLag;
-  double linCmtF[2];
-  linCmtF[0] = linCmtF[1] = 1.0;
-  indR.linCmtF = linCmtF;
-  double linCmtDur[2];
-  linCmtDur[0] = linCmtDur[1] = 0.0;
-  indR.linCmtDur = linCmtDur;
-
-  double linCmtRate[2];
-  linCmtRate[0] = linCmtRate[1] = 0.0;
-  indR.linCmtRate = linCmtRate;
   int rc[1];
   rc[0] = 0;
   indR.rc=rc;
@@ -795,6 +815,19 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   rx_solving_options_ind* ind = &indR;
   rx->subjects =  ind;
   op->nlin = rx->linNcmt+rx->linKa;
+  _linCmtLagdepot = REAL(VECTOR_ELT(par, 6));
+  _linCmtFdepot = REAL(VECTOR_ELT(par, 7));
+  _linCmtRatedepot = REAL(VECTOR_ELT(par, 8));
+  _linCmtDurdepot = REAL(VECTOR_ELT(par, 9));
+   _linCmtLagcentral = REAL(VECTOR_ELT(par, 11));
+  _linCmtFcentral = REAL(VECTOR_ELT(par, 12));
+  _linCmtRatecentral = REAL(VECTOR_ELT(par, 13));
+  _linCmtDurcentral = REAL(VECTOR_ELT(par, 14));
+  AMT = (t_F)(linAmt);
+  LAG = (t_LAG)(linLag);
+  RATE = (t_RATE)(linRate);
+  DUR = (t_DUR)(linDur);
+
   iniSubject(0, 0, ind, op, rx, u_inis_lincmt);
   double *yp;
   SEXP CcSxp = PROTECT(Rf_allocVector(REALSXP, indR.n_all_times)); pro++;
@@ -812,15 +845,7 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   double *p3 = REAL(VECTOR_ELT(par, 3));
   double *p4 = REAL(VECTOR_ELT(par, 4));
   double *p5 = REAL(VECTOR_ELT(par, 5));
-  double *lagdepot = REAL(VECTOR_ELT(par, 6));
-  double *fdepot   = REAL(VECTOR_ELT(par, 7));
-  double *ratedepot = REAL(VECTOR_ELT(par, 8));
-  double *durdepot = REAL(VECTOR_ELT(par, 9));
   double *ka = REAL(VECTOR_ELT(par, 10));
-  double *lagcentral = REAL(VECTOR_ELT(par, 11));
-  double *fcentral = REAL(VECTOR_ELT(par, 12));
-  double *ratecentral = REAL(VECTOR_ELT(par, 13));
-  double *durcentral = REAL(VECTOR_ELT(par, 14));
   double xout = 0.0, xp= 0.0;
   int istate = 1;
   void *ctx = NULL;
@@ -829,19 +854,11 @@ SEXP _rxode2parse_compC(SEXP in, SEXP mv) {
   for(int i=0; i < indR.n_all_times; ++i) {
     ind->idx=i;
     xout = getTime__(ind->ix[i], ind, 0);
-    if (isOral) {
-      Cc[i] = linCmtCompA(rx, 0, xout, linCmt, rx->linNcmt, trans,
-                          p1[i], v1[i], p2[i], p3[i], p4[i], p5[i],
-                          lagdepot[i], fdepot[i], ratedepot[i], durdepot[i],
-                          ka[i], lagcentral[i], fcentral[i],  ratecentral[i], durcentral[i]);
-    } else {
-      Cc[i] = linCmtCompA(rx, 0, xout, linCmt, rx->linNcmt, trans,
-                          p1[i], v1[i], p2[i], p3[i], p4[i], p5[i],
-                         lagcentral[i], fcentral[i], ratecentral[i], durcentral[i],
-                          0.0, 0.0, 1.0,  0.0, 0.0);
-    }
+    Cc[i] = linCmtCompA(rx, 0, xout, linCmt, rx->linNcmt, trans,
+                        p1[i], v1[i], p2[i], p3[i], p4[i], p5[i],
+                        ka[i]);
     Cc[i]= Cc[i]*sm;
-    time[i] = getTime__(ind->ix[i], ind, 0);
+    time[i] = xout;
     evidOut[i] = getEvid(ind, ind->ix[i]);
     doseOut[i] = getDose(ind, ind->ix[i]);
   }
