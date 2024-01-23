@@ -19,11 +19,8 @@ solveEqual <- function(id) {
           geom_line(col="red", linewidth=1.2) +
           theme_bw() +
           geom_line(data=d2, aes(time, cp), col="blue", lty=2, linewidth=1.2) +
-          ggtitle(paste0("id=", id)))
+          ggtitle(paste0("id=", id, "; red=solved; blue: NONMEM")))
 }
-
-
-solveEqual(17)
 
 solveEqual(1)
 
@@ -47,6 +44,8 @@ solveEqual(13)
 
 solveEqual(16)
 
+solveEqual(17)
+
 solveEqual(18)
 
 # FIXME
@@ -59,8 +58,6 @@ solveEqual(11)
 solveEqual(12)
 
 solveEqual(15)
-
-solveEqual(17)
 
 solveEqual(19)
 
