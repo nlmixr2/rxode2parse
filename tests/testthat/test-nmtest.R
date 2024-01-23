@@ -22,6 +22,9 @@ solveEqual <- function(id) {
           ggtitle(paste0("id=", id, "; red=solved; blue: NONMEM")))
 }
 
+
+solveEqual(25)
+
 solveEqual(1)
 
 solveEqual(2)
@@ -42,11 +45,17 @@ solveEqual(9)
 
 solveEqual(13)
 
+solveEqual(15)
+
 solveEqual(16)
 
 solveEqual(17)
 
 solveEqual(18)
+
+solveEqual(21)
+
+solveEqual(22)
 
 solveEqual(26)
 
@@ -58,15 +67,10 @@ solveEqual(11)
 
 solveEqual(12)
 
-solveEqual(15)
-
 solveEqual(19)
 
 solveEqual(20)
 
-solveEqual(21)
-
-solveEqual(22)
 
 solveEqual(23)
 

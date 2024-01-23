@@ -796,7 +796,6 @@ extern "C" {
           xout2 = xp2 + curIi - curLagExtra;
           // Use "real" xout for handle_evid functions.
           *istate=1;
-          handle_evid(getEvid(ind, ind->ix[bi]),yp, xout, ind);
           // yp is last solve or y0
           solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
           for (int cur = 0; cur < overIi; ++cur) {

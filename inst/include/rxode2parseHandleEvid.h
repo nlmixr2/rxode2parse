@@ -584,8 +584,8 @@ extern "C" {
       ind->solved = ind->idx;
       return 0;
     } // else if (!ind->doSS) {
-    //   REprintf("handle evid %d dose at time %f is value %f (ind->ixds: %d; ind->idx: %d)\n",
-    //            evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx);
+    //   REprintf("handle evid %d dose at time %f is value %f (ind->ixds: %d; ind->idx: %d; ind->doSS: %d)\n",
+    //            evid, xout, getDoseIndex(ind, ind->idx), ind->ixds, ind->idx, ind->doSS);
     // }
     int cmt, foundBad, j;
     double tmp;
@@ -639,15 +639,6 @@ extern "C" {
           ind->on[cmt] = 1;
           ind->cacheME = 0;
           ind->InfusionRate[cmt] -= getDoseIndexPlus1(ind, ind->idx);
-          // if (ind->wh0 != EVID0_SS2 &&
-          //     ind->wh0 != EVID0_SS) {
-          //   int infEixds = ind->ixds;
-          //   if (infEixds > 0) {
-          //     pushPendingDose(infEixds+1, ind);
-          //   } else {
-          //     pushPendingDose(infEixds-1, ind);
-          //   }
-          // }
           if (ind->wh0 == EVID0_SS2 &&
               getAmt(ind, id, cmt, getDoseIndex(ind, ind->idx), xout, yp) !=
               getDoseIndex(ind, ind->idx)) {
