@@ -201,8 +201,12 @@ void handleSSbolus_lin(double *yp,
                        solveWith1Pt_fn solveWith1Pt) {
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
   rx_solve *rx=(&rx_global);
+  resetLin(ind, 3);
   double ii = getIi(ind, ind->ix[*i]);
-  double dose = getDose(ind, ind->ix[*i]);
+  int idx = ind->idx;
+  ind->idx = *i;
+  double dose = getAmt(ind, ind->id, ind->cmt, getDose(ind, ind->ix[*i]), *xout, yp);//getDose(ind, ind->ix[*i]);
+  ind->idx = idx;
   int linCmt = ind->linCmt;
   int cmtOff = ind->cmt- ind->linCmt;
   int ret = 1;
@@ -246,6 +250,7 @@ void solveSSinf_lin(double *yp,
                     int *canBreak,
                     solveWith1Pt_fn solveWith1Pt) {
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
+  resetLin(ind, 3);
   int linCmt = ind->linCmt;
   rx_solve *rx=(&rx_global);
   int central = 0;
