@@ -94,7 +94,6 @@ static inline int comp1solve1(double *yp, // prior solving information, will be 
   if (hasDepot) {
     yp[0] = rDepot*(1.0-Ea)/(*ka) + pDepot*Ea;
   }
-
   return 1;
 }
 

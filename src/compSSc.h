@@ -10,10 +10,9 @@ static inline void comp1ssInf8(double *yp, double *rate, double *ka, double *kel
     if (isSameTime(rate[0], 0.0)) {
       // central infusion
       central=1;
-      yp[1] = rate[1]/(*kel);
     } else {
       // depot infusion
-      yp[0] = rate[0]/(*kel);
+      yp[0] = rate[0]/(*ka);
       yp[1] = rate[0]/(*kel);
       return;
     }

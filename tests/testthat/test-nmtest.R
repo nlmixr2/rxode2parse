@@ -48,8 +48,9 @@ solveEqual(17)
 
 solveEqual(18)
 
-# FIXME
+solveEqual(26)
 
+# FIXME
 
 solveEqual(10)
 
@@ -72,8 +73,6 @@ solveEqual(23)
 solveEqual(24)
 
 solveEqual(25)
-
-solveEqual(26)
 
 
 ## id <- unique(d$id)

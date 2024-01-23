@@ -69,6 +69,26 @@ void lincmt_ini_dummy0(int cSub, double *x){
 
 t_update_inis u_inis_lincmt = lincmt_ini_dummy0;
 
+static inline void resetLin(rx_solving_options_ind *ind, int type) {
+  if (type == 0) return;
+  rx_solve *rx=(&rx_global);
+  rx_solving_options *op = rx->op;
+  double *yp = getAdvan(ind->idx);
+  if ((type & 1) == 0) {
+    for (int j=0; j < rx->linNcmt + rx->linKa; ++j) {
+      yp[j] = 0.0;
+    }
+  }
+  if ((type & 2) == 0) {
+    double *rateLin =ind->InfusionRate + op->neq;
+    if (rx->linKa) {
+      rateLin[0] = rateLin[1] = 0.0;
+    } else {
+      rateLin[0] = 0.0;
+    }
+  }
+}
+
 void solveWith1Pt_lin(double *yp,
                       double xout, double xp,
                       int *i,
@@ -303,19 +323,23 @@ void solveSSinf8_lin(double *yp,
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
   int linCmt = ind->linCmt;
   rx_solve *rx=(&rx_global);
+  resetLin(ind, 3);
+  ind->InfusionRate[ind->cmt] = *rateOn;
+  double *rateLin =ind->InfusionRate + op->neq;
   switch(rx->linNcmt) {
   case 3:
-    comp3ssInf8(yp + linCmt, ind->InfusionRate + op->neq,
+    comp3ssInf8(yp + linCmt, rateLin,
                 &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                 &(lin->k13), &(lin->k31));
     break;
   case 2:
-    comp2ssInf8(yp + linCmt,ind->InfusionRate + op->neq, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
+    comp2ssInf8(yp + linCmt, rateLin, &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
-    comp1ssInf8(yp + linCmt, ind->InfusionRate + op->neq, &(lin->ka), &(lin->k10));
+    comp1ssInf8(yp + linCmt, rateLin, &(lin->ka), &(lin->k10));
     break;
   }
+  resetLin(ind, 1);
 }
 
 rx_solving_options_ind *_linInd;
