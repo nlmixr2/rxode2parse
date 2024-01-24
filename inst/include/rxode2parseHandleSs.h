@@ -142,6 +142,7 @@ extern "C" {
                                 double *dur,
                                 double *dur2,
                                 int *canBreak,
+                                double *curLagExtra,
                                 solveWith1Pt_fn solveWith1Pt);
 
   typedef void (*handleSSinf8_fn)(double *yp,
@@ -920,7 +921,9 @@ extern "C" {
                      &curIi,
                      &dur,
                      &dur2,
-                     &canBreak, solveWith1Pt);
+                     &canBreak,
+                     &curLagExtra,
+                     solveWith1Pt);
           *istate=1;
           // REprintf("Assign ind->ixds to %d (idx: %d) #6\n", ind->ixds, ind->idx);
           ssSaveSolveLast(ind, yp);

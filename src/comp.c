@@ -227,20 +227,22 @@ void solveSSinf_lin(double *yp,
                     double *dur,
                     double *dur2,
                     int *canBreak,
+                    double *curLagExtra,
                     solveWith1Pt_fn solveWith1Pt) {
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
   int linCmt = ind->linCmt;
   rx_solve *rx=(&rx_global);
   int central = 0;
-  int isModeled = ind->whI == EVIDF_MODEL_DUR_ON ||
-    ind->whI == EVIDF_MODEL_RATE_ON;
-  if (isModeled) {
-    int idx = ind->idx;
-    ind->idx=*bi;
-    ind->ixds = *infBixds;
-    handle_evid(getEvid(ind, ind->idose[*infBixds]), yp, *xout, ind);
-    ind->idx = idx;
-  }
+  int idx = ind->idx;
+  /* int idid=0; */
+  /* handle_evid3(ind, &xp, xout, yp, u_inis, &idid); */
+  /* REprintf("idx: %d isModeled: %d isSsLag: %d\n", */
+  /*          ind->idx, */
+  /*          isModeled, isSsLag); */
+  ind->idx=*bi;
+  ind->ixds = *infBixds;
+  handle_evid(getEvid(ind, ind->idose[*infBixds]), yp, *xout, ind);
+  ind->idx = idx;
   if (rx->linKa) {
     // has depot
     if (isSameTime(ind->InfusionRate[op->neq], 0.0)) {
@@ -265,11 +267,16 @@ void solveSSinf_lin(double *yp,
                         &(lin->ka), &(lin->k10));
         break;
       }
-      double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
-      if (lag + *dur < *curIi) {
+      if (*curLagExtra > 0) {
+        double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
+        if (lag + *dur < *curIi) {
+          ind->InfusionRate[op->neq] = 0.0;
+        }
+        ind->InfusionRate[op->neq+1] = 0.0;
+      } else {
         ind->InfusionRate[op->neq] = 0.0;
+        ind->InfusionRate[op->neq+1] = 0.0;
       }
-      ind->InfusionRate[op->neq+1] = 0.0;
       return;
     }
   }
@@ -289,10 +296,14 @@ void solveSSinf_lin(double *yp,
                       &(lin->ka), &(lin->k10));
     break;
   }
-  double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
-  // lag + dur < ii
-  if (lag + *dur < *curIi) {
-    // should be off
+  if (*curLagExtra > 0) {
+    double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
+    // lag + dur < ii
+    if (lag + *dur < *curIi) {
+      // should be off
+      ind->InfusionRate[op->neq + central] = 0.0;
+    }
+  } else {
     ind->InfusionRate[op->neq + central] = 0.0;
   }
 }
@@ -473,7 +484,7 @@ double linCmtCompA(rx_solve *rx, unsigned int id, double _t, int linCmt,
   if (!op->badSolve) {
     ind->idx = i;
     if (getEvid(ind, ind->ix[i]) == 3){
-      handle_evid3(ind, neq, &xp, &xout, yp, u_inis_lincmt, &istate);
+      handle_evid3(ind, &xp, &xout, yp, u_inis_lincmt, &istate);
     } else if (handleEvid1(&i, rx, neq, yp, &xout)){
       handleSS(neq, ind->BadDose, ind->InfusionRate, ind->dose, yp, xout,
                xp, ind->id, &i, ind->n_all_times, &istate, op, ind, u_inis_lincmt, ctx);
