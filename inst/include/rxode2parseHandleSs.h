@@ -893,6 +893,13 @@ extern "C" {
             // adjust start time for modeled w/ssLag
             startTimeD = getTime_(ind->idose[infFixds],ind);
           }
+          if (isModeled) {
+            int idx = ind->idx;
+            ind->idx=bi;
+            ind->ixds = infBixds;
+            handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
+            ind->idx = idx;
+          }
           solveSSinf(yp,
                      &xout, xp,
                      i,

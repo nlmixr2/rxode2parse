@@ -104,19 +104,19 @@ void solveWith1Pt_lin(double *yp,
   switch(rx->linNcmt) {
   case 3:
     ret = comp1solve3(yp + linCmt, &xout, &xp, // last time
-                      ind->InfusionRate, // rate in central compartment
+                      ind->InfusionRate + op->neq, // rate in central compartment
                       &(lin->ka),  &(lin->k10),
                       &(lin->k12), &(lin->k21),
                       &(lin->k13), &(lin->k31));
     break;
   case 2:
     ret = comp1solve2(yp + linCmt, &xout, &xp,
-                      ind->InfusionRate, // rate in central compartment
+                      ind->InfusionRate + op->neq, // rate in central compartment
                       &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
     ret = comp1solve1(yp + linCmt, &xout, &xp, // last time
-                      ind->InfusionRate, &(lin->ka), &(lin->k10));
+                      ind->InfusionRate + op->neq, &(lin->ka), &(lin->k10));
     break;
   }
   if (ret == 0) {
@@ -265,16 +265,16 @@ void solveSSinf_lin(double *yp,
       // depot infusion
       switch(rx->linNcmt) {
       case 3:
-        comp3ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate,
+        comp3ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate + op->neq,
                         &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                         &(lin->k13), &(lin->k31));
         break;
       case 2:
-        comp2ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate,
+        comp2ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate + op->neq,
                         &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
         break;
       case 1:
-        comp1ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate,
+        comp1ssInfDepot(yp + linCmt, dur, curIi, ind->InfusionRate + op->neq,
                         &(lin->ka), &(lin->k10));
         break;
       }
@@ -289,16 +289,16 @@ void solveSSinf_lin(double *yp,
   // central
   switch(rx->linNcmt) {
   case 3:
-    comp3ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate,
+    comp3ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate + op->neq,
                       &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21),
                       &(lin->k13), &(lin->k31));
     break;
   case 2:
-    comp2ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate,
+    comp2ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate + op->neq,
                       &(lin->ka), &(lin->k10), &(lin->k12), &(lin->k21));
     break;
   case 1:
-    comp1ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate,
+    comp1ssInfCentral(&central, yp + linCmt, dur, curIi, ind->InfusionRate + op->neq,
                       &(lin->ka), &(lin->k10));
     break;
   }
