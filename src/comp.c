@@ -254,6 +254,15 @@ void solveSSinf_lin(double *yp,
   int linCmt = ind->linCmt;
   rx_solve *rx=(&rx_global);
   int central = 0;
+  int isModeled = ind->whI == EVIDF_MODEL_DUR_ON ||
+    ind->whI == EVIDF_MODEL_RATE_ON;
+  if (isModeled) {
+    int idx = ind->idx;
+    ind->idx=*bi;
+    ind->ixds = *infBixds;
+    handle_evid(getEvid(ind, ind->idose[*infBixds]), yp, *xout, ind);
+    ind->idx = idx;
+  }
   if (rx->linKa) {
     // has depot
     if (isSameTime(ind->InfusionRate[op->neq], 0.0)) {

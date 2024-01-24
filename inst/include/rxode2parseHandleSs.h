@@ -776,6 +776,9 @@ extern "C" {
           xout2 = xp2 + curIi - curLagExtra;
           // Use "real" xout for handle_evid functions.
           *istate=1;
+          if (ind->cmt < op->neq) {
+            handle_evid(getEvid(ind, ind->ix[bi]),yp, xout, ind);
+          }
           // yp is last solve or y0
           solveWith1Pt(yp, xout2, xp2, i, istate, op, ind, u_inis, ctx);
           for (int cur = 0; cur < overIi; ++cur) {
@@ -892,13 +895,6 @@ extern "C" {
           if (isModeled && isSsLag) {
             // adjust start time for modeled w/ssLag
             startTimeD = getTime_(ind->idose[infFixds],ind);
-          }
-          if (isModeled) {
-            int idx = ind->idx;
-            ind->idx=bi;
-            ind->ixds = infBixds;
-            handle_evid(getEvid(ind, ind->idose[infBixds]), yp, xout, ind);
-            ind->idx = idx;
           }
           solveSSinf(yp,
                      &xout, xp,
