@@ -22,6 +22,45 @@ solveEqual <- function(id) {
           ggtitle(paste0("id=", id, "; red=solved; blue: NONMEM")))
 }
 
+# FIXME
+
+solveEqual(9)
+
+solveEqual(10)
+
+fsolveEqual(12)
+
+solveEqual(102)
+
+solveEqual(109)
+
+solveEqual(110)
+
+solveEqual(210)
+
+solveEqual(225)
+
+solveEqual(310)
+
+solveEqual(325)
+
+solveEqual(410)
+
+solveEqual(510)
+
+solveEqual(525)
+
+solveEqual(610)
+
+
+#?
+solveEqual(415)
+solveEqual(425)
+solveEqual(609)
+solveEqual(725)
+
+
+# Fixed
 
 solveEqual(1)
 
@@ -39,7 +78,7 @@ solveEqual(7)
 
 solveEqual(8)
 
-solveEqual(9)
+solveEqual(11)
 
 solveEqual(13)
 
@@ -50,6 +89,8 @@ solveEqual(16)
 solveEqual(17)
 
 solveEqual(18)
+
+solveEqual(19)
 
 solveEqual(20)
 
@@ -65,19 +106,32 @@ solveEqual(25)
 
 solveEqual(26)
 
+solveEqual(111)
 
-# FIXME
+solveEqual(125)
 
-solveEqual(10)
+solveEqual(211)
 
-solveEqual(11)
+solveEqual(311)
 
-solveEqual(12)
+solveEqual(411)
 
-solveEqual(19)
+solveEqual(509)
 
+solveEqual(625)
 
+solveEqual(709)
 
+solveEqual(809)
+
+solveEqual(909)
+
+solveEqual(1009)
+
+# ?
+solveEqual(409)
+
+solveEqual(825)
 
 
 ## id <- unique(d$id)
