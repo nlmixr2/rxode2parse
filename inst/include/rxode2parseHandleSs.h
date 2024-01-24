@@ -704,7 +704,14 @@ extern "C" {
         curLagExtra = curLagExtra - overIi*curIi;
       }
       // First Reset
-      for (j = neq[0]; j--;) {
+      int nReset = neq[0];
+      switch(rx->op->extraCmt) {
+      case 2:
+        nReset+=1;
+      case 1:
+        nReset+=1;
+      }
+      for (j = nReset; j--;) {
         ind->InfusionRate[j] = 0;
         // ind->on[j] = 1; // nonmem doesn't reset on according to doc
       }
@@ -1070,7 +1077,6 @@ extern "C" {
     *xp=*xout;
     ind->ixds++;
   }
-
 
 #undef max2
 #undef badSolveExit
