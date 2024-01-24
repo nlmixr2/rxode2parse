@@ -1047,23 +1047,23 @@ extern "C" {
     }
   }
 
-  static inline void handle_evid3(rx_solving_options_ind *ind, int *neq, double *xp, double *xout,
+  static inline void handle_evid3(rx_solving_options_ind *ind, double *xp, double *xout,
                                   double *yp, t_update_inis u_inis, int *idid) {
     rx_solve *rx = &rx_global;
     rx_solving_options *op = &op_global;
     ind->curShift -= rx->maxShift;
-    for (int j = neq[0]; j--;) {
+    for (int j = op->neq; j--;) {
       ind->InfusionRate[j] = 0;
       ind->on[j] = 1;
       ind->cacheME=0;
     }
-    cancelInfusionsThatHaveStarted(ind, neq[1], *xout);
-    cancelPendingDoses(ind, neq[1]);
-    memcpy(yp, op->inits, neq[0]*sizeof(double));
-    u_inis(neq[1], yp); // Update initial conditions @ current time
+    cancelInfusionsThatHaveStarted(ind, ind->id, *xout);
+    cancelPendingDoses(ind, ind->id);
+    memcpy(yp, op->inits, op->neq*sizeof(double));
+    u_inis(ind->id, yp); // Update initial conditions @ current time
     if (op->extraCmt) {
-      double *ypLin = yp + neq[0];
-      double *iLin = ind->InfusionRate + neq[0];
+      double *ypLin = yp + op->neq;
+      double *iLin = ind->InfusionRate + op->neq;
       switch(op->extraCmt) {
       case 2:
         ypLin[0] =ypLin[1] = iLin[0] = iLin[1] = 0.0;
