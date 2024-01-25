@@ -89,6 +89,13 @@ extern "C" double linCmtB(rx_solve *rx, unsigned int id,
                           double dd_F2, double dd_rate2, double dd_dur2){
   Rcpp::stop("no linCmtB builtin, probably using intel's compilers try clang/gcc");
 }
+
+extern "C" SEXP _rxode2parse_linCmtB() {
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(ret)[0] = 0;
+  UNPROTECT(1);
+  return ret;
+}
 #else
 //================================================================================
 // Solved systems with gradient
@@ -117,6 +124,13 @@ extern "C" double linCmtB(rx_solve *rx, unsigned int id,
 #define _locateTimeIndex _rxode2parse_locateTimeIndex
 
 #include "../inst/include/rxode2parse.h"
+
+extern "C" SEXP _rxode2parse_linCmtB() {
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(ret)[0] = 1;
+  UNPROTECT(1);
+  return ret;
+}
 extern "C" void _rxode2parse_unprotect();
 
 extern "C" {
