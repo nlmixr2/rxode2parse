@@ -1,15 +1,17 @@
-//#undef NDEBUG
-#ifndef NDEBUG
-#define NDEBUG // just in case
+#if defined(__INTEL_LLVM_COMPILER)
+#define rxode2parseNoLinCmtB
 #endif
-#define USE_FC_LEN_T
-#define STRICT_R_HEADERS
-#include <stan/math.hpp>
+
+//#undef NDEBUG
+#ifdef rxode2parseNoLinCmtB
+//================================================================================
+// NO solved systems with gradient
+//================================================================================
 #ifndef NDEBUG
 #define NDEBUG // just in case
 #endif
 #include <Rcpp.h>
-#include <RcppEigen.h>
+
 
 #define op_global _rxode2parse_op_global
 #define rx_global _rxode2parse_rx_global
@@ -40,7 +42,7 @@ extern "C" {
   t_getTime _rxode2parse_getTime;
   t_locateTimeIndex _rxode2parse_locateTimeIndex;
   t_handle_evidL _rxode2parse_handle_evidL;
-  t_getDur _rxode2parse_getDur;  
+  t_getDur _rxode2parse_getDur;
 }
 #define _getDur _rxode2parse_getDur
 
@@ -51,7 +53,113 @@ extern "C" void _rxode2parse_assignFuns2(rx_solve rx,
                                          t_F f,
                                          t_LAG lag,
                                          t_RATE rate,
-                                         t_DUR dur, 
+                                         t_DUR dur,
+                                         t_calc_mtime mtime,
+                                         t_ME me,
+                                         t_IndF indf,
+                                         t_getTime gettime,
+                                         t_locateTimeIndex timeindex,
+                                         t_handle_evidL handleEvid,
+                                         t_getDur getdur) {
+  _rxode2parse_rx_global = rx;
+  _rxode2parse_op_global = op;
+  AMT = f;
+  LAG = lag;
+  RATE = rate;
+  DUR = dur;
+  calc_mtime = mtime;
+  ME = me;
+  IndF = indf;
+  _rxode2parse_getTime = gettime;
+  _rxode2parse_locateTimeIndex = timeindex;
+  _rxode2parse_handle_evidL=handleEvid;
+  _rxode2parse_getDur=getdur;
+}
+
+extern "C" double linCmtB(rx_solve *rx, unsigned int id,
+                          double _t, int linCmt,
+                          int ncmt, int trans, int val,
+                          double dd_p1, double dd_v1,
+                          double dd_p2, double dd_p3,
+                          double dd_p4, double dd_p5,
+                          double dd_tlag, double dd_F,
+                          double dd_rate, double dd_dur,
+                          // oral extra parameters
+                          double dd_ka, double dd_tlag2,
+                          double dd_F2, double dd_rate2, double dd_dur2){
+  Rcpp::stop("no linCmtB builtin, probably using intel's compilers try clang/gcc");
+}
+
+extern "C" SEXP _rxode2parse_linCmtB() {
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(ret)[0] = 0;
+  UNPROTECT(1);
+  return ret;
+}
+#else
+//================================================================================
+// Solved systems with gradient
+//================================================================================
+#ifndef NDEBUG
+#define NDEBUG // just in case
+#endif
+#define USE_FC_LEN_T
+#define STRICT_R_HEADERS
+#include <stan/math.hpp>
+#ifndef NDEBUG
+#define NDEBUG // just in case
+#endif
+#include <Rcpp.h>
+#include <RcppEigen.h>
+
+#define op_global _rxode2parse_op_global
+#define rx_global _rxode2parse_rx_global
+#define AMT _rxode2parse_AMT
+#define LAG _rxode2parse_LAG
+#define RATE _rxode2parse_RATE
+#define DUR _rxode2parse_DUR
+#define calc_mtime _rxode2parse_calc_mtime
+#define getTime_ _rxode2parse_getTime_
+#define getTime _rxode2parse_getTime
+#define _locateTimeIndex _rxode2parse_locateTimeIndex
+
+#include "../inst/include/rxode2parse.h"
+
+extern "C" SEXP _rxode2parse_linCmtB() {
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(ret)[0] = 1;
+  UNPROTECT(1);
+  return ret;
+}
+extern "C" void _rxode2parse_unprotect();
+
+extern "C" {
+  rx_solving_options _rxode2parse_op_global;
+  rx_solve _rxode2parse_rx_global;
+  t_F AMT = NULL;
+  t_LAG LAG = NULL;
+  t_RATE RATE = NULL;
+  t_DUR DUR = NULL;
+  t_calc_mtime calc_mtime = NULL;
+
+  t_ME ME = NULL;
+  t_IndF IndF = NULL;
+
+  t_getTime _rxode2parse_getTime;
+  t_locateTimeIndex _rxode2parse_locateTimeIndex;
+  t_handle_evidL _rxode2parse_handle_evidL;
+  t_getDur _rxode2parse_getDur;
+}
+#define _getDur _rxode2parse_getDur
+
+extern "C" void RSprintf(const char *format, ...);
+
+extern "C" void _rxode2parse_assignFuns2(rx_solve rx,
+                                         rx_solving_options op,
+                                         t_F f,
+                                         t_LAG lag,
+                                         t_RATE rate,
+                                         t_DUR dur,
                                          t_calc_mtime mtime,
                                          t_ME me,
                                          t_IndF indf,
@@ -1018,7 +1126,7 @@ namespace stan {
 	eB0*(ka*(Al12*beta2 - beta*Al123) + Al23*beta2 - beta3*A2last) +
 	eKa0*(ka*k32 - ka2);
       Al12 =  Al12*k23;
-      A3 = eB0*(A3last*(ka*beta2-ka*E2*beta+ E2*beta2 - beta3) - ka*Al12*beta  + k23*beta2*A2last) 
+      A3 = eB0*(A3last*(ka*beta2-ka*E2*beta+ E2*beta2 - beta3) - ka*Al12*beta  + k23*beta2*A2last)
 	-eA0*(ka*alpha2*A3last - ka*E2*alpha*A3last - ka*Al12*alpha + E2*alpha2*A3last + k23*alpha2*A2last-alpha3*A3last)+
 	eKa0*ka*k23;
 #undef E2
@@ -2848,56 +2956,56 @@ extern "C" double linCmtB(rx_solve *rx, unsigned int id,
       if (op->linBflag & 64) { // tlag
 	A[cur++] = updateDiff(rx, id, _t, 7, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cTlag, op->hTlag, v0);
       }
       if (op->linBflag & 128) { // f 8
 	A[cur++] = updateDiff(rx, id, _t, 8, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cF, op->hF, v0);
       }
       if (op->linBflag & 256) { // rate 9
 	A[cur++] = updateDiff(rx, id, _t, 9, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cRate, op->hRate, v0);
       }
       if (op->linBflag & 512) { // dur 10
 	A[cur++] = updateDiff(rx, id, _t, 10, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cDur, op->hDur, v0);
       }
       if (op->linBflag & 2048) { // tlag2 12
 	A[cur++] = updateDiff(rx, id, _t, 12, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cTlag2, op->hTlag2, v0);
       }
       if (op->linBflag & 4096) { // f2 13
 	A[cur++] = updateDiff(rx, id, _t, 13, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cF2, op->hF2, v0);
       }
       if (op->linBflag & 8192) { // rate2 14
 	A[cur++] = updateDiff(rx, id, _t, 14, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cRate2, op->hRate2, v0);
       }
       if (op->linBflag & 16384) { // dur2 15
 	A[cur++] = updateDiff(rx, id, _t, 15, linCmt, ncmt, trans,
 			      dd_p1, dd_v1, dd_p2, dd_p3, dd_p4, dd_p5,
-			      dd_tlag, dd_F, dd_rate, dd_dur, 
+			      dd_tlag, dd_F, dd_rate, dd_dur,
 			      dd_ka, dd_tlag2, dd_F2,  dd_rate2, dd_dur2,
 			      op->cDur2, op->hDur2, v0);
       }
@@ -2931,3 +3039,4 @@ extern "C" double linCmtB(rx_solve *rx, unsigned int id,
     Rf_errorcall(R_NilValue, "unsupported sensitivity");
   }
 }
+#endif
