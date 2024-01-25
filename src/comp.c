@@ -228,6 +228,7 @@ void solveSSinf_lin(double *yp,
                     double *dur2,
                     int *canBreak,
                     double *curLagExtra,
+                    int *isSsLag,
                     solveWith1Pt_fn solveWith1Pt) {
   lin_context_c_t *lin =  (lin_context_c_t*)(ctx);
   int linCmt = ind->linCmt;
@@ -267,15 +268,18 @@ void solveSSinf_lin(double *yp,
                         &(lin->ka), &(lin->k10));
         break;
       }
-      if (*curLagExtra > 0) {
-        double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
-        if (lag + *dur < *curIi) {
-          ind->InfusionRate[op->neq] = 0.0;
+      if (*isSsLag) {
+        if (*curLagExtra > 0) {
+          double lag = getLag(ind, ind->id, ind->cmt, 0.0);
+          if (lag + *dur < *curIi) {
+            ind->InfusionRate[op->neq] = 0.0;
+          }
+          ind->InfusionRate[op->neq+1] = 0.0;
+        } else {
+          ind->InfusionRate[op->neq] = ind->InfusionRate[op->neq+1] = 0.0;
         }
-        ind->InfusionRate[op->neq+1] = 0.0;
       } else {
-        ind->InfusionRate[op->neq] = 0.0;
-        ind->InfusionRate[op->neq+1] = 0.0;
+        ind->InfusionRate[op->neq] = ind->InfusionRate[op->neq+1] = 0.0;
       }
       return;
     }
@@ -296,15 +300,17 @@ void solveSSinf_lin(double *yp,
                       &(lin->ka), &(lin->k10));
     break;
   }
-  if (*curLagExtra > 0) {
-    double lag = getLag(ind, ind->id, ind->cmt, getAllTimes(ind, ind->idx));
-    // lag + dur < ii
-    if (lag + *dur < *curIi) {
-      // should be off
+  if (*isSsLag) {
+    if (*curLagExtra > 0) {
+      double lag = getLag(ind, ind->id, ind->cmt, 0.0);
+      // lag + dur < ii
+      if (lag + *dur < *curIi) {
+        // should be off
+        ind->InfusionRate[op->neq + central] = 0.0;
+      }
+    } else {
       ind->InfusionRate[op->neq + central] = 0.0;
     }
-  } else {
-    ind->InfusionRate[op->neq + central] = 0.0;
   }
 }
 
