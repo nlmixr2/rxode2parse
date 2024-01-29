@@ -1320,10 +1320,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
           Rf_setAttrib(dvidTrans, R_ClassSymbol, wrap("data.frame"));
           Rf_setAttrib(dvidTrans, R_RowNamesSymbol,
                        IntegerVector::create(NA_INTEGER, -dvidDF.size()));
-          Rprintf(_("'DVID'/'CMT' translation:\n"));
+          Rprintf("%s", _("'DVID'/'CMT' translation:\n"));
           print(dvidTrans);
           if (dvidCol != -1){
-            Rprintf(("'DVID': %d\t"), inDvid[i]);
+            Rprintf("'DVID': %d\t", inDvid[i]);
           }
           Rprintf("'CMT': %d\n", cmt);
           stop(_("'dvid'->'cmt' or 'cmt' on observation record on a undefined compartment (use 'cmt()' 'dvid()') id: %s row: %d"),
