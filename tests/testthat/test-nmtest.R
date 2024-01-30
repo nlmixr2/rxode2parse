@@ -9,7 +9,8 @@ names(d) <- sub("lagt", "lagcentral",
 p <- TRUE
 library(ggplot2)
 
-solveEqual <- function(id) {
+solveEqual <- function(id, modifyData = c("none", "dur", "rate"),
+                       addlKeepsCov = TRUE, addlDropSs=TRUE, ss2cancelAllPending=FALSE) {
   d2 <- d[d$id == id,]
   s1 <- linCmt(d2, cl=1.1, v=20, ka=1.5, sm=1000) |>
     dplyr::filter(EVID == 0) |>
@@ -21,6 +22,114 @@ solveEqual <- function(id) {
           geom_line(data=d2, aes(time, cp), col="blue", lty=2, linewidth=1.2) +
           ggtitle(paste0("id=", id, "; red=solved; blue: NONMEM"))
 }
+
+solveEqual <- function(id, plot = p, modifyData = c("none", "dur", "rate"),
+                       addlKeepsCov = TRUE, addlDropSs=TRUE, ss2cancelAllPending=FALSE, tol=0.01) {
+  hasRate <- any(d[d$id == id & d$evid != 0,]$rate != 0)
+  hasModeledRate <- any(d[d$id == id & d$evid != 0,]$mode == 1)
+  hasModeledDur  <- any(d[d$id == id & d$evid != 0, ]$mode == 2)
+  hasChangedF <- any(d[d$id == id & d$evid != 0, ]$bioav != 1)
+  modifyData <- match.arg(modifyData)
+  d <- d[d$id == id,]
+  rate <- unlist(as.vector(d[d$evid != 0, "rate"]))
+  ii0 <- all(d$ii == 0)
+  oneRate <- (length(rate) == 1L)
+  dose1 <- all(d[d$evid != 0, ]$cmt == 1)
+  if (!addlDropSs) {
+    if (any(d$ss == 2)) {
+      return()
+    }
+  }
+  if (modifyData == "rate" && hasRate && !hasModeledRate && !hasModeledDur && oneRate && !ii0 && !dose1) {
+    if (p) message("modified rate to be modeled")
+    rate <- d[d$evid != 0, "rate", drop=FALSE]
+    rate <- rate$rate
+    if (length(rate) == 1) {
+      d$ratecentral <- rate
+      d$rate <- ifelse(d$rate==0, 0, -1)
+      d$mode <- 1
+    }
+    ## print(etTrans(d, f, addlDropSs=addlDropSs))
+  } else if (modifyData == "dur" && hasRate && !hasModeledRate && !hasModeledDur && !hasChangedF && oneRate && !ii0 && !dose1) {
+    if (p) message("modified dur to be modeled")
+    rate <- as.numeric(d[d$evid != 0, "rate"])
+    amt <- as.numeric(d[d$evid != 0, "amt"])
+    if (length(rate) == 1) {
+      d$durcentral <- amt/rate
+      d$ratecentral <- ifelse(d$rate==0, 0, -2)
+      d$mode <- 2
+      assign(".d", d, envir=globalenv())
+    }
+  } else if (any(modifyData == c("dur", "rate"))) {
+    if (p) {
+      message("skipping because cannot be modified")
+      print(list(modifyData=modifyData,
+                 hasRate=hasRate,
+                 hasModeledRate=hasModeledRate,
+                 hasModeledDur= hasModeledDur,
+                 hasChangedF=hasChangedF))
+    }
+    return(invisible())
+  }
+  ## if (plot) {
+  ## print(etTrans(d, fl))
+  if (p) {
+    print(d[d$evid != 0, ])
+    s1 <- linCmt(d, cl=1.1, v=20, ka=1.5, sm=1000,
+                 addlKeepsCov = addlKeepsCov, addlDropSs=addlDropSs,
+                 ss2cancelAllPending=ss2cancelAllPending) |>
+      dplyr::filter(EVID == 0)
+    print(ggplot(data=s1, aes(TIME, Cc)) +
+            geom_line(col="blue") +
+            geom_point(data=d, aes(x=time, y=cp), col="red") +
+            theme_bw() +
+            ggtitle(paste0("id=", id, " NONMEM: blue; rxode2: red; modify:",  modifyData, " addlDropSs: ", addlDropSs)))
+  }
+  ## } else {
+    sub <- 0
+    if (id %in% c(410, 411, 409, 415, 709, 510, 610)) {
+      sub <- 24
+    }
+    if (id %in% c(809, 909, 1009)) {
+      sub <- 48
+    }
+    if (id %in% 825) {
+      sub <- 96
+    }
+    test_that(paste0("nmtest id:", id, " alag; modifyData:", modifyData,"; addlDropSs: ", addlDropSs),
+    {
+      s1 <- linCmt(d, cl=1.1, v=20, ka=1.5, sm=1000,
+                   addlKeepsCov = addlKeepsCov, addlDropSs=addlDropSs,
+                   ss2cancelAllPending=ss2cancelAllPending) |>
+        dplyr::filter(EVID == 0)
+      expect_equal(s1$Cc[s1$TIME >= sub],
+                   d[d$id == id & d$evid == 0 & d$time >= sub,]$cp)
+    })
+  ## }
+}
+
+id <- unique(d$id)
+
+#p <- FALSE
+env <- new.env(parent=emptyenv())
+env$err <- data.frame(i=integer(0), modifyData=character(0),
+                      addlDropSs=logical(0))
+
+lapply(id, function(i) {
+  modDat <- c("none", "rate", "dur")
+  for (modifyData in modDat) {
+    for (addlDropSs in c(TRUE, FALSE)) {
+      message("modDat: ", modifyData, " addlDropSs: ", addlDropSs, " i: ", i)
+      t <- try(solveEqual(i, modifyData=modifyData, addlDropSs=addlDropSs))
+      if (inherits(t, "try-error")) {
+        env$err <- rbind(env$err,
+                         data.frame(i=i, modifyData=modifyData,
+                                    addlDropSs=addlDropSs))
+      }
+    }
+  }
+})
+
 
 # FIXME
 
@@ -42,16 +151,10 @@ solveEqual(410)
 
 solveEqual(510)
 
-
-
 solveEqual(610)
-
-
 
 #?
 solveEqual(415)
-
-
 
 # Fixed
 
