@@ -398,11 +398,10 @@ void __assignFuns2(rx_solve rx,
                    t_IndF indf,
                    t_getTime gettime,
                    t_locateTimeIndex timeindex,
-                   t_handle_evidL handleEvid,
-                   t_getDur getdur) {
+                   t_handle_evidL handleEvid) {
   // assign start
   static rxode2_assignFuns2 rxode2parse_assignFuns2 = NULL;
   if (rxode2parse_assignFuns2 == NULL) rxode2parse_assignFuns2 = (rxode2_assignFuns2)(R_GetCCallable("rxode2parse", "_rxode2parse_assignFuns2"));
-  rxode2parse_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid, getdur);
+  rxode2parse_assignFuns2(rx, op, f, lag, rate, dur, mtime, me, indf, gettime, timeindex, handleEvid);
   // assign stop
 }

@@ -2,6 +2,11 @@
 #define STRICT_R_HEADERS
 #include "genModelVars.h"
 
+extern int alagLin0;
+extern int alagLin1;
+extern int foundLinCmt;
+
+
 SEXP _rxode2parse_getUdf(void);
 SEXP generateModelVars(void) {
   calcExtracmt();
@@ -117,10 +122,40 @@ SEXP generateModelVars(void) {
   SET_STRING_ELT(names, 18, mkChar("slhs"));
   SET_VECTOR_ELT(lst,   18, slhs);
 
-  SEXP alagVarSexp = PROTECT(allocVector(INTSXP, tb.alagn));pro++;
+  int extraAlag = 0;
+  int extraAlagAlloc = 0;
+  if (alagLin0) {
+    extraAlagAlloc++;
+  }
+  if (alagLin1) {
+    extraAlagAlloc++;
+  }
+  SEXP alagVarSexp = PROTECT(allocVector(INTSXP, tb.alagn+extraAlagAlloc));pro++;
   int *alagVar = INTEGER(alagVarSexp);
+  extraAlagAlloc = 0;
+  if (foundLinCmt) {
+    if (tb.hasKa) {
+      // depot + central
+      extraAlag = 2;
+      if (alagLin0) {
+        alagVar[extraAlagAlloc] = 1;
+        extraAlagAlloc++;
+      }
+      if (alagLin1) {
+        alagVar[extraAlagAlloc] = 2;
+        extraAlagAlloc++;
+      }
+    } else {
+      // central
+      extraAlag = 1;
+      if (alagLin0) {
+        alagVar[extraAlagAlloc] = 1;
+        extraAlagAlloc++;
+      }
+    }
+  }
   for (int i = 0; i < tb.alagn; ++i) {
-    alagVar[i] = tb.alag[i];
+    alagVar[extraAlagAlloc+i] = tb.alag[i] + extraAlag;
   }
   SET_STRING_ELT(names, 19, mkChar("alag"));
   SET_VECTOR_ELT(lst,   19, alagVarSexp);

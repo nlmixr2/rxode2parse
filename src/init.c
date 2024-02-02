@@ -12,6 +12,7 @@
 #include "tran.h"
 #include "../inst/include/rxode2parseSbuf.h"
 
+SEXP _rxode2parse_linCmtR1(SEXP, SEXP);
 SEXP _rxode2parse_codeLoaded(void);
 SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname, SEXP pMd5, SEXP timeId, SEXP lastMv, SEXP goodFuns);
 SEXP _rxode2parse_parseModel(SEXP type);
@@ -63,18 +64,17 @@ double linCmtB(rx_solve *rx, unsigned int id, double t, int linCmt,
                double dd_rate2, double dd_dur2);
 
 void _rxode2parse_assignFuns2(rx_solve rx,
-                            rx_solving_options op,
-                            t_F f,
-                            t_LAG lag,
-                            t_RATE rate,
-                            t_DUR dur,
-                            t_calc_mtime mtime,
-                            t_ME me,
-                            t_IndF indf,
-                            t_getTime gettime,
-                            t_locateTimeIndex timeindex,
-                            t_handle_evidL handleEvid,
-                            t_getDur getdur);
+                              rx_solving_options op,
+                              t_F f,
+                              t_LAG lag,
+                              t_RATE rate,
+                              t_DUR dur,
+                              t_calc_mtime mtime,
+                              t_ME me,
+                              t_IndF indf,
+                              t_getTime gettime,
+                              t_locateTimeIndex timeindex,
+                              t_handle_evidL handleEvid);
 
 SEXP _rxode2_parse_strncmpci(void);
 SEXP _rxode2parse_getWh(SEXP in);
@@ -101,7 +101,7 @@ int _rxode2parse_useForder(void);
 
 int get_sexp_uniqueL( SEXP s );
 
- SEXP _rxode2parse_funPtrs(void) {
+SEXP _rxode2parse_funPtrs(void) {
   int pro = 0;
   SEXP ret = PROTECT(allocVector(VECSXP, 7)); pro++;
   SET_VECTOR_ELT(ret, 0, R_MakeExternalPtrFn((DL_FUNC) &_rxode2parse_convertId_,
@@ -132,11 +132,21 @@ int get_sexp_uniqueL( SEXP s );
   UNPROTECT(pro);
   return(ret);
 }
-
+SEXP _rxode2parse_solComp3(SEXP sK10, SEXP sK12, SEXP sK21, SEXP sK13, SEXP sK31);
+SEXP _rxode2parse_solComp2(SEXP sK10, SEXP sK12, SEXP sK21);
+SEXP _rxode2parse_compC(SEXP in, SEXP mv);
 double _rxode2parse_evalUdf(const char *fun, int n, const double *args);
+
+SEXP _rxode2parse_solve1ptLin(SEXP in, SEXP tS, SEXP kaS, SEXP k10S, SEXP k12S,
+                              SEXP k21S, SEXP k13S, SEXP k31S, SEXP vS, SEXP rateS);
 
 void R_init_rxode2parse(DllInfo *info){
   R_CallMethodDef callMethods[]  = {
+    {"_rxode2parse_solve1ptLin", (DL_FUNC) &_rxode2parse_solve1ptLin, 10},
+    {"_rxode2parse_compC", (DL_FUNC) &_rxode2parse_compC, 2},
+    {"_rxode2parse_solComp3",(DL_FUNC)  &_rxode2parse_solComp3, 5},
+    {"_rxode2parse_solComp2",(DL_FUNC)  &_rxode2parse_solComp2, 3},
+    {"_rxode2parse_linCmtR1", (DL_FUNC) &_rxode2parse_linCmtR1, 2},
     {"_rxode2parse_linCmtB", (DL_FUNC) &_rxode2parse_linCmtB},
     {"_rxode2parse_convertId_", (DL_FUNC) &_rxode2parse_convertId_, 1},
     {"_rxode2parse_funPtrs", (DL_FUNC) &_rxode2parse_funPtrs, 0},
