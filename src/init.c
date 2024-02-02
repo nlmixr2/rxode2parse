@@ -17,6 +17,7 @@ SEXP _rxode2parse_codeLoaded(void);
 SEXP _rxode2parse_codegen(SEXP c_file, SEXP prefix, SEXP libname, SEXP pMd5, SEXP timeId, SEXP lastMv, SEXP goodFuns);
 SEXP _rxode2parse_parseModel(SEXP type);
 SEXP _rxode2parse_isLinCmt(void);
+SEXP _rxode2parse_linCmtB(void);
 
 void transIniNull(void);
 
@@ -146,6 +147,7 @@ void R_init_rxode2parse(DllInfo *info){
     {"_rxode2parse_solComp3",(DL_FUNC)  &_rxode2parse_solComp3, 5},
     {"_rxode2parse_solComp2",(DL_FUNC)  &_rxode2parse_solComp2, 3},
     {"_rxode2parse_linCmtR1", (DL_FUNC) &_rxode2parse_linCmtR1, 2},
+    {"_rxode2parse_linCmtB", (DL_FUNC) &_rxode2parse_linCmtB},
     {"_rxode2parse_convertId_", (DL_FUNC) &_rxode2parse_convertId_, 1},
     {"_rxode2parse_funPtrs", (DL_FUNC) &_rxode2parse_funPtrs, 0},
     {"_rxode2parse_rxEtTransAsDataFrame_", (DL_FUNC) &_rxode2parse_rxEtTransAsDataFrame_, 1},

@@ -1,3 +1,103 @@
+#if defined(__INTEL_LLVM_COMPILER)
+#define rxode2parseNoLinCmtB
+#endif
+
+//#undef NDEBUG
+#ifdef rxode2parseNoLinCmtB
+//================================================================================
+// NO solved systems with gradient
+//================================================================================
+#ifndef NDEBUG
+#define NDEBUG // just in case
+#endif
+#include <Rcpp.h>
+
+
+extern "C" {
+#define op_global _rxode2parse_op_global
+#define rx_global _rxode2parse_rx_global
+#define AMT _rxode2parse_AMT
+#define LAG _rxode2parse_LAG
+#define RATE _rxode2parse_RATE
+#define DUR _rxode2parse_DUR
+#define calc_mtime _rxode2parse_calc_mtime
+#define getTime_ _rxode2parse_getTime_
+#define getTime _rxode2parse_getTime
+#define _locateTimeIndex _rxode2parse_locateTimeIndex
+}
+
+#include "../inst/include/rxode2parse.h"
+extern "C" void _rxode2parse_unprotect();
+
+extern "C" {
+  rx_solving_options _rxode2parse_op_global;
+  rx_solve _rxode2parse_rx_global;
+  t_F AMT = NULL;
+  t_LAG LAG = NULL;
+  t_RATE RATE = NULL;
+  t_DUR DUR = NULL;
+  t_calc_mtime calc_mtime = NULL;
+
+  t_ME ME = NULL;
+  t_IndF IndF = NULL;
+
+  t_getTime _rxode2parse_getTime;
+  t_locateTimeIndex _rxode2parse_locateTimeIndex;
+  t_handle_evidL _rxode2parse_handle_evidL;
+  double _getDur(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);
+}
+
+extern "C" void RSprintf(const char *format, ...);
+
+extern "C" void _rxode2parse_assignFuns2(rx_solve rx,
+                                         rx_solving_options op,
+                                         t_F f,
+                                         t_LAG lag,
+                                         t_RATE rate,
+                                         t_DUR dur,
+                                         t_calc_mtime mtime,
+                                         t_ME me,
+                                         t_IndF indf,
+                                         t_getTime gettime,
+                                         t_locateTimeIndex timeindex,
+                                         t_handle_evidL handleEvid,
+                                         t_getDur getdur) {
+  _rxode2parse_rx_global = rx;
+  _rxode2parse_op_global = op;
+  AMT = f;
+  LAG = lag;
+  RATE = rate;
+  DUR = dur;
+  calc_mtime = mtime;
+  ME = me;
+  IndF = indf;
+  _rxode2parse_getTime = gettime;
+  _rxode2parse_locateTimeIndex = timeindex;
+  _rxode2parse_handle_evidL=handleEvid;
+  _rxode2parse_getDur=getdur;
+}
+
+extern "C" double linCmtB(rx_solve *rx, unsigned int id,
+                          double _t, int linCmt,
+                          int ncmt, int trans, int val,
+                          double dd_p1, double dd_v1,
+                          double dd_p2, double dd_p3,
+                          double dd_p4, double dd_p5,
+                          double dd_tlag, double dd_F,
+                          double dd_rate, double dd_dur,
+                          // oral extra parameters
+                          double dd_ka, double dd_tlag2,
+                          double dd_F2, double dd_rate2, double dd_dur2){
+  Rcpp::stop("no linCmtB builtin, probably using intel's compilers try clang/gcc");
+}
+
+extern "C" SEXP _rxode2parse_linCmtB() {
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(ret)[0] = 0;
+  UNPROTECT(1);
+  return ret;
+}
+#else
 //#undef NDEBUG
 #ifndef NDEBUG
 #define NDEBUG // just in case
@@ -71,6 +171,13 @@ extern "C" void _rxode2parse_assignFuns2(rx_solve rx,
   _rxode2parse_getTime = gettime;
   _rxode2parse_locateTimeIndex = timeindex;
   _rxode2parse_handle_evidL=handleEvid;
+}
+
+extern "C" SEXP _rxode2parse_linCmtB() {
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(ret)[0] = 1;
+  UNPROTECT(1);
+  return ret;
 }
 
 
@@ -2930,3 +3037,4 @@ extern "C" double linCmtB(rx_solve *rx, unsigned int id,
     Rf_errorcall(R_NilValue, "unsupported sensitivity");
   }
 }
+#endif
