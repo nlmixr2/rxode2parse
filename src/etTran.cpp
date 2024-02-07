@@ -1220,7 +1220,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     else caddl = inAddl[i];
     if (IntegerVector::is_na(caddl)) caddl = 0;
     // EVID flag
-    if (evidCol == -1){
+    if (evidCol == -1) {
       // Missing EVID
       if (rateI == 0 && (ISNA(camt) || camt == 0.0)){
         cevid = 0;
@@ -1252,7 +1252,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         cevid=0;
       }
     }
-    switch(cevid){
+    switch(cevid) {
     case 0:
       // Observation
       nobs++;

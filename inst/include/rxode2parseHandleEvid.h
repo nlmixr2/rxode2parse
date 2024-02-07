@@ -229,6 +229,13 @@ static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind
     }
     break;
   }
+  if (curDose[0] == 0.0 &&
+      getEvidP1(ind, ind->idx) == 2) {
+    // evid=2 can add zero dose to turn on a compartment;
+    // therefore if the current dose is zero and the next evid = 2
+    // don't treat it as a new dose.
+    return 0;
+  }
   return 1;
 }
 
