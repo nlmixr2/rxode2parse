@@ -18,7 +18,7 @@ d/dt(blood)     = a*intestine - b*blood
                   class = "data.frame",
                   row.names = c(NA,-6L))
   skip_on_cran()
-  
+
   expect_warning(expect_false(any(is.na(etTransParse(et, mod)$TIME))))
 })
 
@@ -139,7 +139,7 @@ d/dt(blood)     = a*intestine - b*blood
                        evid = c(1L, 2L, 2L)),
                   class = "data.frame",
                   row.names = c(NA, -3L))
-  
+
   test_that("error for negative non ODE compartments", {
     expect_error(etTransParse(et, mod, keepDosingOnly = TRUE))
     et$cmt <- factor(et$cmt)
@@ -534,7 +534,7 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   test_that("dat3 has evid w/amt 0", {
-    expect_equal(dat3$EVID, c(101L, 2L, 0L, 0L, 0L, 101L, 2L, 0L, 0L, 0L))
+    expect_equal(dat3$EVID, c(160L, 2L, 0L, 0L, 0L, 160L, 2L, 0L, 0L, 0L))
     expect_equal(dat3$AMT, c(0, NA, NA, NA, NA, 0, NA, NA, NA, NA))
   })
 

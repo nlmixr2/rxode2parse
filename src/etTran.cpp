@@ -1220,7 +1220,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
     else caddl = inAddl[i];
     if (IntegerVector::is_na(caddl)) caddl = 0;
     // EVID flag
-    if (evidCol == -1){
+    if (evidCol == -1) {
       // Missing EVID
       if (rateI == 0 && (ISNA(camt) || camt == 0.0)){
         cevid = 0;
@@ -1252,7 +1252,7 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         cevid=0;
       }
     }
-    switch(cevid){
+    switch(cevid) {
     case 0:
       // Observation
       nobs++;
@@ -1417,10 +1417,10 @@ List etTransParse(List inData, List mv, bool addCmt=false,
         ndose++;
         // + cmt needs to turn on cmts.
         // This gives a zero dose to cmt
-        if (cmtCol != -1 && cmt > 0 && cmt <= baseSize){
+        if (cmtCol != -1 && cmt > 0 && cmt <= baseSize) {
           // Turn on state with dose
           id.push_back(cid);
-          evid.push_back(cevid);
+          evid.push_back(cevid-flg+60);
           cmtF.push_back(cmt);
           time.push_back(ctime);
           amt.push_back(0.0);

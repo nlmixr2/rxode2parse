@@ -99,6 +99,7 @@ extern "C" {
 // xx = 30, Turn off compartment
 // xx = 40, Steady state constant infusion
 // xx = 50, Phantom event, used for transit compartments
+// xx = 60, Dose that does not track as a dose turn on system
 // Steady state events need a II data item > 0
 #define EVID0_REGULAR  1
 #define EVID0_RATEADJ 2
@@ -110,7 +111,7 @@ extern "C" {
 #define EVID0_OFF 30
 #define EVID0_SSINF 40
 #define EVID0_PHANTOM 50
-
+#define EVID0_ONDOSE 60
 
 static inline void getWh(int evid, int *wh, int *cmt, int *wh100, int *whI, int *wh0){
   *wh = evid;
@@ -228,6 +229,12 @@ static inline int handleTlastInlineUpateDosingInformation(rx_solving_options_ind
       }
     }
     break;
+  }
+  if (ind->wh0 == EVID0_ONDOSE) {
+    // evid=2 can add zero dose to turn on a compartment;
+    // therefore if the current dose is zero and the next evid = 2
+    // don't treat it as a new dose.
+    return 0;
   }
   return 1;
 }
