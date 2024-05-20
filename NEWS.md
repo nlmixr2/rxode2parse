@@ -1,6 +1,7 @@
-# rxode2parse (development version)
+# rxode2parse 2.0.19
 
 * Added a evid suffix of 60 for cases where evid=2 adds an on event
+  (fixes tad() calculation in certain edge cases)
 
 * Initialize all variables to `NA`
 
