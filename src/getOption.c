@@ -8,7 +8,7 @@
 int R_get_option(const char *option, int def) {
   SEXP s, t;
   int ret, pro=0;
-  PROTECT(t = s = allocList(3));pro++;
+  PROTECT(t = s = LCONS(R_NilValue, allocList(2)));pro++;
   SET_TYPEOF(s, LANGSXP);
   SETCAR(t, install("getOption")); t = CDR(t);
   SETCAR(t, mkString(option)); t = CDR(t);
