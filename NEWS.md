@@ -1,3 +1,15 @@
+# rxode2parse (development version)
+
+* As requested by CRAN remove the C code `SET_TYPEOF` which is no
+  longer part of the C R API.
+
+# rxode2parse 2.0.19
+
+* Added a evid suffix of 60 for cases where evid=2 adds an on event
+  (fixes tad() calculation in certain edge cases)
+
+* Initialize all variables to `NA`
+
 # rxode2parse 2.0.18
 
 * Removed linear compartment solutions with gradients from rxode2parse

@@ -152,7 +152,7 @@ static inline void printParamLags(char *buf, int *j) {
   sAppendN(&sbOut, "#define last_", 13);
   doDot(&sbOut, buf);
   sAppend(&sbOut, "1(x) _getParCov(_cSub, _solveData, %d, (&_solveData->subjects[_cSub])->n_all_times - 1)\n", *j);
-  
+
   sAppendN(&sbOut, "#undef lead_", 12);
   doDot(&sbOut, buf);
   sAppendN(&sbOut, "1\n", 2);
@@ -169,14 +169,14 @@ static inline void printParamLags(char *buf, int *j) {
 
   sAppendN(&sbOut, "#undef lag_", 11);
   doDot(&sbOut, buf);
-  sAppendN(&sbOut, "1\n", 2);  
+  sAppendN(&sbOut, "1\n", 2);
   sAppendN(&sbOut, "#define lag_", 12);
   doDot(&sbOut, buf);
   sAppend(&sbOut, "1(x) _getParCov(_cSub, _solveData, %d, (&_solveData->subjects[_cSub])->idx - 1)\n", *j);
 
   sAppendN(&sbOut, "#undef lag_", 11);
   doDot(&sbOut, buf);
-  sAppendN(&sbOut, "\n", 1);  
+  sAppendN(&sbOut, "\n", 1);
   sAppendN(&sbOut, "#define lag_", 12);
   doDot(&sbOut, buf);
   sAppend(&sbOut, "(x,y) _getParCov(_cSub, _solveData, %d, (&_solveData->subjects[_cSub])->idx - (y))\n", *j);
@@ -219,7 +219,7 @@ static inline void printDoubleDeclaration(char *buf) {
       !strcmp("rx_hi_", buf) || !strcmp("rx_low_", buf)){
     sAppendN(&sbOut, "__", 2);
   }
-  sAppendN(&sbOut, ";\n", 2);
+  sAppendN(&sbOut, " = NA_REAL;\n", 12);
 }
 
 static inline void printVoidDeclaration(char *buf) {

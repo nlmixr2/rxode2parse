@@ -1,6 +1,6 @@
 Package: rxode2parse
 Title: Parsing and Code Generation Functions for 'rxode2'
-Version: 2.0.18
+Version: 2.0.19.9000
 Authors@R: c(
     person("Matthew L.", "Fidler", , "matthew.fidler@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-8538-6691")),
@@ -16,7 +16,7 @@ Maintainer: Matthew L. Fidler <matthew.fidler@gmail.com>
 Description: Provides the parsing needed for 'rxode2' (Wang, Hallow and
     James (2016) <doi:10.1002/psp4.12052>). It also provides the 'stan'
     based advan linear compartment model solutions with gradients
-    (Carpenter et al (2015), <arXiv:1509.07164>) needed in 'nlmixr2'
+    (Carpenter et al (2015), <doi:10.48550/arXiv.1509.07164>) needed in 'nlmixr2'
     (Fidler et al (2019) <doi:10.1002/psp4.12445>).
     This split will reduce computational burden of recompiling 'rxode2'.
 License: GPL (>= 3)

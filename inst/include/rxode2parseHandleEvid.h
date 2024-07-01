@@ -79,28 +79,29 @@ extern "C" {
 
 #define EVIDF_MODEL_RATE_ON  9
 #define EVIDF_MODEL_RATE_OFF 7
-  //      0 = no Infusion
-  //      1 = Infusion, AMT=rate (mg/hr for instance)
-  //      2 = Infusion, duration is fixed
-  //      4 = Replacement event
-  //      5 = Multiplication event
-  //      6 = Turn off modeled duration
-  //      7 = Turn off modeled rate compartment
-  //      8 = Duration is modeled, AMT=dose; Rate = AMT/(Modeled Duration) NONMEM RATE=-2
-  //      9 = Rate is modeled, AMT=dose; Duration = AMT/(Modeled Rate) NONMEM RATE=-1
-  // c1 = Compartment numbers below 99
-  // xx =  1, regular event (no lag time)
-  // xx =  2, An infusion/rate event that doesn't look for start/end of infusion AND does not apply lags
-  // xx =  8, possibly turn off steady state infusion with lag time (needed in case spans dur)
-  // xx =  9, steady state event SS=1 with lag time
-  // xx = 10, steady state event SS=1 (no lag)
-  // xx = 19, steady state event at dose time (SS=2) with lag
-  // xx = 20, steady state event + last observed info (not lagged)
-  // xx = 21, steady state event at dose time (with absorption lag) + last observed info
-  // xx = 30, Turn off compartment
-  // xx = 40, Steady state constant infusion
-  // xx = 50, Phantom event, used for transit compartments
-  // Steady state events need a II data item > 0
+//      0 = no Infusion
+//      1 = Infusion, AMT=rate (mg/hr for instance)
+//      2 = Infusion, duration is fixed
+//      4 = Replacement event
+//      5 = Multiplication event
+//      6 = Turn off modeled duration
+//      7 = Turn off modeled rate compartment
+//      8 = Duration is modeled, AMT=dose; Rate = AMT/(Modeled Duration) NONMEM RATE=-2
+//      9 = Rate is modeled, AMT=dose; Duration = AMT/(Modeled Rate) NONMEM RATE=-1
+// c1 = Compartment numbers below 99
+// xx =  1, regular event (no lag time)
+// xx =  2, An infusion/rate event that doesn't look for start/end of infusion AND does not apply lags
+// xx =  8, possibly turn off steady state infusion with lag time (needed in case spans dur)
+// xx =  9, steady state event SS=1 with lag time
+// xx = 10, steady state event SS=1 (no lag)
+// xx = 19, steady state event at dose time (SS=2) with lag
+// xx = 20, steady state event + last observed info (not lagged)
+// xx = 21, steady state event at dose time (with absorption lag) + last observed info
+// xx = 30, Turn off compartment
+// xx = 40, Steady state constant infusion
+// xx = 50, Phantom event, used for transit compartments
+// xx = 60, Dose that does not track as a dose turn on system
+// Steady state events need a II data item > 0
 #define EVID0_REGULAR  1
 #define EVID0_RATEADJ 2
 #define EVID0_INFRM 8
@@ -111,7 +112,7 @@ extern "C" {
 #define EVID0_OFF 30
 #define EVID0_SSINF 40
 #define EVID0_PHANTOM 50
-
+#define EVID0_ONDOSE 60
 
   static inline void getWh(int evid, int *wh, int *cmt, int *wh100, int *whI, int *wh0){
     *wh = evid;
@@ -356,10 +357,9 @@ extern "C" {
     }
   }
 
+
   static inline int syncIdx(rx_solving_options_ind *ind) {
     if (ind->idx < 0) return 1; // additional dose; technically the idx doesn't relate to idose/ix
-    if (ind->ixds >= ind->ndoses) ind->ixds=ind->ndoses-1;
-    else if (ind->ixds < 0) ind->ixds=0;
     if (ind->ix[ind->idx] != ind->idose[ind->ixds]) {
       // bisection https://en.wikipedia.org/wiki/Binary_search_algorithm
       int m = getDoseNumberFromIndex(ind, ind->ix[ind->idx]);

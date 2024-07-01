@@ -534,7 +534,7 @@ d/dt(blood)     = a*intestine - b*blood
   })
 
   test_that("dat3 has evid w/amt 0", {
-    expect_equal(dat3$EVID, c(101L, 2L, 0L, 0L, 0L, 101L, 2L, 0L, 0L, 0L))
+    expect_equal(dat3$EVID, c(160L, 2L, 0L, 0L, 0L, 160L, 2L, 0L, 0L, 0L))
     expect_equal(dat3$AMT, c(0, NA, NA, NA, NA, 0, NA, NA, NA, NA))
   })
 
