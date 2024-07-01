@@ -13,6 +13,7 @@
 #include <Rcpp.h>
 
 
+extern "C" {
 #define op_global _rxode2parse_op_global
 #define rx_global _rxode2parse_rx_global
 #define AMT _rxode2parse_AMT
@@ -23,6 +24,7 @@
 #define getTime_ _rxode2parse_getTime_
 #define getTime _rxode2parse_getTime
 #define _locateTimeIndex _rxode2parse_locateTimeIndex
+}
 
 #include "../inst/include/rxode2parse.h"
 extern "C" void _rxode2parse_unprotect();
@@ -42,9 +44,8 @@ extern "C" {
   t_getTime _rxode2parse_getTime;
   t_locateTimeIndex _rxode2parse_locateTimeIndex;
   t_handle_evidL _rxode2parse_handle_evidL;
-  t_getDur _rxode2parse_getDur;
+  double _getDur(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);
 }
-#define _getDur _rxode2parse_getDur
 
 extern "C" void RSprintf(const char *format, ...);
 
@@ -97,9 +98,7 @@ extern "C" SEXP _rxode2parse_linCmtB() {
   return ret;
 }
 #else
-//================================================================================
-// Solved systems with gradient
-//================================================================================
+//#undef NDEBUG
 #ifndef NDEBUG
 #define NDEBUG // just in case
 #endif
@@ -112,6 +111,7 @@ extern "C" SEXP _rxode2parse_linCmtB() {
 #include <Rcpp.h>
 #include <RcppEigen.h>
 
+extern "C" {
 #define op_global _rxode2parse_op_global
 #define rx_global _rxode2parse_rx_global
 #define AMT _rxode2parse_AMT
@@ -122,15 +122,9 @@ extern "C" SEXP _rxode2parse_linCmtB() {
 #define getTime_ _rxode2parse_getTime_
 #define getTime _rxode2parse_getTime
 #define _locateTimeIndex _rxode2parse_locateTimeIndex
+}
 
 #include "../inst/include/rxode2parse.h"
-
-extern "C" SEXP _rxode2parse_linCmtB() {
-  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
-  INTEGER(ret)[0] = 1;
-  UNPROTECT(1);
-  return ret;
-}
 extern "C" void _rxode2parse_unprotect();
 
 extern "C" {
@@ -148,9 +142,8 @@ extern "C" {
   t_getTime _rxode2parse_getTime;
   t_locateTimeIndex _rxode2parse_locateTimeIndex;
   t_handle_evidL _rxode2parse_handle_evidL;
-  t_getDur _rxode2parse_getDur;
+  double _getDur(int l, rx_solving_options_ind *ind, int backward, unsigned int *p);
 }
-#define _getDur _rxode2parse_getDur
 
 extern "C" void RSprintf(const char *format, ...);
 
@@ -165,8 +158,7 @@ extern "C" void _rxode2parse_assignFuns2(rx_solve rx,
                                          t_IndF indf,
                                          t_getTime gettime,
                                          t_locateTimeIndex timeindex,
-                                         t_handle_evidL handleEvid,
-                                         t_getDur getdur) {
+                                         t_handle_evidL handleEvid) {
   _rxode2parse_rx_global = rx;
   _rxode2parse_op_global = op;
   AMT = f;
@@ -179,7 +171,13 @@ extern "C" void _rxode2parse_assignFuns2(rx_solve rx,
   _rxode2parse_getTime = gettime;
   _rxode2parse_locateTimeIndex = timeindex;
   _rxode2parse_handle_evidL=handleEvid;
-  _rxode2parse_getDur=getdur;
+}
+
+extern "C" SEXP _rxode2parse_linCmtB() {
+  SEXP ret = PROTECT(Rf_allocVector(INTSXP, 1));
+  INTEGER(ret)[0] = 1;
+  UNPROTECT(1);
+  return ret;
 }
 
 
@@ -210,8 +208,8 @@ namespace stan {
     template<class T>
     Eigen::Matrix<T, Eigen::Dynamic, 2>
     micros2macros(const Eigen::Matrix<T, Eigen::Dynamic, 1>& p,
-		  const int& ncmt,
-		  const int& trans){
+                  const int& ncmt,
+                  const int& trans){
       Eigen::Matrix<T, Eigen::Dynamic, 2> g(ncmt,3);
       T btemp, ctemp, dtemp;
 #define p1    p[0]
@@ -236,24 +234,24 @@ namespace stan {
 #define k42   g(2, 1)
       switch (ncmt) {
       case 3: { // 3 compartment model
-	switch (trans){
-	case 1: // cl v q vp
-	  k = p1/v1; // k = CL/V
-	  v = v1;
-	  k12 = p2/v1; // k12 = Q/V
-	  k21 = p2/p3; // k21 = Q/Vp
-	  k13 = p4/v1; // k31 = Q2/V
-	  k31 = p4/p5; // k31 = Q2/Vp2
-	  break;
-	case 2: // k=(*p1) v=(*v1) k12=(*p2) k21=(*p3) k13=(*p4) k31=(*p5)
-	  k = p1;
-	  v = v1;
-	  k12 = p2;
-	  k21 = p3;
-	  k13 = p4;
-	  k31 = p5;
-	  break;
-	case 11:
+        switch (trans){
+        case 1: // cl v q vp
+          k = p1/v1; // k = CL/V
+          v = v1;
+          k12 = p2/v1; // k12 = Q/V
+          k21 = p2/p3; // k21 = Q/Vp
+          k13 = p4/v1; // k31 = Q2/V
+          k31 = p4/p5; // k31 = Q2/Vp2
+          break;
+        case 2: // k=(*p1) v=(*v1) k12=(*p2) k21=(*p3) k13=(*p4) k31=(*p5)
+          k = p1;
+          v = v1;
+          k12 = p2;
+          k21 = p3;
+          k13 = p4;
+          k31 = p5;
+          break;
+        case 11:
 #undef beta
 #define A (1/v1)
 #define B (p3)
@@ -261,30 +259,30 @@ namespace stan {
 #define alpha (p1)
 #define beta (p2)
 #define gamma (p4)
-	  v=1/(A+B+C);
-	  btemp = -(alpha*C + alpha*B + gamma*A + gamma*B + beta*A + beta*C)*v;
-	  ctemp = (alpha*beta*C + alpha*gamma*B + beta*gamma*A)*v;
-	  dtemp = sqrt(btemp*btemp-4*ctemp);
-	  k21 = 0.5*(-btemp+dtemp);
-	  k31 = 0.5*(-btemp-dtemp);
-	  k   = alpha*beta*gamma/k21/k31;
-	  k12 = ((beta*gamma + alpha*beta + alpha*gamma) -
-		 k21*(alpha+beta+gamma) - k * k31 + k21*k21)/(k31 - k21);
-	  k13 = alpha + beta + gamma - (k + k12 + k21 + k31);
-	  break;
-	case 10:
+          v=1/(A+B+C);
+          btemp = -(alpha*C + alpha*B + gamma*A + gamma*B + beta*A + beta*C)*v;
+          ctemp = (alpha*beta*C + alpha*gamma*B + beta*gamma*A)*v;
+          dtemp = sqrt(btemp*btemp-4*ctemp);
+          k21 = 0.5*(-btemp+dtemp);
+          k31 = 0.5*(-btemp-dtemp);
+          k   = alpha*beta*gamma/k21/k31;
+          k12 = ((beta*gamma + alpha*beta + alpha*gamma) -
+                 k21*(alpha+beta+gamma) - k * k31 + k21*k21)/(k31 - k21);
+          k13 = alpha + beta + gamma - (k + k12 + k21 + k31);
+          break;
+        case 10:
 #undef A
 #define A v1
-	  v=1/(A+B+C);
-	  btemp = -(alpha*C + alpha*B + gamma*A + gamma*B + beta*A + beta*C)*v;
-	  ctemp = (alpha*beta*C + alpha*gamma*B + beta*gamma*A)*v;
-	  dtemp = sqrt(btemp*btemp-4*ctemp);
-	  k21 = 0.5*(-btemp+dtemp);
-	  k31 = 0.5*(-btemp-dtemp);
-	  k   = alpha*beta*gamma/k21/k31;
-	  k12 = ((beta*gamma + alpha*beta + alpha*gamma) -
-		 k21*(alpha+beta+gamma) - k * k31 + k21*k21)/(k31 - k21);
-	  k13 = alpha + beta + gamma - (k + k12 + k21 + k31);
+          v=1/(A+B+C);
+          btemp = -(alpha*C + alpha*B + gamma*A + gamma*B + beta*A + beta*C)*v;
+          ctemp = (alpha*beta*C + alpha*gamma*B + beta*gamma*A)*v;
+          dtemp = sqrt(btemp*btemp-4*ctemp);
+          k21 = 0.5*(-btemp+dtemp);
+          k31 = 0.5*(-btemp-dtemp);
+          k   = alpha*beta*gamma/k21/k31;
+          k12 = ((beta*gamma + alpha*beta + alpha*gamma) -
+                 k21*(alpha+beta+gamma) - k * k31 + k21*k21)/(k31 - k21);
+          k13 = alpha + beta + gamma - (k + k12 + k21 + k31);
 #undef A
 #undef B
 #undef C
@@ -292,92 +290,92 @@ namespace stan {
 #undef beta
 #undef gamma
 #define beta Rf_beta
-	  break;
-	}
+          break;
+        }
       } break;
       case 2:{ // 2 compartment model
-	switch (trans){
-	case 1: // cl=(*p1) v=(*v1) q=(*p2) vp=(*p3)
-	  k = p1/v1; // k = CL/V
-	  v = v1;
-	  k12 = p2/v1; // k12 = Q/V
-	  k21 = p2/p3; // k21 = Q/Vp
-	  break;
-	case 2: // k=(*p1), (*v1)=v k12=(*p2) k21=(*p3)
-	  k = p1;
-	  v = v1;
-	  k12 = p2;
-	  k21 = p3;
-	  break;
-	case 3: // cl=(*p1) v=(*v1) q=(*p2) vss=(*p3)
-	  k = p1/v1; // k = CL/V
-	  v = v1;
-	  k12 = p2/v1; // k12 = Q/V
-	  k21 = p2/(p3-v1); // k21 = Q/(Vss-V)
-	  break;
-	case 4: // alpha=(*p1) beta=(*p2) k21=(*p3)
-	  v = v1;
-	  k21 = p3;
-	  k = p1*p2/k21; // (*p1) = alpha (*p2) = beta
-	  k12 = p1 + p2 - k21 - k;
-	  break;
-	case 5: // alpha=(*p1) beta=(*p2) aob=(*p3)
-	  v=v1;
-	  k21 = (p3*p2+p1)/(p3+1);
-	  k = (p1*p2)/k21;
-	  k12 = p1+ p2 - k21 - k;
-	  break;
-	case 11: // A2 V, alpha=(*p1), beta=(*p2), k21
+        switch (trans){
+        case 1: // cl=(*p1) v=(*v1) q=(*p2) vp=(*p3)
+          k = p1/v1; // k = CL/V
+          v = v1;
+          k12 = p2/v1; // k12 = Q/V
+          k21 = p2/p3; // k21 = Q/Vp
+          break;
+        case 2: // k=(*p1), (*v1)=v k12=(*p2) k21=(*p3)
+          k = p1;
+          v = v1;
+          k12 = p2;
+          k21 = p3;
+          break;
+        case 3: // cl=(*p1) v=(*v1) q=(*p2) vss=(*p3)
+          k = p1/v1; // k = CL/V
+          v = v1;
+          k12 = p2/v1; // k12 = Q/V
+          k21 = p2/(p3-v1); // k21 = Q/(Vss-V)
+          break;
+        case 4: // alpha=(*p1) beta=(*p2) k21=(*p3)
+          v = v1;
+          k21 = p3;
+          k = p1*p2/k21; // (*p1) = alpha (*p2) = beta
+          k12 = p1 + p2 - k21 - k;
+          break;
+        case 5: // alpha=(*p1) beta=(*p2) aob=(*p3)
+          v=v1;
+          k21 = (p3*p2+p1)/(p3+1);
+          k = (p1*p2)/k21;
+          k12 = p1+ p2 - k21 - k;
+          break;
+        case 11: // A2 V, alpha=(*p1), beta=(*p2), k21
 #undef beta
 #define A (1/v1)
 #define B (p3)
 #define alpha (p1)
 #define beta (p2)
-	  v   = 1/(A+B);
-	  k21 = (A*beta + B*alpha)*v;
-	  k   = alpha*beta/k21;
-	  k12 = alpha+beta-k21-k;
-	  break;
-	case 10: // A=(*v1), alpha=(*p1), beta=(*p2), B=(*p3)
-	  // Convert to A (right now A=(*v1) or A=1/(*v1))
+          v   = 1/(A+B);
+          k21 = (A*beta + B*alpha)*v;
+          k   = alpha*beta/k21;
+          k12 = alpha+beta-k21-k;
+          break;
+        case 10: // A=(*v1), alpha=(*p1), beta=(*p2), B=(*p3)
+          // Convert to A (right now A=(*v1) or A=1/(*v1))
 #undef A
 #define A (v1)
-	  v   = 1/(A + B);
-	  k21 = (A*beta + B*alpha)*v;
-	  k   = alpha*beta/k21;
-	  k12 = alpha + beta - k21 - k;
+          v   = 1/(A + B);
+          k21 = (A*beta + B*alpha)*v;
+          k   = alpha*beta/k21;
+          k12 = alpha + beta - k21 - k;
 #undef A
 #undef B
 #undef alpha
 #undef beta
 #define beta Rf_beta
-	  break;
-	default:
-	  RSprintf(_("invalid trans (2 cmt trans %d)\n"), trans);
-	  return g;
-	}
+          break;
+        default:
+          RSprintf(_("invalid trans (2 cmt trans %d)\n"), trans);
+          return g;
+        }
       } break;
       case 1:{ // One compartment model
-	switch(trans){
-	case 1: // cl v
-	  k = p1/v1; // k = CL/V
-	  v = v1;
-	  break;
-	case 2: // k V
-	  k = p1;
-	  v = v1;
-	  break;
-	case 11: // alpha V
-	  k = p1;
-	  v = v1;
-	  break;
-	case 10: // alpha A
-	  k = p1;
-	  v = 1/v1;
-	  break;
-	default:
-	  return g;
-	}
+        switch(trans){
+        case 1: // cl v
+          k = p1/v1; // k = CL/V
+          v = v1;
+          break;
+        case 2: // k V
+          k = p1;
+          v = v1;
+          break;
+        case 11: // alpha V
+          k = p1;
+          v = v1;
+          break;
+        case 10: // alpha A
+          k = p1;
+          v = 1/v1;
+          break;
+        default:
+          return g;
+        }
       } break;
       }
 #undef p1
@@ -437,9 +435,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKaRateSSr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       A1 = r1/ka;
       A2 = r1/k20;
@@ -449,9 +447,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKaRateSSr2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate){
+                     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       A1 = 0;
       A2 = r2/k20;
@@ -461,10 +459,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKaRateSStr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-		      double tinf, double tau){
+                      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                      double tinf, double tau){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T eKa = exp(-ka*(tau-tinf))/(1.0-exp(-tau*ka));
       T eiKa = exp(-ka*tinf);
@@ -472,17 +470,17 @@ namespace stan {
       T eK = exp(-k20*(tau-tinf))/(1.0-exp(-tau*k20));
       A1=eKa*(r1/ka - eiKa*r1/ka);
       A2=eK*(r1/k20 + eiKa*r1/(-k20 + ka) - eiK*r1*ka/(ka*k20 - k20*k20)) +
-	ka*(eK - eKa)*(r1/ka - eiKa*r1/ka)/(-k20 + ka);
+        ka*(eK - eKa)*(r1/ka - eiKa*r1/ka)/(-k20 + ka);
       return A;
     }
 
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKaRateSStr2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-		      double tinf, double tau){
+                      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                      double tinf, double tau){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T eiK = exp(-k20*tinf);
       T eK = exp(-k20*(tau-tinf))/(1.0-exp(-k20*tau));
@@ -494,11 +492,11 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKaRate(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-		 Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                 Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T eKa = exp(-ka*t);
       T e20 = exp(-k20*t);
@@ -532,9 +530,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKaRateSSr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T s = k23+k32+k20;
       //#Calculate roots
@@ -549,9 +547,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKaRateSSr2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T s = k23+k32+k20;
       //#Calculate roots
@@ -566,10 +564,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKaRateSStr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-		      double tinf, double tau){
+                      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                      double tinf, double tau){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T s = k23+k32+k20;
       //#Calculate roots
@@ -602,10 +600,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKaRateSStr2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-		      double tinf, double tau) {
+                      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                      double tinf, double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E2 = k20+k23;
       T E3 = k32;
@@ -634,11 +632,11 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKaRate(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-		 Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                 Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E2 =  k20+ k23;
       T s = k23+k32+k20;
@@ -665,7 +663,7 @@ namespace stan {
       return A;
     }
 
-        // undefine extras
+    // undefine extras
 #undef tlag
 #undef F
 #undef rate1
@@ -674,7 +672,7 @@ namespace stan {
 #undef tlag2
 #undef f2
 #undef dur2
-        // three compartment ka translations ncmt=1
+    // three compartment ka translations ncmt=1
 #define tlag  pard(0,  0)
 #define F     pard(1,  0)
 #define rate1 pard(2,  0)
@@ -687,9 +685,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKaRateSSr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		       const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		       Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		       Eigen::Matrix<double, Eigen::Dynamic, 1>& rate){
+                       const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                       Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                       Eigen::Matrix<double, Eigen::Dynamic, 1>& rate){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       //##Calculate roots - see Upton, 2004
       T j = k23+k20+k32+k42+k24;
@@ -722,9 +720,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKaRateSSr2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		       const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		       Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		       Eigen::Matrix<double, Eigen::Dynamic, 1>& rate){
+                       const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                       Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                       Eigen::Matrix<double, Eigen::Dynamic, 1>& rate){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       T j = k23+k20+k32+k42+k24;
       T k = k23*k42+k20*k32+k20*k42+k32*k42+k24*k32;
@@ -756,10 +754,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKaRateSStr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-			const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-			Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-			Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-			double tinf, double tau) {
+                        const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                        Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                        Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                        double tinf, double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       T E2 =  k20+ k23 + k24;
       T E3 = k32;
@@ -821,10 +819,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKaRateSStr2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-			const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-			Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-			Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-			double tinf, double tau) {
+                        const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                        Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                        Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                        double tinf, double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       T E2 =  k20+ k23 + k24;
       T E3 = k32;
@@ -886,11 +884,11 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKaRate(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-		   Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		   Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                   Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+                   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                   Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       T E2 =  k20+ k23 + k24;
       //##Calculate roots - see Upton, 2004
@@ -952,7 +950,7 @@ namespace stan {
       return A;
     }
 
-        // undefine extras
+    // undefine extras
 #undef tlag
 #undef F
 #undef rate1
@@ -963,7 +961,7 @@ namespace stan {
 #undef dur2
 
 
-        // one compartment ka translations ncmt=1
+    // one compartment ka translations ncmt=1
 #define tlag  pard(0, 0)
 #define F     pard(1, 0)
 #define rate1 pard(2, 0)
@@ -977,10 +975,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKaSSb1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		 double tau) {
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                 double tau) {
 
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T eKa = 1.0/(1.0-exp(-tau*ka));
@@ -993,10 +991,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKaSSb2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		 double tau) {
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                 double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T eK =  1.0/(1.0-exp(-tau*k20));
       A1=0.0;
@@ -1007,10 +1005,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtKa(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-	     Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	     Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
+             Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+             const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+             Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+             Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T rx_expr_0=exp(-t*ka);
       A1=A1last*rx_expr_0+b1;
@@ -1042,10 +1040,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKaSSb1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		 double tau) {
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                 double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E2 = k20+k23;
       T E3 = k32;
@@ -1067,10 +1065,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKaSSb2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		 double tau) {
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                 double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E2 = k20+k23;
       T E3 = k32;
@@ -1093,10 +1091,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtKa(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-	     Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	     Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
+             Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+             const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+             Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+             Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
 #define E2 (k20+ k23)
 #define s  (k23+k32+k20)
@@ -1123,12 +1121,12 @@ namespace stan {
       A1 = b1 + eKa0*A1last;
       eKa0 = eKa0*A1last/(ka2 + beta*alpha - ka*(alpha + beta));
       A2 = b2 - eA0*(ka*(Al12*alpha2 - alpha*Al123) + Al23*alpha2 - alpha3*A2last) +
-	eB0*(ka*(Al12*beta2 - beta*Al123) + Al23*beta2 - beta3*A2last) +
-	eKa0*(ka*k32 - ka2);
+        eB0*(ka*(Al12*beta2 - beta*Al123) + Al23*beta2 - beta3*A2last) +
+        eKa0*(ka*k32 - ka2);
       Al12 =  Al12*k23;
       A3 = eB0*(A3last*(ka*beta2-ka*E2*beta+ E2*beta2 - beta3) - ka*Al12*beta  + k23*beta2*A2last)
-	-eA0*(ka*alpha2*A3last - ka*E2*alpha*A3last - ka*Al12*alpha + E2*alpha2*A3last + k23*alpha2*A2last-alpha3*A3last)+
-	eKa0*ka*k23;
+        -eA0*(ka*alpha2*A3last - ka*E2*alpha*A3last - ka*Al12*alpha + E2*alpha2*A3last + k23*alpha2*A2last-alpha3*A3last)+
+        eKa0*ka*k23;
 #undef E2
 #undef s
 #undef ka2
@@ -1161,10 +1159,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKaSSb1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		   Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		   double tau){
+                   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                   Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                   double tau){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       T E2 = k20+k23+k24;
       T E3 = k32;
@@ -1208,10 +1206,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKaSSb2(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		   Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		   double tau) {
+                   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                   Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                   double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       T E2 = k20+k23+k24;
       T E3 = k32;
@@ -1254,10 +1252,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtKa(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-	       Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	       const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	       Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	       Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
+               Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+               const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+               Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+               Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(4, 1);
       T E2 = k20+k23+k24;
       T E3 = k32;
@@ -1339,7 +1337,7 @@ namespace stan {
       return A;
     }
 
-            // undefine extras
+    // undefine extras
 #undef tlag
 #undef F
 #undef rate1
@@ -1350,7 +1348,7 @@ namespace stan {
 #undef dur2
 
 
-        // one compartment ka translations ncmt=1
+    // one compartment ka translations ncmt=1
 #define tlag  pard(0, 0)
 #define F     pard(1, 0)
 #define rate1 pard(2, 0)
@@ -1364,9 +1362,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtRateSSr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(1, 1);
       A1 = r1/k10;
       return A;
@@ -1375,10 +1373,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtRateSS(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-		 double tinf, double tau) {
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                 double tinf, double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(1, 1);
       T eiK = exp(-k10*tinf);
       T eK = exp(-k10*(tau-tinf))/(1.0-exp(-k10*tau));
@@ -1389,11 +1387,11 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtRate(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-	       Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	       const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	       Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	       Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-	       Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+               Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+               const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+               Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+               Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+               Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(1, 1);
       T eT = exp(-k10*t);
       A1 = r1/k10*(1-eT)+A1last*eT + b1;
@@ -1422,9 +1420,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtRateSSr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T E1 = k10+k12;
       T E2 = k21;
@@ -1442,10 +1440,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtRateSS(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-		 double tinf, double tau) {
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                 double tinf, double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       T E1 = k10+k12;
       T E2 = k21;
@@ -1468,11 +1466,11 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtRate(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-	       Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	       const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	       Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	       Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-	       Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+               Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+               const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+               Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+               Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+               Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       //#calculate hybrid rate constants
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
 #define E1 (k10+k12)
@@ -1529,9 +1527,9 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtRateSSr1(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                     const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                     Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                     Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E1 = k10+k12+k13;
       T E2 = k21;
@@ -1569,10 +1567,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtRateSS(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-		   double tinf, double tau){
+                   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+                   double tinf, double tau){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E1 = k10+k12+k13;
       T E2 = k21;
@@ -1615,11 +1613,11 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtRate(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-		 Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+                 Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+                 const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                 Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                 Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E1 = k10+k12+k13;
       T E2 = k21;
@@ -1718,10 +1716,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtBolusSS(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		  const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		  Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		  Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		  double tau) {
+                  const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                  Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                  Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                  double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(1, 1);
       T eT = 1.0/(1.0-exp(-k10*tau));
       A1 = b1*eT;
@@ -1731,10 +1729,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     oneCmtBolus(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-		Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
+                Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+                const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(1, 1);
       A1 = A1last*exp(-k10*t) + b1;
       return A;
@@ -1763,10 +1761,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtBolusSS(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		  const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		  Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		  Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		  double tau) {
+                  const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                  Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                  Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                  double tau) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
       /* T E1 = k10+k12; */
       T E2 = k21;
@@ -1788,10 +1786,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     twoCmtBolus(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-		Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
+                Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+                const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus) {
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(2, 1);
 #define E1 (k10+k12)
 #define E2 k21
@@ -1837,10 +1835,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtBolusSS(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		    const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		    Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		    Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-		    double tau){
+                    const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                    Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                    Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+                    double tau){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E1 = k10+k12+k13;
       T E2 = k21;
@@ -1882,10 +1880,10 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     threeCmtBolus(double t, Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-		  Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-		  const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-		  Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-		  Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus){
+                  Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+                  const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                  Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+                  Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus){
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(3, 1);
       T E1 = k10+k12+k13;
       T E2 = k21;
@@ -1960,101 +1958,101 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     ssRateTau(int ncmt, int oral0,
-	      Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	      const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	      Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	      Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
-	      double tinf, double tau) {
+              Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+              const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+              Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+              Eigen::Matrix<double, Eigen::Dynamic, 1>& rate,
+              double tinf, double tau) {
       if (oral0){
-	if (r1 > 0 ){
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKaRateSStr1(params, pard, g,rate, tinf, tau);
-	  } break;
-	  case 2: {
-	    return twoCmtKaRateSStr1(params, pard, g,rate, tinf, tau);
-	  } break;
-	  case 3: {
-	    return threeCmtKaRateSStr1(params, pard, g,rate, tinf, tau);
-	  } break;
-	  }
-	} else {
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKaRateSStr2(params, pard, g,rate, tinf, tau);
-	  } break;
-	  case 2: {
-	    return twoCmtKaRateSStr2(params, pard, g,rate, tinf, tau);
-	  } break;
-	  case 3: {
-	    return threeCmtKaRateSStr2(params, pard, g,rate, tinf, tau);
-	  } break;
-	  }
-	}
+        if (r1 > 0 ){
+          switch (ncmt){
+          case 1: {
+            return oneCmtKaRateSStr1(params, pard, g,rate, tinf, tau);
+          } break;
+          case 2: {
+            return twoCmtKaRateSStr1(params, pard, g,rate, tinf, tau);
+          } break;
+          case 3: {
+            return threeCmtKaRateSStr1(params, pard, g,rate, tinf, tau);
+          } break;
+          }
+        } else {
+          switch (ncmt){
+          case 1: {
+            return oneCmtKaRateSStr2(params, pard, g,rate, tinf, tau);
+          } break;
+          case 2: {
+            return twoCmtKaRateSStr2(params, pard, g,rate, tinf, tau);
+          } break;
+          case 3: {
+            return threeCmtKaRateSStr2(params, pard, g,rate, tinf, tau);
+          } break;
+          }
+        }
       } else {
-	switch (ncmt){
-	case 1: {
-	  return oneCmtRateSS(params, pard, g, rate, tinf, tau);
-	} break;
-	case 2: {
-	  return twoCmtRateSS(params, pard, g, rate, tinf, tau);
-	} break;
-	case 3: {
-	  return threeCmtRateSS(params, pard, g, rate, tinf, tau);
-	} break;
-	}
+        switch (ncmt){
+        case 1: {
+          return oneCmtRateSS(params, pard, g, rate, tinf, tau);
+        } break;
+        case 2: {
+          return twoCmtRateSS(params, pard, g, rate, tinf, tau);
+        } break;
+        case 3: {
+          return threeCmtRateSS(params, pard, g, rate, tinf, tau);
+        } break;
+        }
       }
       Rcpp::stop("bad ssRateTau; ncmt: %d  oral0: %d\n",
-		 ncmt, oral0);
+                 ncmt, oral0);
       return params;
     }
 
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     ssTau(int ncmt, int oral0,
-	  Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	  const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	  Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	  Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-	  double tau){
+          Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+          const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+          Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+          Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+          double tau){
       if (oral0){
-	if (b1 > 0 ){
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKaSSb1(params, pard, g, bolus, tau);
-	  } break;
-	  case 2: {
-	    return twoCmtKaSSb1(params, pard, g, bolus, tau);
-	  } break;
-	  case 3: {
-	    return threeCmtKaSSb1(params, pard, g, bolus, tau);
-	  } break;
-	  }
-	} else {
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKaSSb2(params, pard, g, bolus, tau);
-	  } break;
-	  case 2: {
-	    return twoCmtKaSSb2(params, pard, g, bolus, tau);
-	  } break;
-	  case 3: {
-	    return threeCmtKaSSb2(params, pard, g, bolus, tau);
-	  } break;
-	  }
-	}
+        if (b1 > 0 ){
+          switch (ncmt){
+          case 1: {
+            return oneCmtKaSSb1(params, pard, g, bolus, tau);
+          } break;
+          case 2: {
+            return twoCmtKaSSb1(params, pard, g, bolus, tau);
+          } break;
+          case 3: {
+            return threeCmtKaSSb1(params, pard, g, bolus, tau);
+          } break;
+          }
+        } else {
+          switch (ncmt){
+          case 1: {
+            return oneCmtKaSSb2(params, pard, g, bolus, tau);
+          } break;
+          case 2: {
+            return twoCmtKaSSb2(params, pard, g, bolus, tau);
+          } break;
+          case 3: {
+            return threeCmtKaSSb2(params, pard, g, bolus, tau);
+          } break;
+          }
+        }
       } else {
-	switch (ncmt){
-	case 1: {
-	  return oneCmtBolusSS(params, pard, g, bolus, tau);
-	} break;
-	case 2: {
-	  return twoCmtBolusSS(params, pard, g, bolus, tau);
-	} break;
-	case 3: {
-	  return threeCmtBolusSS(params, pard, g, bolus, tau);
-	} break;
-	}
+        switch (ncmt){
+        case 1: {
+          return oneCmtBolusSS(params, pard, g, bolus, tau);
+        } break;
+        case 2: {
+          return twoCmtBolusSS(params, pard, g, bolus, tau);
+        } break;
+        case 3: {
+          return threeCmtBolusSS(params, pard, g, bolus, tau);
+        } break;
+        }
       }
       Rcpp::stop("shouldn't get here");
       return params;
@@ -2063,48 +2061,48 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     ssRate(int ncmt, int oral0,
-	   Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	   const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	   Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	   Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+           Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+           const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+           Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+           Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       if (oral0){
-	if (r1 > 0){
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKaRateSSr1(params, pard, g, rate);
-	  } break;
-	  case 2: {
-	    return twoCmtKaRateSSr1(params, pard, g, rate);
-	  } break;
-	  case 3: {
-	    return threeCmtKaRateSSr1(params, pard, g, rate);
-	  } break;
-	  }
-	} else {
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKaRateSSr2(params, pard, g, rate);
-	  } break;
-	  case 2: {
-	    return twoCmtKaRateSSr2(params, pard, g, rate);
-	  } break;
-	  case 3: {
-	    return threeCmtKaRateSSr2(params, pard, g, rate);
-	  } break;
-	  }
-	}
+        if (r1 > 0){
+          switch (ncmt){
+          case 1: {
+            return oneCmtKaRateSSr1(params, pard, g, rate);
+          } break;
+          case 2: {
+            return twoCmtKaRateSSr1(params, pard, g, rate);
+          } break;
+          case 3: {
+            return threeCmtKaRateSSr1(params, pard, g, rate);
+          } break;
+          }
+        } else {
+          switch (ncmt){
+          case 1: {
+            return oneCmtKaRateSSr2(params, pard, g, rate);
+          } break;
+          case 2: {
+            return twoCmtKaRateSSr2(params, pard, g, rate);
+          } break;
+          case 3: {
+            return threeCmtKaRateSSr2(params, pard, g, rate);
+          } break;
+          }
+        }
       } else {
-	switch (ncmt){
-	case 1: {
-	  return oneCmtRateSSr1(params, pard, g, rate);
-	} break;
-	case 2: {
-	  return twoCmtRateSSr1(params, pard, g, rate);
-	} break;
-	case 3: {
-	  return threeCmtRateSSr1(params, pard, g, rate);
-	} break;
-	}
+        switch (ncmt){
+        case 1: {
+          return oneCmtRateSSr1(params, pard, g, rate);
+        } break;
+        case 2: {
+          return twoCmtRateSSr1(params, pard, g, rate);
+        } break;
+        case 3: {
+          return threeCmtRateSSr1(params, pard, g, rate);
+        } break;
+        }
       }
       Rcpp::stop("problem");
       return params;
@@ -2113,68 +2111,68 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, 1>
     doAdvan(int ncmt, int oral0,
-	    double tlast, double ct,
-	    Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
-	    Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-	    const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-	    Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
-	    Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
-	    Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
+            double tlast, double ct,
+            Eigen::Matrix<T, Eigen::Dynamic, 1>& Alast,
+            Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
+            const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+            Eigen::Matrix<T, Eigen::Dynamic, 2>& g,
+            Eigen::Matrix<double, Eigen::Dynamic, 1>& bolus,
+            Eigen::Matrix<double, Eigen::Dynamic, 1>& rate) {
       double t = ct - tlast;
       if (r1 > DBL_EPSILON  || (oral0 && r2 > DBL_EPSILON)){
-	if (oral0){
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKaRate(t, Alast, params, pard, g, bolus, rate);
-	  } break;
-	  case 2: {
-	    return twoCmtKaRate(t, Alast, params, pard, g, bolus, rate);
-	  } break;
-	  case 3: {
-	    return threeCmtKaRate(t, Alast, params, pard, g, bolus, rate);
-	  } break;
-	  }
-	} else {
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtRate(t, Alast, params, pard, g, bolus, rate);
-	  } break;
-	  case 2: {
-	    return twoCmtRate(t, Alast, params, pard, g, bolus, rate);
-	  } break;
-	  case 3: {
-	    return threeCmtRate(t, Alast, params, pard, g, bolus, rate);
-	  } break;
-	  }
-	}
+        if (oral0){
+          switch (ncmt){
+          case 1: {
+            return oneCmtKaRate(t, Alast, params, pard, g, bolus, rate);
+          } break;
+          case 2: {
+            return twoCmtKaRate(t, Alast, params, pard, g, bolus, rate);
+          } break;
+          case 3: {
+            return threeCmtKaRate(t, Alast, params, pard, g, bolus, rate);
+          } break;
+          }
+        } else {
+          switch (ncmt){
+          case 1: {
+            return oneCmtRate(t, Alast, params, pard, g, bolus, rate);
+          } break;
+          case 2: {
+            return twoCmtRate(t, Alast, params, pard, g, bolus, rate);
+          } break;
+          case 3: {
+            return threeCmtRate(t, Alast, params, pard, g, bolus, rate);
+          } break;
+          }
+        }
       } else {
-	// Bolus doses only
-	if (oral0){
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtKa(t, Alast, params, pard, g, bolus);
-	  } break;
-	  case 2: {
-	    return twoCmtKa(t, Alast, params, pard, g, bolus);
-	  } break;
-	  case 3: {
-	    return threeCmtKa(t, Alast, params, pard, g, bolus);
-	  } break;
-	  }
-	} else {
-	  // Bolus
-	  switch (ncmt){
-	  case 1: {
-	    return oneCmtBolus(t, Alast, params, pard, g, bolus);
-	  } break;
-	  case 2: {
-	    return twoCmtBolus(t, Alast, params, pard, g, bolus);
-	  } break;
-	  case 3: {
-	    return threeCmtBolus(t, Alast, params, pard, g, bolus);
-	  } break;
-	  }
-	}
+        // Bolus doses only
+        if (oral0){
+          switch (ncmt){
+          case 1: {
+            return oneCmtKa(t, Alast, params, pard, g, bolus);
+          } break;
+          case 2: {
+            return twoCmtKa(t, Alast, params, pard, g, bolus);
+          } break;
+          case 3: {
+            return threeCmtKa(t, Alast, params, pard, g, bolus);
+          } break;
+          }
+        } else {
+          // Bolus
+          switch (ncmt){
+          case 1: {
+            return oneCmtBolus(t, Alast, params, pard, g, bolus);
+          } break;
+          case 2: {
+            return twoCmtBolus(t, Alast, params, pard, g, bolus);
+          } break;
+          case 3: {
+            return threeCmtBolus(t, Alast, params, pard, g, bolus);
+          } break;
+          }
+        }
       }
       Rcpp::stop("doAdvan error; ncmt: %d, oral0: %d", ncmt, oral0);
       return params;
@@ -2201,7 +2199,7 @@ namespace stan {
 #undef r2
 #undef b1
 #undef b2
-      // undefine extras
+    // undefine extras
 #undef tlag
 #undef F
 #undef rate1
@@ -2223,42 +2221,42 @@ namespace stan {
     template <class T>
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>
     genericCmtInterface(Eigen::Matrix<T, Eigen::Dynamic, 1>& params,
-			const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
-			const double t,
-			const int oral0,
-			const int trans,
-			const int ncmt,
-			const int linCmt,
-			const int idx,
-			const int sameTime,
-			rx_solving_options_ind *ind,
-			rx_solve *rx,
-			const Eigen::Matrix<double, -1, -1>& AlastA,
-			const Eigen::Matrix<double, -1, -1>& AlastG){
+                        const Eigen::Matrix<double, Eigen::Dynamic, 1>& pard,
+                        const double t,
+                        const int oral0,
+                        const int trans,
+                        const int ncmt,
+                        const int linCmt,
+                        const int idx,
+                        const int sameTime,
+                        rx_solving_options_ind *ind,
+                        rx_solve *rx,
+                        const Eigen::Matrix<double, -1, -1>& AlastA,
+                        const Eigen::Matrix<double, -1, -1>& AlastG){
       rx_solving_options *op = rx->op;
       Eigen::Matrix<T, Eigen::Dynamic, 2> g(ncmt, 3);
       g = micros2macros(params, ncmt, trans);
       Eigen::Matrix<double, Eigen::Dynamic, 1> rate(oral0+1, 1);
       Eigen::Matrix<double, Eigen::Dynamic, 1> bolus(oral0+1, 1);
-      double *rateD = ind->linCmtRate;
+      double *rateD = ind->InfusionRate + op->neq;
       for (int i = oral0+1; i--; ){
-	bolus(i, 0) = 0.0;
-	rate(i, 0) = rateD[i];
+        bolus(i, 0) = 0.0;
+        rate(i, 0) = rateD[i];
       }
       Eigen::Matrix<T, Eigen::Dynamic, 1> Alast(oral0+ncmt, 1);
       Eigen::Matrix<T, Eigen::Dynamic, 1> A(oral0+ncmt, 1);
       for (int i = oral0+ncmt; i--;){
-	Alast(i, 0) = AlastA(i, 0) + params(0, 0)*AlastG(i, 0) + params(1, 0)*AlastG(i, 1);
-	if (ncmt >= 2) {
-	  Alast(i, 0) += params(2, 0)*AlastG(i, 2) + params(3, 0)*AlastG(i, 3);
-	  if (ncmt == 3) {
-	    Alast(i, 0) += params(4, 0)*AlastG(i, 4) + params(5, 0)*AlastG(i, 5);
-	  }
-	}
-	if (oral0) {
-	  Alast(i, 0) += params(2*ncmt, 0)*AlastG(i,2*ncmt);
-	}
-	A(i, 0) = 0.0;
+        Alast(i, 0) = AlastA(i, 0) + params(0, 0)*AlastG(i, 0) + params(1, 0)*AlastG(i, 1);
+        if (ncmt >= 2) {
+          Alast(i, 0) += params(2, 0)*AlastG(i, 2) + params(3, 0)*AlastG(i, 3);
+          if (ncmt == 3) {
+            Alast(i, 0) += params(4, 0)*AlastG(i, 4) + params(5, 0)*AlastG(i, 5);
+          }
+        }
+        if (oral0) {
+          Alast(i, 0) += params(2*ncmt, 0)*AlastG(i,2*ncmt);
+        }
+        A(i, 0) = 0.0;
       }
       double tlast;
       double curTime=0.0;
@@ -2269,14 +2267,14 @@ namespace stan {
       int evid, wh, cmt, wh100, whI, wh0, cmtOff;
       curTime = getTime_(ind->ix[idx], ind);
       if (idx == 0) {
-	tlast = curTime;
+        tlast = curTime;
       } else {
-	tlast = getTime_(ind->ix[idx-1], ind);
+        tlast = getTime_(ind->ix[idx-1], ind);
       }
       int extraAdvan = 1, doRate=0, doMultiply = 0, doReplace=0,
-	doInf=0;
-    evid = getEvid(ind, ind->ix[idx]);
-	if (isObs(evid)){
+        doInf=0;
+      evid = getEvid(ind, ind->ix[idx]);
+if (isObs(evid)){
 	} else if (evid == 3){
 	  // Reset event
 	  for (int i = oral0+ncmt; i--;){

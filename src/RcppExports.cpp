@@ -88,6 +88,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// linCmtR1
+Rcpp::List linCmtR1(int trans, Rcpp::List oneId);
+RcppExport SEXP _rxode2parse_linCmtR1(SEXP transSEXP, SEXP oneIdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type trans(transSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type oneId(oneIdSEXP);
+    rcpp_result_gen = Rcpp::wrap(linCmtR1(trans, oneId));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rxQs
 Rcpp::CharacterVector rxQs(SEXP const x);
 RcppExport SEXP _rxode2parse_rxQs(SEXP xSEXP) {

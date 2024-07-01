@@ -1,5 +1,5 @@
 test_that("test lag-time information parsing", {
-  
+
   m1 <- rxode2parse("KA=2.94E-01;
     CL=1.86E+01;
     V2=4.02E+01;
@@ -22,6 +22,27 @@ test_that("test lag-time information parsing", {
     d/dt(peri)  =                    Q*C2 - Q*C3;
     d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
     eff(0) = 1")
+  expect_equal(m1$alag, 1L)
+
+
+  m1 <- rxode2parse("KA=2.94E-01;
+    CL=1.86E+01;
+    V2=4.02E+01;
+    Q=1.05E+01;
+    V3=2.97E+02;
+    Kin=1;
+    Kout=1;
+    EC50=200;
+    fdepot = 1;
+    durDepot = 8;
+    rateDepot = 1250;
+    f(depot) = fdepot
+    dur(depot) = durDepot
+    rate(depot) = rateDepot
+    alag(depot) = alagDepot
+    C2 <- linCmt()
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    eff(0) = 1", linear=TRUE)
   expect_equal(m1$alag, 1L)
 
   m1 <- rxode2parse("KA=2.94E-01;
@@ -48,6 +69,27 @@ test_that("test lag-time information parsing", {
     eff(0) = 1")
   expect_equal(m1$alag, 2L)
 
+
+  m1 <- rxode2parse("KA=2.94E-01;
+    CL=1.86E+01;
+    V2=4.02E+01;
+    Q=1.05E+01;
+    V3=2.97E+02;
+    Kin=1;
+    Kout=1;
+    EC50=200;
+    fdepot = 1;
+    durDepot = 8;
+    rateDepot = 1250;
+    C2 = linCmt()
+    f(depot) = fdepot
+    dur(depot) = durDepot
+    rate(depot) = rateDepot
+    lag(central) = alagDepot
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    eff(0) = 1", linear=TRUE)
+  expect_equal(m1$alag, 2L)
+
   m1 <- rxode2parse("KA=2.94E-01;
     CL=1.86E+01;
     V2=4.02E+01;
@@ -71,6 +113,29 @@ test_that("test lag-time information parsing", {
     d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
     eff(0) = 1")
   expect_equal(m1$alag, 3L)
+
+  m1 <- rxode2parse("KA=2.94E-01;
+    CL=1.86E+01;
+    V2=4.02E+01;
+    Q=1.05E+01;
+    V3=2.97E+02;
+    Kin=1;
+    Kout=1;
+    EC50=200;
+    fdepot = 1;
+    durDepot = 8;
+    rateDepot = 1250;
+    C2 = centr/V2;
+    C3 = peri/V3;
+    f(depot) = fdepot
+    dur(depot) = durDepot
+    rate(depot) = rateDepot
+    C2 <- linCmt()
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    alag(eff) = alagDepot
+    eff(0) = 1", linear=TRUE)
+  expect_equal(m1$alag, 3L)
+
 
   m1 <- rxode2parse("KA=2.94E-01;
     CL=1.86E+01;
@@ -134,6 +199,28 @@ test_that("test lag-time information parsing", {
     fdepot = 1;
     durDepot = 8;
     rateDepot = 1250;
+    f(depot) = fdepot
+    dur(depot) = durDepot
+    rate(depot) = rateDepot
+    alag(depot) = alagDepot
+    alag(central) = alagDepot
+    C2 <- linCmt()
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    alag(eff) = alagDepot
+    eff(0) = 1", linear=TRUE)
+  expect_equal(m1$alag, 1:3)
+
+  m1 <- rxode2parse("KA=2.94E-01;
+    CL=1.86E+01;
+    V2=4.02E+01;
+    Q=1.05E+01;
+    V3=2.97E+02;
+    Kin=1;
+    Kout=1;
+    EC50=200;
+    fdepot = 1;
+    durDepot = 8;
+    rateDepot = 1250;
     C2 = centr/V2;
     C3 = peri/V3;
     d/dt(depot) =-KA*depot;
@@ -148,6 +235,28 @@ test_that("test lag-time information parsing", {
     alag(eff) = alagDepot
     eff(0) = 1")
   expect_equal(m1$alag, c(1L, 3:4))
+
+
+  m1 <- rxode2parse("KA=2.94E-01;
+    CL=1.86E+01;
+    V2=4.02E+01;
+    Q=1.05E+01;
+    V3=2.97E+02;
+    Kin=1;
+    Kout=1;
+    EC50=200;
+    fdepot = 1;
+    durDepot = 8;
+    rateDepot = 1250;
+    C2 = linCmt()
+    f(depot) = fdepot
+    dur(depot) = durDepot
+    rate(depot) = rateDepot
+    alag(depot) = alagDepot
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    alag(eff) = alagDepot
+    eff(0) = 1", linear=TRUE)
+  expect_equal(m1$alag, c(1L, 3L))
 
   m1 <- rxode2parse("KA=2.94E-01;
     CL=1.86E+01;
@@ -186,6 +295,28 @@ test_that("test lag-time information parsing", {
     fdepot = 1;
     durDepot = 8;
     rateDepot = 1250;
+    C2 = linCmt()
+    f(depot) = fdepot
+    dur(depot) = durDepot
+    rate(depot) = rateDepot
+    alag(central) = alagDepot
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    alag(eff) = alagDepot
+    eff(0) = 1", linear=TRUE)
+  expect_equal(m1$alag, 2:3)
+
+
+  m1 <- rxode2parse("KA=2.94E-01;
+    CL=1.86E+01;
+    V2=4.02E+01;
+    Q=1.05E+01;
+    V3=2.97E+02;
+    Kin=1;
+    Kout=1;
+    EC50=200;
+    fdepot = 1;
+    durDepot = 8;
+    rateDepot = 1250;
     C2 = centr/V2;
     C3 = peri/V3;
     d/dt(depot) =-KA*depot;
@@ -197,5 +328,26 @@ test_that("test lag-time information parsing", {
     d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
     eff(0) = 1")
   expect_equal(m1$alag, integer(0))
-  
+
+
+  m1 <- rxode2parse("KA=2.94E-01;
+    CL=1.86E+01;
+    V2=4.02E+01;
+    Q=1.05E+01;
+    V3=2.97E+02;
+    Kin=1;
+    Kout=1;
+    EC50=200;
+    fdepot = 1;
+    durDepot = 8;
+    rateDepot = 1250;
+    C2 = linCmt();
+    f(depot) = fdepot
+    dur(depot) = durDepot
+    rate(depot) = rateDepot
+    d/dt(eff)  = Kin - Kout*(1-C2/(EC50+C2))*eff;
+    eff(0) = 1", linear=TRUE)
+
+  expect_equal(m1$alag, integer(0))
+
 })

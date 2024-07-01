@@ -2,6 +2,8 @@
 
 extern sbuf sbExtra;
 extern D_Parser *curP;
+extern int alagLin0;
+extern int alagLin1;
 
 
 static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn1, D_ParseNode *xpn2) {
@@ -17,6 +19,7 @@ static inline void handleFunctionLinCmtAlag(transFunctions *tf, D_ParseNode *xpn
     // has interesting tlag
     if (foundLag == 0) needSort+=needSortAlag; // & 2 when alag
     foundLag=1;
+    alagLin0=1;
     sAppend(&sbExtra,"rxlin___=rxAlagLin(%s);\n", v2);
   }
 }
@@ -147,6 +150,7 @@ static inline void handleFunctionLinCmtKa(transFunctions *tf, D_ParseNode *xpn1,
     // has interesting tlag
     if (foundLag == 0) needSort+= needSortAlag; // & 2 when alag
     foundLag=1;
+    alagLin1=1;
     sAppend(&sbExtra,"rxlin___=rxAlag1Lin(%s);\n", v2);
   }
 }
@@ -257,6 +261,7 @@ static inline int handleFunctionLinCmt(transFunctions *tf) {
   if (handleFunctionLinCmtJitProp(tf)) return 1;
   if (!strcmp("linCmtA", tf->v) || !strcmp("linCmtC", tf->v) ||
       (tf->isLinB=!strcmp("linCmtB", tf->v))) {
+    foundLinCmt = 1;
     D_ParseNode *xpn1 = d_get_child(tf->pn, 3);
     D_ParseNode *xpn2 = d_get_child(xpn1, 1);
     char *v2 = (char*)rc_dup_str(xpn2->start_loc.s, xpn2->end);

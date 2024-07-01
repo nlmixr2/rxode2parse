@@ -89,6 +89,10 @@ convertId_ <- function(x) {
     .Call(`_rxode2parse_convertId_`, x)
 }
 
+linCmtR1 <- function(trans, oneId) {
+    .Call(`_rxode2parse_linCmtR1`, trans, oneId)
+}
+
 rxQs <- function(x) {
     .Call(`_rxode2parse_rxQs`, x)
 }

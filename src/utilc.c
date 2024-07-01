@@ -1,6 +1,6 @@
 #define USE_FC_LEN_T
 #define STRICT_R_HEADERS
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +34,6 @@
 #include "../inst/include/rxode2parse.h"
 extern rx_solve _rxode2parse_rx_global;
 extern t_handle_evidL _rxode2parse_handle_evidL;
-extern t_getDur _rxode2parse_getDur;
 
 #include "../inst/include/rxode2parseHandleEvid.h"
 
@@ -64,7 +63,7 @@ extern void RSprintf(const char *format, ...) {
       va_start(args, format);
       Rvprintf(format, args);
       va_end(args);
-    } 
+    }
   }
 }
 

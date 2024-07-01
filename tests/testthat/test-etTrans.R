@@ -1308,4 +1308,23 @@ d/dt(blood)     = a*intestine - b*blood
   expect_equal(tmp$EVID, c(90109L, 90101L, 70101L, 0L))
   expect_equal(tmp$AMT, c(100, 100, 100, NA))
   expect_equal(tmp$II, c(24, 0, 0, 0))
+
+
+  mod <- rxode2parse("
+ka <- 6
+kel <- 0.6
+v <-1
+Cc <- linCmt()
+alag(depot) = lag
+dur(depot) = di
+rate(depot) = ri
+", linear=TRUE)
+
+  tmp <- etTransParse(d, mod, addlDropSs=FALSE)
+
+  expect_equal(tmp$TIME, c(0, 0, 0, 1))
+  expect_equal(tmp$EVID, c(90109L, 90101L, 70101L, 0L))
+  expect_equal(tmp$AMT, c(100, 100, 100, NA))
+  expect_equal(tmp$II, c(24, 0, 0, 0))
+
 })
