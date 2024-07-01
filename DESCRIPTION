@@ -1,6 +1,6 @@
 Package: rxode2parse
 Title: Parsing and Code Generation Functions for 'rxode2'
-Version: 2.0.19
+Version: 2.0.19.9000
 Authors@R: c(
     person("Matthew L.", "Fidler", , "matthew.fidler@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-8538-6691")),
