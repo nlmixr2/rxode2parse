@@ -129,13 +129,18 @@ SEXP _rxode2parse_solve1ptLin(SEXP inp, SEXP tS, SEXP kaS, SEXP k10S,
   lin.k31 = REAL(k31S)[0];
   lin.v = REAL(vS)[0];
   lin.rate= REAL(rateS);
-  rx_solving_options *op = rx->op;
+  rx_solving_options *op = &(op_global);
+  rx->op = op;
   rx->linNcmt = Rf_length(inp) - lin.oral0;
-
   rx_solving_options_ind indR;
   indR.n_all_times = 1;
   double solve[1];
   solve[0] = 0.0;
+  double InfusionRate[2];
+  InfusionRate[0] = InfusionRate[1] = 0.0;
+  op->neq = 0; // no states by default
+  indR.bT = 0.0;
+  indR.InfusionRate = InfusionRate;
   indR.solve = solve;
   indR.linCmt = 0;//rx->linNcmt; // linNcmt
   SEXP ret = PROTECT(Rf_allocVector(REALSXP, Rf_length(inp)));
